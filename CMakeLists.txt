@@ -16,11 +16,15 @@ set(TARDIGRADE_BALANCE_EQUATIONS_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to
 
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_balance_of_mass")
 set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
 set(PROJECT_PRIVATE_HEADERS "")
 foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
     set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${package}.cpp ${package}.h)
     set(PROJECT_PRIVATE_HEADERS ${PROJECT_PRIVATE_HEADERS} ${package}.h)
+endforeach(package)
+foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
+    add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
 endforeach(package)
 if(TARDIGRADE_BALANCE_EQUATIONS_USE_LIBXSMM)
     message(STATUS "Using libxsmm for matrix math")
