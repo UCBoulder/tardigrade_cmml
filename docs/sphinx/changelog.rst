@@ -15,3 +15,7 @@ New Features
 - Removed mentions of tardigrade hydra from the readme (:pull:`2`). By `Nathan Miller`_.
 - Added the calculation of the balance of mass (:pull:`3`). By `Nathan Miller`_.
 - Added the calculation of the derivative of the spatial gradient of a quantity (:pull:`4`). By `Nathan Miller`_.
+
+Internal Changes
+================
+- Removed shared only library output (:pull:`5`). By `Nathan Miller`_.
