@@ -15,15 +15,15 @@
 .. _PEP-8: https://www.python.org/dev/peps/pep-0008/
 .. _pipreqs: https://github.com/bndr/pipreqs
 .. _LaTeX: https://www.latex-project.org/help/documentation/
-.. _upstream repository: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-hydra
+.. _upstream repository: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-balance-equations
 .. _Material Models: https://re-git.lanl.gov/aea/material-models
 .. _UNIX group: https://ddw-confluence.lanl.gov/pages/viewpage.action?pageId=150929410
 
 .. targets-end-do-not-remove
 
-################
-Tardigrade Hydra
-################
+############################
+Tardigrade Balance Equations
+############################
 
 *******************
 Project Description
@@ -31,21 +31,21 @@ Project Description
 
 .. project-brief-start-do-not-remove
 
-A C++ framework to develop finite deformation material models
+A C++ framework containing balance equation terms and their Jacobians
 
 .. project-brief-end-do-not-remove
 
 Information
 ===========
 
-* Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-hydra/
+* Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/
 
-* Wiki: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-hydra/-/wikis/home
+* Wiki: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-balance-equations/-/wikis/home
 
 Developers
 ==========
 
-* Nathan Miller: nathanm@lanl.gov
+* Nathan Miller: nathan.a.miller@colorado.edu
 
 ************
 Gitlab CI/CD
@@ -55,7 +55,7 @@ Gitlab CI/CD
 
     The repository setup has moved out of the README and into the HTML
     documentation. You can find the Gitlab project setup guide here:
-    https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-hydra/gitlab_setup.html
+    https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/gitlab_setup.html
 
 ************
 Dependencies
@@ -69,7 +69,14 @@ the following commands.
 
 .. code-block:: bash
 
-   $ conda create --name tardigrade-hydra-env --file environment.txt --channel file:///projects/aea_compute/aea-conda
+   $ conda create --name tardigrade-balance-equations-env --file environment.txt --channel file:///projects/aea_compute/aea-conda
+
+If there is difficulty with installing some of the dependencies, a reduced environment is provided that will attempt to
+build some of the repositories from source. This can be invoked using
+
+.. code-block:: bash
+
+   $ conda create --name tardigrade-balance-equations-env --file reduced_environment.txt --channel conda-forge
 
 You can learn more about Anaconda Python environment creation and management in
 the `Anaconda Documentation`_.
@@ -99,141 +106,12 @@ during the Gitlab-CI ``conda-build`` job to limit the test phase to the as-insta
 The build type can be set with the ``-DCMAKE_BUILD_TYPE=<build type string>`` during project configuration. Both build
 types will require the upstream dependent libraries
 
-* ``abaqus_tools``: https://re-git.lanl.gov/aea/material-models/abaqus_tools
 * ``error_tools``: https://re-git.lanl.gov/aea/material-models/error_tools
 
 to be installed and found in the user's environment. If the build type string doesn't match those previously listed, the
 CMake project will build missing upstream libraries with the `CMake fetch_content`_ feature. The 'conda-test' build type
 excludes the project libraries from the build configuration and will attempt to find the project libraries in the user's
 environment to perform the project unit and integration tests against the as-installed project files.
-
-Build on sstelmo
-================
-
-1) Activate the correct python environment
-
-   .. code-block:: bash
-
-      $ module use /projects/aea_compute/modulefiles
-      $ module load tardigrade-hydra-env
-
-2) Create a build directory
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/
-
-      $ mkdir build
-      $ cd build
-
-3) Configure ``cmake``
-
-       This step only needs to be performed once unless you need to specify a new CMake configuration for a re-build.
-       Most command line arguments and environment variables are stored in the CMake cache. Anything found in cache will
-       not be re-configured unless you build the ``rebuild_cache`` target or clobber the build directory.
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-      $ cmake ..
-
-4) Display target options
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-      $ cmake --build . --target help
-
-4) Build various portions of the project
-
-       Most of the project will re-build only as necessary after source updates. Some portions of the documentation
-       require a ``cmake --build . --target clean`` after documentation source file updates to force a re-build.
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-
-      # Build everything (either or)
-      $ cmake --build .
-      $ cmake --build . --target all
-
-      # Build the c++ primary libraries by target name(s)
-      $ cmake --build . --target tardigrade-hydra tardigrade-hydra_umat
-
-      # Build the c++ primary libraries by sub-directory
-      $ cmake --build src/cpp
-
-5) Locate build files
-
-       The build directory structure may change between version releases. Developers and users are encouraged to become
-       familiar with the bash ``find``, ``grep``, and ``tree`` commands to locate build files.
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-
-      # find c++ libraries and ignore intermediate files with similar extensions
-      $ find . \( -name "*.o" -o -name "*.so" -o -name "*.a" \) | grep -vE "\.cpp\."
-
-6) Clean build directory to force a re-build
-
-       **HEALTH WARNING**
-
-       The abaqus input files and bash scripts used for integration testing are
-       built with the `CMake add_custom_target`_ feature. Consequently, the integration
-       test target is *always considered out of date*. The integration test target
-       copies all registered input files and the integration test bash script from
-       source to build directory. This means the file copy operation is always
-       performed when the integration test target is requested in the cmake build
-       command, e.g. ``cmake --build .`` or ``cmake --build src/abaqus/tests``. This
-       operation is computationally inexpensive with respect to building the
-       ``tardigrade-hydra`` source code.
-
-       Input files are registered in the ``src/abaqus/tests/CMakeLists.txt`` file
-       under the ``ABAQUS_INPUT_FILES`` CMake variable.
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-
-      $ cmake --build . --target clean
-
-Test on sstelmo
-===============
-
-4) Build tests of the project
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-
-      # Build c++ and abaqus tests by target name(s)
-      $ cmake --build . --target test_tardigrade-hydra test_abaqus_integration
-
-      # Build c++ and abaqus tests by sub-directories
-      $ cmake --build src/cpp/tests
-      $ cmake --build src/abaqus/tests
-
-5) Run the tests
-
-   .. code-block:: bash
-
-      $ pwd
-      /path/to/tardigrade-hydra/build
-
-      # Run ctest
-      $ ctest
-
-      # Results print to screen
-      # View details of most recent test execution including failure messages
-      $ less Testing/Temporary/LastTest.log
 
 Building the documentation
 ==========================
@@ -242,7 +120,7 @@ Building the documentation
 
     The sphinx API docs are a work-in-progress. The doxygen API is much more useful.
 
-    * Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-hydra/doxygen
+    * Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/doxygen
 
 To build just the documentation pick up the steps here:
 
@@ -251,7 +129,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/
+      /path/to/tardigrade-balance-equations/
       $ mkdir build/
       $ cd build/
 
@@ -260,7 +138,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/build/
+      /path/to/tardigrade-balance-equations/build/
       $ cmake ..
 
 4) Build the docs
@@ -273,14 +151,14 @@ To build just the documentation pick up the steps here:
 
    .. code-block:: bash
 
-      tardigrade-hydra/build/docs/sphinx/html/index.html
+      tardigrade-balance-equations/build/docs/sphinx/html/index.html
 
 6) Display docs
 
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/build/
+      /path/to/tardigrade-balance-equations/build/
       $ firefox docs/sphinx/html/index.html &
 
 7) While the Sphinx API is still a WIP, try the doxygen API
@@ -288,7 +166,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/build/
+      /path/to/tardigrade-balance-equations/build/
       $ firefox docs/doxygen/html/index.html &
 
 *******************
@@ -302,7 +180,7 @@ Build the entire before performing the installation.
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/build
+      /path/to/tardigrade-balance-equations/build
       $ cmake --build .
 
 5) Install the library
@@ -310,7 +188,7 @@ Build the entire before performing the installation.
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-hydra/build
+      /path/to/tardigrade-balance-equations/build
       $ cmake --install . --prefix path/to/root/install
 
       # Example local user (non-admin) Linux install
