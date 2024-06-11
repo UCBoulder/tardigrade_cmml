@@ -16,7 +16,7 @@ set(TARDIGRADE_BALANCE_EQUATIONS_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to
 
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
-set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_balance_of_mass")
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_balance_of_mass" "tardigrade_finite_element_utilities")
 set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
 set(PROJECT_PRIVATE_HEADERS "")
 foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
