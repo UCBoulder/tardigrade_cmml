@@ -31,6 +31,11 @@ namespace tardigradeBalanceEquations{
         void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
                                    const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate );
 
+        void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
+                                   const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate,
+                                   floatType   &dCdRho, floatType         &dCdRhoDot, floatVector &dCdGradRho,
+                                   floatVector &dCdV,   secondOrderTensor &dCdGradV );
+
     }
 
 }
