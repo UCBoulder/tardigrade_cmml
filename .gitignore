@@ -1,0 +1,29 @@
+# Project files
+_version.py
+conda_bld
+conda-bld
+
+# Temp files
+*.swp
+
+# C++ and temp files
+*.o
+*.so
+*.nfs*
+build*/
+*_results.tex
+*results.tex
+*_results.txt
+*results.txt
+
+# Abaqus output files
+*.com
+*.dat
+*.msg
+*.odb
+*.prt
+*.sim
+*.sta
+
+# PyCharm IDE
+.idea/
