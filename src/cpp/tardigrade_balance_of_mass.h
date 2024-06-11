@@ -6,10 +6,9 @@
   ******************************************************************************
   */
 
-#ifndef TARDIGRADE_MASS_CHANGE_DEFORMATION_H
-#define TARDIGRADE_MASS_CHANGE_DEFORMATION_H
+#ifndef TARDIGRADE_BALANCE_OF_MASS_H
+#define TARDIGRADE_BALANCE_OF_MASS_H
 
-#include<vector>
 #include<array>
 
 #include "tardigrade_error_tools.h"
