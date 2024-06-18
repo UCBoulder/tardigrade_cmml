@@ -1,4 +1,4 @@
-add_library (${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_FILES})
+add_library(${PROJECT_NAME} INTERFACE ${PROJECT_SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} INTERFACE
                            $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/${CPP_SRC_PATH}>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
