@@ -19,3 +19,7 @@ New Features
 Internal Changes
 ================
 - Removed shared only library output (:pull:`5`). By `Nathan Miller`_.
+
+Bug Fixes
+=========
+- Removed leading whitespace for add_library call (:pull:`6`). By `Nathan Miller`_.
