@@ -6,8 +6,20 @@ Changelog
 #########
 
 ******************
-0.1.0 (unreleased)
+0.2.0 (11-07-2024)
 ******************
+
+New Features
+============
+- Added iterator based calculation of the balance of mass (:pull:`9`). By `Nathan Miller`_.
+
+******************
+0.1.0 (11-07-2024)
+******************
+
+Release
+=======
+- Released version 0.1.0 (:pull:`8`). By `Nathan Miller`_.
 
 New Features
 ============
