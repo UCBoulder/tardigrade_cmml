@@ -160,6 +160,106 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<class scalarArray_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
+        void computeBalanceOfMass( const scalarArray_iter &density_begin,                      const scalarArray_iter &density_end,
+                                   const scalarArray_iter &density_dot_begin,                  const scalarArray_iter &density_dot_end,
+                                   const floatVectorArray_iter &density_gradient_begin,        const floatVectorArray_iter &density_gradient_end,
+                                   const floatVectorArray_iter &velocity_begin,                const floatVectorArray_iter &velocity_end,
+                                   const secondOrderTensorArray_iter &velocity_gradient_begin, const secondOrderTensorArray_iter &velocity_gradient_end,
+                                   scalarArray_iter_out mass_change_rate_begin,                scalarArray_iter_out mass_change_rate_end ){
+            /*!
+             * Compute the balance of mass for a multi-phase continuum returning the values of the mass-change rate
+             * 
+             * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
+             *
+             * \param &density_begin: The starting point of the density \f$ \rho \f$
+             * \param &density_end: The stopping point of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &mass_change_rate_begin: The starting point of the rate of change of the mass \f$ c \f$
+             * \param &mass_change_rate_end: The stopping point of the rate of change of the mass \f$ c \f$
+             */
+
+            unsigned int phase;
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfMass( *( density_begin + phase ), *( density_dot_begin + phase ),
+                                      density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                                      velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                                      velocity_gradient_begin + sot_dim * phase,   velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                      *( mass_change_rate_begin + phase ) );
+
+            }
+
+        }
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        void computeBalanceOfMass( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
+                                   const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+                                   const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                   const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                   const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                   scalarArray_iter_out mass_change_rate_begin, scalarArray_iter_out mass_change_rate_end,
+                                   scalarArray_iter_out dCdRho_begin,           scalarArray_iter_out dCdRho_end,
+                                   scalarArray_iter_out dCdRhoDot_begin,        scalarArray_iter_out dCdRhoDot_end,
+                                   floatVector_iter_out dCdGradRho_begin,       floatVector_iter_out dCdGradRho_end,
+                                   floatVector_iter_out dCdV_begin,             floatVector_iter_out dCdV_end,
+                                   secondOrderTensor_iter_out dCdGradV_begin,   secondOrderTensor_iter_out dCdGradV_end ){
+            /*!
+             * Compute the value of the balance of mass returning the value of the mass change rate
+             * 
+             * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
+             *
+             * \param &density: The value of the density \f$ \rho \f$
+             * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &mass_change_rate_begin: The starting point of the rate of change of the mass \f$ c \f$
+             * \param &mass_change_rate_end: The stopping point of the rate of change of the mass \f$ c \f$
+             * \param &dCdRho_begin: The starting point of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dCdRho_end: The stopping point of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dCdRhoDot_begin: The starting point of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dCdRhoDot_end: The stopping point of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dCdGradRho_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdGradRho_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdV_begin: The starting point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdV_end: The stopping point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdGradV_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dCdGradV_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             */
+
+            unsigned int phase;
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfMass( *( density_begin + phase ), *( density_dot_begin + phase ),
+                                      density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                                      velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                                      velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                      *( mass_change_rate_begin + phase ), *( dCdRho_begin + phase ), *( dCdRhoDot_begin + phase ),
+                                      dCdGradRho_begin + dim * phase,   dCdGradRho_begin + dim * ( phase + 1 ),
+                                      dCdV_begin + dim * phase,         dCdV_begin + dim * ( phase + 1 ),
+                                      dCdGradV_begin + sot_dim * phase, dCdGradV_begin + sot_dim * ( phase + 1 ) );
+
+            }
+
+        }
+
     }
 
 }

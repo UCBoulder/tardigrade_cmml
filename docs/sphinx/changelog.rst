@@ -12,6 +12,7 @@ Changelog
 New Features
 ============
 - Added iterator based calculation of the balance of mass (:pull:`9`). By `Nathan Miller`_.
+- Added a multiphase balance of mass calculation (:pull:`10`). By `Nathan Miller`_.
 
 ******************
 0.1.0 (11-07-2024)
