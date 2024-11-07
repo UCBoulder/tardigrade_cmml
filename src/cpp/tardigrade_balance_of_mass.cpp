@@ -160,6 +160,47 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<class scalarArray_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
+        void computeBalanceOfMass( const scalarArray_iter &density_begin,                      const scalarArray_iter &density_end,
+                                   const scalarArray_iter &density_dot_begin,                  const scalarArray_iter &density_dot_end,
+                                   const floatVectorArray_iter &density_gradient_begin,        const floatVectorArray_iter &density_gradient_end,
+                                   const floatVectorArray_iter &velocity_begin,                const floatVectorArray_iter &velocity_end,
+                                   const secondOrderTensorArray_iter &velocity_gradient_begin, const secondOrderTensorArray_iter &velocity_gradient_end,
+                                   scalarArray_iter_out &mass_change_rate_start,               scalarArray_iter_out &mass_change_rate_stop ){
+            /*!
+             * Compute the balance of mass for a multi-phase continuum returning the values of the mass-change rate
+             * 
+             * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
+             *
+             * \param &density_begin: The starting point of the density \f$ \rho \f$
+             * \param &density_end: The stopping point of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
+             */
+
+            constexpr unsigned int nphases = ( const unsigned int )( density_end - density_begin );
+
+            constexpr unsigned int sotdim = dim * dim;
+
+            for ( unsigned int phase = 0; phase < nphases; phase++ ){
+
+                computeBalanceOfMass( *( density_begin + phase ), *( density_dot_begin + phase ),
+                                      density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                                      velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                                      velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                                      mass_change_rate_start + phase );
+
+            }
+
+        }
+
     }
 
 }
