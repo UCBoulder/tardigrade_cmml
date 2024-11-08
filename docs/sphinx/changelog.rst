@@ -13,6 +13,8 @@ New Features
 ============
 - Added iterator based calculation of the balance of mass (:pull:`9`). By `Nathan Miller`_.
 - Added a multiphase balance of mass calculation (:pull:`10`). By `Nathan Miller`_.
+- Added the calculation of the non-divergence part of the balance of linear momentum (:pull:`11`). By `Nathan Miller`_.
+- Added the calculation of the divergence part of the balance of linear momentum (:pull:`11`). By `Nathan Miller`_.
 
 ******************
 0.1.0 (11-07-2024)
