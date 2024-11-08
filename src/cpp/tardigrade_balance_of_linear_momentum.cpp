@@ -121,6 +121,20 @@ namespace tardigradeBalanceEquations{
              * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
              * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
              * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting point of the derivative of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping point of the derivative of the result w.r.t. the density
+             * \param &dRdRhoDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdRhoDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdGradRho_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdGradRho_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdV_begin: The starting point of the derivative of the result w.r.t. the velocity
+             * \param &dRdV_end: The stopping point of the derivative of the result w.r.t. the velocity
+             * \param &dRdVDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdVDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdGradV_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdGradV_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdB_begin: The starting point of the derivative of the result w.r.t. the body force
+             * \param &dRdB_end: The stopping point of the derivative of the result w.r.t. the body force
              */
 
             // Compute the inner product of the velocity and the density gradient
@@ -174,6 +188,148 @@ namespace tardigradeBalanceEquations{
                     *( dRdGradV_begin + dim * dim * i + dim * i + j ) -= density * ( *( velocity_begin + j ) );
 
                 }
+
+            }
+
+        }
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
+                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end ){
+            /*!
+             * Compute the non-divergence part of the multiphase balance of linear momentum where the full equation is
+             *
+             * \f$ \left( \sigma_{ji} - \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) = -f_i \f$
+             * 
+             * and the non-divergence part is
+             * 
+             * \f$ -\left( \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) + f_i = 0 \f$
+             * 
+             * and \f$ f_i \f$ is the vector of additional forces not accounted for in these equations. The expression we implement is therefore
+             * 
+             * \f$ -\rho_{,j} v_j v_i - \rho v_{i,j} v_j - \rho v_i v_{j,j} + \rho b_i - \frac{\partial \rho}{\partial t} v_i - \rho \frac{\partial v_i}{\partial t} \f$
+             * 
+             * \param &density_begin: The starting point of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping point of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
+             */
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                unsigned int phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
+                                                             *( density_dot_begin + phase ),
+                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
+                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
+                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
+                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
+                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ) );
+
+            }
+
+        }
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
+                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end, 
+                                                          floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
+                                                          floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
+                                                          secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
+                                                          secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
+                                                          secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
+                                                          thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
+                                                          secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end ){
+            /*!
+             * Compute the non-divergence part of the balance of linear momentum where the full equation is
+             *
+             * \f$ \left( \sigma_{ji} - \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) = -f_i \f$
+             * 
+             * and the non-divergence part is
+             * 
+             * \f$ -\left( \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) + f_i = 0 \f$
+             * 
+             * and \f$ f_i \f$ is the vector of additional forces not accounted for in these equations. The expression we implement is therefore
+             * 
+             * \f$ -\rho_{,j} v_j v_i - \rho v_{i,j} v_j - \rho v_i v_{j,j} + \rho b_i - \frac{\partial \rho}{\partial t} v_i - \rho \frac{\partial v_i}{\partial t} \f$
+             * 
+             * \param &density_begin: The starting point of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping point of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting point of the derivative of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping point of the derivative of the result w.r.t. the density
+             * \param &dRdRhoDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdRhoDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdGradRho_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdGradRho_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdV_begin: The starting point of the derivative of the result w.r.t. the velocity
+             * \param &dRdV_end: The stopping point of the derivative of the result w.r.t. the velocity
+             * \param &dRdVDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdVDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdGradV_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdGradV_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdB_begin: The starting point of the derivative of the result w.r.t. the body force
+             * \param &dRdB_end: The stopping point of the derivative of the result w.r.t. the body force
+             */
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                unsigned int phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
+                                                             *( density_dot_begin + phase ),
+                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
+                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
+                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
+                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
+                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ),
+                                                             dRdRho_begin + dim * phase,                dRdRho_begin + dim * ( phase + 1 ),
+                                                             dRdRhoDot_begin + dim * phase,             dRdRhoDot_begin + dim * ( phase + 1 ),
+                                                             dRdGradRho_begin + sot_dim * phase,        dRdGradRho_begin + sot_dim * ( phase + 1 ),
+                                                             dRdV_begin + sot_dim * phase,              dRdV_begin + sot_dim * ( phase + 1 ),
+                                                             dRdVDot_begin + sot_dim * phase,           dRdVDot_begin + sot_dim * ( phase + 1 ),
+                                                             dRdGradV_begin + dim * dim * dim * phase,  dRdGradV_begin + dim * dim * dim * ( phase + 1 ),
+                                                             dRdB_begin + sot_dim * phase,              dRdB_begin + sot_dim * ( phase + 1 ) );
 
             }
 
