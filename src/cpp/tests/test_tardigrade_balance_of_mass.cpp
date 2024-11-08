@@ -77,6 +77,8 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
     secondOrderTensor dCdGradV;
 
+    result = 0.;
+
     tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, velocity_gradient, result,
                                                                      dCdRho,  dCdRhoDot,   dCdGradRho      , dCdV,     dCdGradV );
 
