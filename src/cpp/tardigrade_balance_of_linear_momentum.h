@@ -28,6 +28,15 @@ namespace tardigradeBalanceEquations{
 
         typedef std::array< floatType, sot_dim > secondOrderTensor; //!< Define a standard second-order tensor
 
+        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const floatType &density, const floatType &density_dot,
+                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end );
+
     }
 
 }
