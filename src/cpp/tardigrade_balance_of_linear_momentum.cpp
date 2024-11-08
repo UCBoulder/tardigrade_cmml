@@ -179,6 +179,120 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter test_function_gradient_begin, const floatVector_iter test_function_gradient_end,
+                                                       const secondOrderTensor_iter cauchy_stress_begin,    const secondOrderTensor_iter cauchy_stress_end,
+                                                       const floatType &volume_fraction,
+                                                       floatVector_iter_out result_begin,                   floatVector_iter_out result_end ){
+            /*!
+             * Compute the divergence part of the balance of linear momentum where the full equation is
+             *
+             * \f$ \left( \sigma_{ji} - \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) = -f_i \f$
+             * 
+             * and the divergence part is
+             * 
+             * \f$ \left( \sigma_{ji} \right)_{,j} \f$
+             * 
+             * and \f$ f_i \f$ is the vector of additional forces not accounted for in these equations. In the context of a variationally-based solution technique
+             * we multiply this by a test function \f$ \psi \f$ and write
+             * 
+             * \f$ \left( \psi \sigma_{ji} \right)_{,j} - \psi_{,j} \sigma_{ji} \f$. The divergence term is defined as the second term. We also introduce a volume fraction
+             * \f$ \phi \f$ to prepare for multi-phase continuum such that we will actually compute
+             * 
+             * \f$ -\psi_{,j} \phi \bar{\sigma}_{ji} \f$
+             *
+             * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
+             * Cauchy stress of the phase.
+             * 
+             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
+             */
+
+            std::fill( result_begin, result_end, 0. );
+
+            for ( unsigned int i = 0; i < dim; i++ ){
+
+                for ( unsigned int j = 0; j < dim; j++ ){
+
+                    *( result_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
+
+                }
+
+            }
+
+        }
+
+        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter test_function_gradient_begin, const floatVector_iter test_function_gradient_end,
+                                                       const secondOrderTensor_iter cauchy_stress_begin,    const secondOrderTensor_iter cauchy_stress_end,
+                                                       const floatType &volume_fraction,
+                                                       floatVector_iter_out result_begin,                   floatVector_iter_out result_end,
+                                                       secondOrderTensor_iter_out dRdGradPsi_begin,             secondOrderTensor_iter_out dRdGradPsi_end,
+                                                       thirdOrderTensor_iter_out dRdCauchy_begin,           thirdOrderTensor_iter_out dRdCauchy_end,
+                                                       floatVector_iter_out dRdPhi_begin,                   floatVector_iter_out dRdPhi_end ){
+            /*!
+             * Compute the divergence part of the balance of linear momentum and its Jacobians where the full equation is
+             *
+             * \f$ \left( \sigma_{ji} - \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) = -f_i \f$
+             * 
+             * and the divergence part is
+             * 
+             * \f$ \left( \sigma_{ji} \right)_{,j} \f$
+             * 
+             * and \f$ f_i \f$ is the vector of additional forces not accounted for in these equations. In the context of a variationally-based solution technique
+             * we multiply this by a test function \f$ \psi \f$ and write
+             * 
+             * \f$ \left( \psi \sigma_{ji} \right)_{,j} - \psi_{,j} \sigma_{ji} \f$. The divergence term is defined as the second term. We also introduce a volume fraction
+             * \f$ \phi \f$ to prepare for multi-phase continuum such that we will actually compute
+             * 
+             * \f$ -\psi_{,j} \phi \bar{\sigma}_{ji} \f$
+             *
+             * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
+             * Cauchy stress of the phase.
+             * 
+             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
+             * \param &dRdGradPsi_begin: The starting point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdGradPsi_end: The stopping point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdCauchy_begin: The starting point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdCauchy_end: The stopping point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdPhi_begin: The starting point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdPhi_end: The stopping point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             */
+
+            std::fill( result_begin, result_end, 0. );
+            std::fill( dRdGradPsi_begin, dRdGradPsi_end, 0. );
+            std::fill( dRdCauchy_begin, dRdCauchy_end, 0. );
+            std::fill( dRdPhi_begin, dRdPhi_end, 0. );
+
+            for ( unsigned int i = 0; i < dim; i++ ){
+
+                for ( unsigned int j = 0; j < dim; j++ ){
+
+                    *( result_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
+
+                    *( dRdGradPsi_begin + dim * i + j ) -= volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
+
+                    *( dRdCauchy_begin + dim * dim * i + dim * j + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction;
+
+                    *( dRdPhi_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * ( *( cauchy_stress_begin + dim * j + i ) );
+
+                }
+
+            }
+
+        }
+
     }
 
 }
