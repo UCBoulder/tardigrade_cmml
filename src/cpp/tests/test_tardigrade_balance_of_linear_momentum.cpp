@@ -937,3 +937,198 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
     }
 
 }
+
+BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+
+    constexpr unsigned int nphases = 5;
+
+    constexpr unsigned int dim = 3;
+
+    constexpr unsigned int sot_dim = 9;
+
+    std::array<floatType,dim*nphases> test_function_gradient = { 0.55237008, 0.57855147, 0.52153306, 0.00268806, 0.98834542, 0.90534158,
+                                                                 0.20763586, 0.29248941, 0.52001015, 0.90191137, 0.98363088, 0.25754206,
+                                                                 0.56435904, 0.80696868, 0.39437005 };
+
+    std::array<floatType,sot_dim*nphases> cauchy_stress = { 0.73107304, 0.16106901, 0.60069857, 0.86586446, 0.98352161, 0.07936579,
+                                                            0.42834727, 0.20454286, 0.45063649, 0.54776357, 0.09332671, 0.29686078,
+                                                            0.92758424, 0.56900373, 0.457412  , 0.75352599, 0.74186215, 0.04857903,
+                                                            0.7086974 , 0.83924335, 0.16593788, 0.78099794, 0.28653662, 0.30646975,
+                                                            0.66526147, 0.11139217, 0.66487245, 0.88785679, 0.69631127, 0.44032788,
+                                                            0.43821438, 0.7650961 , 0.565642  , 0.08490416, 0.58267109, 0.8148437 ,
+                                                            0.33706638, 0.92757658, 0.750717  , 0.57406383, 0.75164399, 0.07914896,
+                                                            0.85938908, 0.82150411, 0.90987166 };
+
+    std::array<floatType,nphases> volume_fraction = { 0.1286312 , 0.08178009, 0.13841557, 0.39937871, 0.42430686 };
+
+    std::array<floatType,dim*nphases> answer = { -0.14511751, -0.09835957, -0.07881837, -0.13088449, -0.10093803,
+                                                 -0.04063323, -0.09987062, -0.04373808, -0.06503238, -0.5006914 ,
+                                                 -0.61130723, -0.46462768, -0.42108014, -0.61694897, -0.35912094 };
+
+    std::array<floatType,dim*nphases> result;
+
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                   std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                   std::begin( result ), std::end( result ) );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    std::fill( std::begin( result ), std::end( result ), 0. );
+
+    std::array<floatType,dim*nphases> dRdPhi;
+
+    std::array<floatType,sot_dim*nphases> dRdGradPsi;
+
+    std::array< floatType, dim * dim * dim * nphases > dRdCauchy;
+
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                   std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                   std::begin( result ),     std::end( result ),
+                                                                                                   std::begin( dRdGradPsi ), std::end( dRdGradPsi ),
+                                                                                                   std::begin( dRdCauchy ),  std::end( dRdCauchy ),
+                                                                                                   std::begin( dRdPhi ),     std::end( dRdPhi ) );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    floatType eps = 1e-6;
+
+    for ( unsigned int i = 0; i < dim * nphases; i++ ){
+
+        floatType delta = eps * std::fabs( test_function_gradient[ i ] ) + eps;
+
+        std::array<floatType,dim*nphases> xp = test_function_gradient;
+        std::array<floatType,dim*nphases> xm = test_function_gradient;
+
+        xp[ i ] += delta;
+        xm[ i ] -= delta;
+
+        std::array<floatType,dim*nphases> vp, vm;
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xp ),                     std::end( xp ),
+                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                       std::begin( vp ),                     std::end( vp ) );
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xm ),                     std::end( xm ),
+                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                       std::begin( vm ),                     std::end( vm ) );
+
+
+        for ( unsigned int j = 0; j < dim * nphases; j++ ){
+
+            floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
+
+            if ( ( unsigned int )( j / dim ) == ( unsigned int )( i / dim ) ){
+
+                unsigned int phase = ( unsigned int )( j / dim );
+                unsigned int row   = ( j - phase * dim ) % nphases;
+                unsigned int col   = ( i - phase * dim ) % dim;
+
+                BOOST_TEST( dRdGradPsi[ sot_dim * phase + dim * row + col ] == grad );
+
+            }
+            else{
+
+                BOOST_TEST( grad == 0. );
+
+            }
+
+        }
+
+    }
+
+    for ( unsigned int i = 0; i < sot_dim * nphases; i++ ){
+
+        floatType delta = eps * std::fabs( cauchy_stress[ i ] ) + eps;
+
+        std::array<floatType,sot_dim*nphases> xp = cauchy_stress;
+        std::array<floatType,sot_dim*nphases> xm = cauchy_stress;
+
+        xp[ i ] += delta;
+        xm[ i ] -= delta;
+
+        std::array<floatType,dim*nphases> vp, vm;
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                       std::begin( xp ),                     std::end( xp ),
+                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                       std::begin( vp ),                     std::end( vp ) );
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                       std::begin( xm ),                     std::end( xm ),
+                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
+                                                                                                       std::begin( vm ),                     std::end( vm ) );
+
+
+        for ( unsigned int j = 0; j < dim * nphases; j++ ){
+
+            floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
+
+            if ( ( unsigned int )( j / dim ) == ( unsigned int )( i / sot_dim ) ){
+
+                unsigned int phase = ( unsigned int )( j / dim );
+                unsigned int row   = ( j - phase * dim ) % nphases;
+                unsigned int col   = ( i - phase * sot_dim ) % sot_dim;
+
+                BOOST_TEST( dRdCauchy[ sot_dim * dim * phase + sot_dim * row + col ] == grad );
+
+            }
+            else{
+
+                BOOST_TEST( grad == 0. );
+
+            }
+
+        }
+
+    }
+
+    for ( unsigned int i = 0; i < nphases; i++ ){
+
+        floatType delta = eps * std::fabs( volume_fraction[ i ] ) + eps;
+
+        std::array<floatType,nphases> xp = volume_fraction;
+        std::array<floatType,nphases> xm = volume_fraction;
+
+        xp[ i ] += delta;
+        xm[ i ] -= delta;
+
+        std::array<floatType,dim*nphases> vp, vm;
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                       std::begin( xp ),                     std::end( xp ),
+                                                                                                       std::begin( vp ),                     std::end( vp ) );
+
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
+                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+                                                                                                       std::begin( xm ),                     std::end( xm ),
+                                                                                                       std::begin( vm ),                     std::end( vm ) );
+
+
+        for ( unsigned int j = 0; j < dim * nphases; j++ ){
+
+            floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
+
+            if ( ( unsigned int )( j / dim ) == ( unsigned int )( i / 1 ) ){
+
+                unsigned int phase = ( unsigned int )( j / dim );
+                unsigned int row   = ( j - phase * dim ) % nphases;
+
+                BOOST_TEST( dRdPhi[ dim * phase + row ] == grad );
+
+            }
+            else{
+
+                BOOST_TEST( grad == 0. );
+
+            }
+
+        }
+
+    }
+
+}
