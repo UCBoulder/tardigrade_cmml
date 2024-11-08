@@ -53,20 +53,62 @@ namespace tardigradeBalanceEquations{
                                                           thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
                                                           secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end );
 
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
+                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end );
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
+                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end,
+                                                          floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
+                                                          floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
+                                                          secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
+                                                          secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
+                                                          secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
+                                                          thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
+                                                          secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end );
+
         template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter test_function_gradient_begin, const floatVector_iter test_function_gradient_end,
-                                                       const secondOrderTensor_iter cauchy_stress_begin,    const secondOrderTensor_iter cauchy_stress_end,
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const floatType &volume_fraction,
-                                                       floatVector_iter_out &result_begin,                  floatVector_iter_out result_end );
+                                                       floatVector_iter_out &result_begin,                   floatVector_iter_out result_end );
 
         template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter test_function_gradient_begin, const floatVector_iter test_function_gradient_end,
-                                                       const secondOrderTensor_iter cauchy_stress_begin,    const secondOrderTensor_iter cauchy_stress_end,
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const floatType &volume_fraction,
-                                                       floatVector_iter_out result_begin,                   floatVector_iter_out result_end,
-                                                       secondOrderTensor_iter_out dRdGradPsi_begin,             secondOrderTensor_iter_out dRdGradPsi_end,
-                                                       thirdOrderTensor_iter_out dRdCauchy_begin,           thirdOrderTensor_iter_out dRdCauchy_end,
-                                                       floatVector_iter_out dRdPhi_begin,                   floatVector_iter_out dRdPhi_end );
+                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end,
+                                                       secondOrderTensor_iter_out dRdGradPsi_begin,          secondOrderTensor_iter_out dRdGradPsi_end,
+                                                       thirdOrderTensor_iter_out dRdCauchy_begin,            thirdOrderTensor_iter_out dRdCauchy_end,
+                                                       floatVector_iter_out dRdPhi_begin,                    floatVector_iter_out dRdPhi_end );
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
+                                                       const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
+                                                       floatVector_iter_out &result_begin,                   floatVector_iter_out result_end );
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
+                                                       const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
+                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end,
+                                                       secondOrderTensor_iter_out dRdGradPsi_begin,          secondOrderTensor_iter_out dRdGradPsi_end,
+                                                       thirdOrderTensor_iter_out dRdCauchy_begin,            thirdOrderTensor_iter_out dRdCauchy_end,
+                                                       floatVector_iter_out dRdPhi_begin,                    floatVector_iter_out dRdPhi_end );
 
     }
 

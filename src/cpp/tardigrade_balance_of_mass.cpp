@@ -219,8 +219,10 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
              *
-             * \param &density: The value of the density \f$ \rho \f$
-             * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_begin: The starting point of the value of the density \f$ \rho \f$
+             * \param &density_end: The stopping point of the value of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
              * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
              * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
              * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
