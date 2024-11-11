@@ -45,8 +45,8 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
-             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bm{\sigma}} \f$ where $\bm{\sigma} = \phi \bar{\bm{\sigma}} \f$
-             * \param &cauchy_stress_end: The end point of the true Cauchy stress \f$ \bar{\bm{\sigma}} \f$ where $\bm{\sigma} = \phi \bar{\bm{\sigma}} \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
              * \param &volume_fraction: The volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
              * \param &internal_heat_generation: The internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
              * \param &net_interphase_force_begin: The starting iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
@@ -122,8 +122,8 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
-             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bm{\sigma}} \f$ where $\bm{\sigma} = \phi \bar{\bm{\sigma}} \f$
-             * \param &cauchy_stress_end: The end point of the true Cauchy stress \f$ \bar{\bm{\sigma}} \f$ where $\bm{\sigma} = \phi \bar{\bm{\sigma}} \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
              * \param &volume_fraction: The volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
              * \param &internal_heat_generation: The internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
              * \param &net_interphase_force_begin: The starting iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
@@ -132,21 +132,21 @@ namespace tardigradeBalanceEquations{
              * \param &dRdRho: The Jacobian w.r.t. the apparent density
              * \param &dRdRhoDot: The Jacobian w.r.t. the partial temporal derivative of the apparent density
              * \param &dRdGradRho_begin: The starting iterator of the Jacobian w.r.t. the spatial gradient of the apparent density
-             * \param &dRdGradRho_end: The starting iterator of the Jacobian w.r.t. the spatial gradient of the apparent density
+             * \param &dRdGradRho_end: The stopping iterator of the Jacobian w.r.t. the spatial gradient of the apparent density
              * \param &dRdE: The Jacobian w.r.t. the internal energy
              * \param &dRdEDot: The Jacobian w.r.t. the partial temporal derivative of the internal energy
              * \param &dRdGradE_begin: The starting iterator of the Jacobian w.r.t. the spatial gradient of the internal energy
-             * \param &dRdGradE_end: The starting iterator of the Jacobian w.r.t. the spatial gradient of the internal energy
+             * \param &dRdGradE_end: The stopping iterator of the Jacobian w.r.t. the spatial gradient of the internal energy
              * \param &dRdV_begin: The starting iterator of the Jacobian w.r.t. the velocity
-             * \param &dRdV_end: The starting iterator of the Jacobian w.r.t. the velocity
+             * \param &dRdV_end: The stopping iterator of the Jacobian w.r.t. the velocity
              * \param &dRdGradV_begin: The starting iterator of the Jacobian w.r.t. the velocity gradient
-             * \param &dRdGradV_end: The starting iterator of the Jacobian w.r.t. the velocity gradient
+             * \param &dRdGradV_end: The stopping iterator of the Jacobian w.r.t. the velocity gradient
              * \param &dRdCauchy_begin: The starting iterator of the Jacobian w.r.t. the Cauchy stress
-             * \param &dRdCauchy_end: The starting iterator of the Jacobian w.r.t. the Cauchy stress
+             * \param &dRdCauchy_end: The stopping iterator of the Jacobian w.r.t. the Cauchy stress
              * \param &dRdPhi: The Jacobian w.r.t. the volume fraction
              * \param &dRdr: The Jacobian w.r.t. the internal heat generation
              * \param &dRdpi_begin: The starting iterator of the Jacobian w.r.t. the net interphase force
-             * \param &dRdpi_end: The starting iterator of the Jacobian w.r.t. the net interphase force
+             * \param &dRdpi_end: The stopping iterator of the Jacobian w.r.t. the net interphase force
              */
             
             // Compute the mass change rate 
@@ -231,6 +231,187 @@ namespace tardigradeBalanceEquations{
             }
 
             result += volume_fraction * dRdPhi;
+
+        }
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out>
+        void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin, const scalarArray_iter &density_end,
+                                                  const scalarArray_iter &density_dot_begin, const scalarArray_iter &density_dot_end,
+                                                  const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
+                                                  const scalarArray_iter &internal_energy_begin, const scalarArray_iter &internal_energy_end,
+                                                  const scalarArray_iter &internal_energy_dot_begin, const scalarArray_iter &internal_energy_dot_end,
+                                                  const floatVector_iter &internal_energy_gradient_begin, const floatVector_iter &internal_energy_gradient_end,
+                                                  const floatVector_iter &velocity_begin, const floatVector_iter &velocity_end,
+                                                  const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+                                                  const secondOrderTensor_iter &cauchy_stress_begin, const secondOrderTensor_iter &cauchy_stress_end,
+                                                  const scalarArray_iter &volume_fraction_begin, const scalarArray_iter &volume_fraction_end,
+                                                  const scalarArray_iter &internal_heat_generation_begin, const scalarArray_iter &internal_heat_generation_end,
+                                                  const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
+                                                  scalarArray_iter_out result_begin, scalarArray_iter_out result_end ){
+            /*!
+             * Compute the non-divergence parts of the balance of energy i.e.
+             * 
+             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The partial temporal derivative of the apparent density (dm / dv) of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &internal_heat_generation_begin: The starting iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &internal_heat_generation_end: The stopping iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &net_interphase_force_begin: The starting iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &net_interphase_force_end: The stopping iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param &result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             */
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                unsigned int phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfEnergyNonDivergence( *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
+                                                     *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
+                                                     internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
+                                                     velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
+                                                     velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                                     cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                                                     *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
+                                                     net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
+                                                     *( result_begin + phase ) );
+
+            }
+
+        }
+
+        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin,                  const scalarArray_iter &density_end,
+                                                  const scalarArray_iter &density_dot_begin,              const scalarArray_iter &density_dot_end,
+                                                  const floatVector_iter &density_gradient_begin,         const floatVector_iter &density_gradient_end,
+                                                  const scalarArray_iter &internal_energy_begin,          const scalarArray_iter &internal_energy_end,
+                                                  const scalarArray_iter &internal_energy_dot_begin,      const scalarArray_iter &internal_energy_dot_end,
+                                                  const floatVector_iter &internal_energy_gradient_begin, const floatVector_iter &internal_energy_gradient_end,
+                                                  const floatVector_iter &velocity_begin,                 const floatVector_iter &velocity_end,
+                                                  const secondOrderTensor_iter &velocity_gradient_begin,  const secondOrderTensor_iter &velocity_gradient_end,
+                                                  const secondOrderTensor_iter &cauchy_stress_begin,      const secondOrderTensor_iter &cauchy_stress_end,
+                                                  const scalarArray_iter &volume_fraction_begin,          const scalarArray_iter &volume_fraction_end,
+                                                  const scalarArray_iter &internal_heat_generation_begin, const scalarArray_iter &internal_heat_generation_end,
+                                                  const floatVector_iter &net_interphase_force_begin,     const floatVector_iter &net_interphase_force_end,
+                                                  scalarArray_iter_out result_begin,                      scalarArray_iter_out result_end,
+                                                  scalarArray_iter_out dRdRho_begin,                      scalarArray_iter_out dRdRho_end,
+                                                  scalarArray_iter_out dRdRhoDot_begin,                   scalarArray_iter_out dRdRhoDot_end,
+                                                  floatVector_iter_out dRdGradRho_begin,                  floatVector_iter_out dRdGradRho_end,
+                                                  scalarArray_iter_out dRdE_begin,                        scalarArray_iter_out dRdE_end,
+                                                  scalarArray_iter_out dRdEDot_begin,                     scalarArray_iter_out dRdEDot_end,
+                                                  floatVector_iter_out dRdGradE_begin,                    floatVector_iter_out dRdGradE_end,
+                                                  floatVector_iter_out dRdV_begin,                        floatVector_iter_out dRdV_end,
+                                                  secondOrderTensor_iter_out dRdGradV_begin,              secondOrderTensor_iter_out dRdGradV_end,
+                                                  secondOrderTensor_iter_out dRdCauchy_begin,             secondOrderTensor_iter_out dRdCauchy_end,
+                                                  scalarArray_iter_out dRdPhi_begin,                      scalarArray_iter_out dRdPhi_end,
+                                                  scalarArray_iter_out dRdr_begin,                        scalarArray_iter_out dRdr_end,
+                                                  floatVector_iter_out dRdpi_begin,                       floatVector_iter_out dRdpi_end ){
+            /*!
+             * Compute the non-divergence parts of the balance of energy i.e.
+             * 
+             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The partial temporal derivative of the apparent density (dm / dv) of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase
+             *     \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &internal_heat_generation_begin: The starting iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &internal_heat_generation_end: The stopping iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &net_interphase_force_begin: The starting iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &net_interphase_force_end: The stopping iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param &result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             * \param &dRdRho_begin: The starting iterator of the Jacobian w.r.t. the apparent density
+             * \param &dRdRho_end: The stopping iterator of the Jacobian w.r.t. the apparent density
+             * \param &dRdRhoDot_begin: The starting iterator of the Jacobian w.r.t. the partial temporal derivative of the apparent density
+             * \param &dRdRhoDot_end: The stopping iterator of the Jacobian w.r.t. the partial temporal derivative of the apparent density
+             * \param &dRdGradRho_begin: The starting iterator of the Jacobian w.r.t. the spatial gradient of the apparent density
+             * \param &dRdGradRho_end: The stopping iterator of the Jacobian w.r.t. the spatial gradient of the apparent density
+             * \param &dRdE_begin: The starting iterator of the Jacobian w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the Jacobian w.r.t. the internal energy
+             * \param &dRdEDot_begin: The starting iterator of the Jacobian w.r.t. the partial temporal derivative of the internal energy
+             * \param &dRdEDot_end: The stopping iterator of the Jacobian w.r.t. the partial temporal derivative of the internal energy
+             * \param &dRdGradE_begin: The starting iterator of the Jacobian w.r.t. the spatial gradient of the internal energy
+             * \param &dRdGradE_end: The stopping iterator of the Jacobian w.r.t. the spatial gradient of the internal energy
+             * \param &dRdV_begin: The starting iterator of the Jacobian w.r.t. the velocity
+             * \param &dRdV_end: The stopping iterator of the Jacobian w.r.t. the velocity
+             * \param &dRdGradV_begin: The starting iterator of the Jacobian w.r.t. the velocity gradient
+             * \param &dRdGradV_end: The stopping iterator of the Jacobian w.r.t. the velocity gradient
+             * \param &dRdCauchy_begin: The starting iterator of the Jacobian w.r.t. the Cauchy stress
+             * \param &dRdCauchy_end: The stopping iterator of the Jacobian w.r.t. the Cauchy stress
+             * \param &dRdPhi_begin: The starting iterator of the Jacobian w.r.t. the volume fraction
+             * \param &dRdPhi_end: The stopping iterator of the Jacobian w.r.t. the volume fraction
+             * \param &dRdr_begin: The starting iterator of the Jacobian w.r.t. the internal heat generation
+             * \param &dRdr_end: The stopping iterator of the Jacobian w.r.t. the internal heat generation
+             * \param &dRdpi_begin: The starting iterator of the Jacobian w.r.t. the net interphase force
+             * \param &dRdpi_end: The stopping iterator of the Jacobian w.r.t. the net interphase force
+             */
+
+            for ( auto rho = density_begin; rho != density_end; rho++ ){
+
+                unsigned int phase = ( unsigned int )( rho - density_begin );
+
+                computeBalanceOfEnergyNonDivergence( *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
+                                                     *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
+                                                     internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
+                                                     velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
+                                                     velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
+                                                     cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                                                     *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
+                                                     net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
+                                                     *( result_begin + phase ),
+                                                     *( dRdRho_begin + phase ), *( dRdRhoDot_begin + phase ), dRdGradRho_begin + dim * phase, dRdGradRho_begin + dim * ( phase + 1 ),
+                                                     *( dRdE_begin + phase ), *( dRdEDot_begin + phase ), dRdGradE_begin + dim * phase, dRdGradE_begin + dim * ( phase + 1 ),
+                                                     dRdV_begin + dim * phase, dRdV_begin + dim * ( phase + 1 ),
+                                                     dRdGradV_begin + sot_dim * phase, dRdGradV_begin + sot_dim * ( phase + 1 ),
+                                                     dRdCauchy_begin + sot_dim * phase, dRdCauchy_begin + sot_dim * ( phase + 1 ),
+                                                     *( dRdPhi_begin + phase ), *( dRdr_begin + phase ),
+                                                     dRdpi_begin + dim * phase, dRdpi_begin + dim * ( phase + 1 ) );
+
+            }
 
         }
 
