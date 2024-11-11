@@ -54,12 +54,12 @@ namespace tardigradeBalanceEquations{
                                    secondOrderTensor_iter_out dCdGradV_begin, secondOrderTensor_iter_out dCdGradV_end );
 
         template<class scalarArray_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
-        void computeBalanceOfMass( const scalarArray_iter &density_begin,                const scalarArray_iter &density_end,
-                                   const scalarArray_iter &density_dot_begin,            const scalarArray_iter &density_dot_end,
-                                   const floatVectorArray_iter &density_gradient_begin,  const floatVectorArray_iter &density_gradient_end,
-                                   const floatVectorArray_iter &velocity_begin,          const floatVectorArray_iter &velocity_end,
-                                   const floatVectorArray_iter &velocity_gradient_begin, const floatVectorArray_iter &velocity_gradient_end,
-                                   scalarArray_iter_out mass_change_rate_start,          scalarArray_iter_out mass_change_rate_stop );
+        void computeBalanceOfMass( const scalarArray_iter &density_begin,                      const scalarArray_iter &density_end,
+                                   const scalarArray_iter &density_dot_begin,                  const scalarArray_iter &density_dot_end,
+                                   const floatVectorArray_iter &density_gradient_begin,        const floatVectorArray_iter &density_gradient_end,
+                                   const floatVectorArray_iter &velocity_begin,                const floatVectorArray_iter &velocity_end,
+                                   const secondOrderTensorArray_iter &velocity_gradient_begin, const secondOrderTensorArray_iter &velocity_gradient_end,
+                                   scalarArray_iter_out mass_change_rate_start,                 scalarArray_iter_out mass_change_rate_stop );
 
         template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
         void computeBalanceOfMass( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,

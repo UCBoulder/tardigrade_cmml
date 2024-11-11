@@ -84,7 +84,7 @@ namespace tardigradeBalanceEquations{
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const floatType &volume_fraction,
-                                                       floatVector_iter_out &result_begin,                   floatVector_iter_out result_end );
+                                                       floatVector_iter_out result_begin,                   floatVector_iter_out result_end );
 
         template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
@@ -99,7 +99,7 @@ namespace tardigradeBalanceEquations{
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
-                                                       floatVector_iter_out &result_begin,                   floatVector_iter_out result_end );
+                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end );
 
         template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
