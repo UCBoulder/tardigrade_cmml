@@ -102,6 +102,30 @@ namespace tardigradeBalanceEquations{
                                                   scalarArray_iter_out dRdr_begin,                        scalarArray_iter_out dRdr_end,
                                                   floatVector_iter_out dRdpi_begin,                       floatVector_iter_out dRdpi_end );
 
+        template<class floatVector_iter>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               floatType &result );
+
+        template<class floatVector_iter, class floatVector_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               floatType &result,
+                                               floatVector_iter_out dRdGradPsi_begin,                floatVector_iter_out dRdGradPsi_end,
+                                               floatVector_iter_out dRdq_begin,                      floatVector_iter_out dRdq_end );
+
+        template<class floatVector_iter, class scalarArray_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               scalarArray_iter_out result_begin,                    scalarArray_iter_out result_end );
+
+        template<class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               scalarArray_iter_out result_begin,                    scalarArray_iter_out result_end,
+                                               floatVector_iter_out dRdGradPsi_begin,                floatVector_iter_out dRdGradPsi_end,
+                                               floatVector_iter_out dRdq_begin,                      floatVector_iter_out dRdq_end );
+
     }
 
 }

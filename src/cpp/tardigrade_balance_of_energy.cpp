@@ -415,6 +415,130 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<class floatVector_iter>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               floatType &result ){
+            /*!
+             * Compute the divergence part of the balance of energy for a variationally based method i.e.:
+             * 
+             * \f$ \psi q_{i,i} = \left( \psi q_i \right)_{,i} - \psi_{,i} q_i \f$
+             *
+             * where we will compute the second term as the first term is the heat flux boundary condition.
+             * 
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &heat_flux_begin: The starting iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &heat_flux_end: The stopping iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &result: The resulting divergence term
+             */
+
+            result = -std::inner_product( test_function_gradient_begin, test_function_gradient_end, heat_flux_begin, 0. );
+
+        }
+
+        template<class floatVector_iter, class floatVector_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               floatType &result,
+                                               floatVector_iter_out dRdGradPsi_begin, floatVector_iter_out dRdGradPsi_end,
+                                               floatVector_iter_out dRdq_begin,       floatVector_iter_out dRdq_end ){
+            /*!
+             * Compute the divergence part of the balance of energy for a variationally based method i.e.:
+             * 
+             * \f$ \psi q_{i,i} = \left( \psi q_i \right)_{,i} - \psi_{,i} q_i \f$
+             *
+             * where we will compute the second term as the first term is the heat flux boundary condition.
+             * 
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &heat_flux_begin: The starting iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &heat_flux_end: The stopping iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &result: The resulting divergence term
+             * \param &dRdGradPsi_begin: The starting iterator of the Jacobian of the result w.r.t. the test function gradient
+             * \param &dRdGradPsi_end: The stopping iterator of the Jacobian of the result w.r.t. the test function gradient
+             * \param &dRdq_begin: The starting iterator of the Jacobian of the result w.r.t. the heat flux
+             * \param &dRdq_end: The stopping iterator of the Jacobian of the result w.r.t. the heat flux
+             */
+
+            result = -std::inner_product( test_function_gradient_begin, test_function_gradient_end, heat_flux_begin, 0. );
+
+            std::transform( heat_flux_begin, heat_flux_end, dRdGradPsi_begin, std::bind( std::multiplies<floatType>(), std::placeholders::_1, -1. ) );
+
+            std::transform( test_function_gradient_begin, test_function_gradient_end, dRdq_begin, std::bind( std::multiplies<floatType>(), std::placeholders::_1, -1. ) );
+
+        }
+
+        template<class floatVector_iter, class scalarArray_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               scalarArray_iter_out result_begin, scalarArray_iter_out result_end ){
+            /*!
+             * Compute the multiphase divergence part of the balance of energy for a variationally based method i.e.:
+             * 
+             * \f$ \psi q_{i,i} = \left( \psi q_i \right)_{,i} - \psi_{,i} q_i \f$
+             *
+             * where we will compute the second term as the first term is the heat flux boundary condition.
+             * 
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &heat_flux_begin: The starting iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &heat_flux_end: The stopping iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &result_begin: The starting iterator of the resulting divergence term
+             * \param &result_end: The stopping iterator of the resulting divergence term
+             */
+
+            for ( auto r = result_begin; r != result_end; r++ ){
+
+                const unsigned int phase = ( unsigned int )( r - result_begin );
+
+                computeBalanceOfEnergyDivergence( test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
+                                                  heat_flux_begin + dim * phase,              heat_flux_begin + dim * ( phase + 1 ),
+                                                  *r );
+
+            }
+
+        }
+
+        template<class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
+        void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
+                                               const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
+                                               scalarArray_iter_out result_begin, scalarArray_iter_out result_end,
+                                               floatVector_iter_out dRdGradPsi_begin, floatVector_iter_out dRdGradPsi_end,
+                                               floatVector_iter_out dRdq_begin,       floatVector_iter_out dRdq_end ){
+            /*!
+             * Compute the multiphase divergence part of the balance of energy for a variationally based method i.e.:
+             * 
+             * \f$ \psi q_{i,i} = \left( \psi q_i \right)_{,i} - \psi_{,i} q_i \f$
+             *
+             * where we will compute the second term as the first term is the heat flux boundary condition.
+             * 
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &heat_flux_begin: The starting iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &heat_flux_end: The stopping iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &result_begin: The starting iterator of the resulting divergence term
+             * \param &result_end: The stopping iterator of the resulting divergence term
+             * \param &dRdGradPsi_begin: The starting iterator of the Jacobian of the result w.r.t. the test function gradient
+             * \param &dRdGradPsi_end: The stopping iterator of the Jacobian of the result w.r.t. the test function gradient
+             * \param &dRdq_begin: The starting iterator of the Jacobian of the result w.r.t. the heat flux
+             * \param &dRdq_end: The stopping iterator of the Jacobian of the result w.r.t. the heat flux
+             */
+
+            for ( auto r = result_begin; r != result_end; r++ ){
+
+                const unsigned int phase = ( unsigned int )( r - result_begin );
+
+                computeBalanceOfEnergyDivergence( test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
+                                                  heat_flux_begin + dim * phase,              heat_flux_begin + dim * ( phase + 1 ),
+                                                  *r,
+                                                  dRdGradPsi_begin + dim * phase,             dRdGradPsi_begin + dim * ( phase + 1 ),
+                                                  dRdq_begin + dim * phase,                   dRdq_begin + dim * ( phase + 1 ) );
+
+            }
+
+        }
+
     }
 
 }
