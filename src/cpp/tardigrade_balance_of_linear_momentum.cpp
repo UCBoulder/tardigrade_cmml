@@ -37,18 +37,18 @@ namespace tardigradeBalanceEquations{
              * 
              * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
              * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
              */
 
             // Compute the inner product of the velocity and the density gradient
@@ -109,32 +109,32 @@ namespace tardigradeBalanceEquations{
              * 
              * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
              * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
-             * \param &dRdRho_begin: The starting point of the derivative of the result w.r.t. the density
-             * \param &dRdRho_end: The stopping point of the derivative of the result w.r.t. the density
-             * \param &dRdRhoDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the density
-             * \param &dRdRhoDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the density
-             * \param &dRdGradRho_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the density
-             * \param &dRdGradRho_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the density
-             * \param &dRdV_begin: The starting point of the derivative of the result w.r.t. the velocity
-             * \param &dRdV_end: The stopping point of the derivative of the result w.r.t. the velocity
-             * \param &dRdVDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
-             * \param &dRdVDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
-             * \param &dRdGradV_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the velocity
-             * \param &dRdGradV_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the velocity
-             * \param &dRdB_begin: The starting point of the derivative of the result w.r.t. the body force
-             * \param &dRdB_end: The stopping point of the derivative of the result w.r.t. the body force
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting iterator of the derivative of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the result w.r.t. the density
+             * \param &dRdRhoDot_begin: The starting iterator of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdRhoDot_end: The stopping iterator of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdGradRho_begin: The starting iterator of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdGradRho_end: The stopping iterator of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdV_begin: The starting iterator of the derivative of the result w.r.t. the velocity
+             * \param &dRdV_end: The stopping iterator of the derivative of the result w.r.t. the velocity
+             * \param &dRdVDot_begin: The starting iterator of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdVDot_end: The stopping iterator of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdGradV_begin: The starting iterator of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdGradV_end: The stopping iterator of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdB_begin: The starting iterator of the derivative of the result w.r.t. the body force
+             * \param &dRdB_end: The stopping iterator of the derivative of the result w.r.t. the body force
              */
 
             // Compute the inner product of the velocity and the density gradient
@@ -215,22 +215,22 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ -\rho_{,j} v_j v_i - \rho v_{i,j} v_j - \rho v_i v_{j,j} + \rho b_i - \frac{\partial \rho}{\partial t} v_i - \rho \frac{\partial v_i}{\partial t} \f$
              * 
-             * \param &density_begin: The starting point of the mass density per unit current volume \f$ \left( \rho \right) \f$
-             * \param &density_end: The stopping point of the mass density per unit current volume \f$ \left( \rho \right) \f$
-             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
+             * \param &density_begin: The starting iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
              */
 
             for ( auto rho = density_begin; rho != density_end; rho++ ){
@@ -279,36 +279,36 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ -\rho_{,j} v_j v_i - \rho v_{i,j} v_j - \rho v_i v_{j,j} + \rho b_i - \frac{\partial \rho}{\partial t} v_i - \rho \frac{\partial v_i}{\partial t} \f$
              * 
-             * \param &density_begin: The starting point of the mass density per unit current volume \f$ \left( \rho \right) \f$
-             * \param &density_end: The stopping point of the mass density per unit current volume \f$ \left( \rho \right) \f$
-             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ \left( v_i \right) \f$
-             * \param &velocity_dot_begin: The starting point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_dot_end: The stopping point of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
-             * \param &body_force_begin: The starting point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &body_force_end: The stopping point of the body force per unit mass \f$ \left( b_i \right) \f$
-             * \param &result_begin: The starting point of the non-divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the non-divergence part of the balance of linear momentum
-             * \param &dRdRho_begin: The starting point of the derivative of the result w.r.t. the density
-             * \param &dRdRho_end: The stopping point of the derivative of the result w.r.t. the density
-             * \param &dRdRhoDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the density
-             * \param &dRdRhoDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the density
-             * \param &dRdGradRho_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the density
-             * \param &dRdGradRho_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the density
-             * \param &dRdV_begin: The starting point of the derivative of the result w.r.t. the velocity
-             * \param &dRdV_end: The stopping point of the derivative of the result w.r.t. the velocity
-             * \param &dRdVDot_begin: The starting point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
-             * \param &dRdVDot_end: The stopping point of the derivative of the result w.r.t. the partial temporal derivative of the velocity
-             * \param &dRdGradV_begin: The starting point of the derivative of the result w.r.t. the spatial derivative of the velocity
-             * \param &dRdGradV_end: The stopping point of the derivative of the result w.r.t. the spatial derivative of the velocity
-             * \param &dRdB_begin: The starting point of the derivative of the result w.r.t. the body force
-             * \param &dRdB_end: The stopping point of the derivative of the result w.r.t. the body force
+             * \param &density_begin: The starting iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting iterator of the derivative of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the result w.r.t. the density
+             * \param &dRdRhoDot_begin: The starting iterator of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdRhoDot_end: The stopping iterator of the derivative of the result w.r.t. the partial temporal derivative of the density
+             * \param &dRdGradRho_begin: The starting iterator of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdGradRho_end: The stopping iterator of the derivative of the result w.r.t. the spatial derivative of the density
+             * \param &dRdV_begin: The starting iterator of the derivative of the result w.r.t. the velocity
+             * \param &dRdV_end: The stopping iterator of the derivative of the result w.r.t. the velocity
+             * \param &dRdVDot_begin: The starting iterator of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdVDot_end: The stopping iterator of the derivative of the result w.r.t. the partial temporal derivative of the velocity
+             * \param &dRdGradV_begin: The starting iterator of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdGradV_end: The stopping iterator of the derivative of the result w.r.t. the spatial derivative of the velocity
+             * \param &dRdB_begin: The starting iterator of the derivative of the result w.r.t. the body force
+             * \param &dRdB_end: The stopping iterator of the derivative of the result w.r.t. the body force
              */
 
             for ( auto rho = density_begin; rho != density_end; rho++ ){
@@ -360,13 +360,13 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
+             * \param &result_begin: The starting iterator of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the divergence part of the balance of linear momentum
              */
 
             std::fill( result_begin, result_end, 0. );
@@ -411,19 +411,19 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
-             * \param &dRdGradPsi_begin: The starting point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
-             * \param &dRdGradPsi_end: The stopping point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
-             * \param &dRdCauchy_begin: The starting point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdCauchy_end: The stopping point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdPhi_begin: The starting point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
-             * \param &dRdPhi_end: The stopping point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &result_begin: The starting iterator of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the divergence part of the balance of linear momentum
+             * \param &dRdGradPsi_begin: The starting iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdGradPsi_end: The stopping iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdCauchy_begin: The starting iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdCauchy_end: The stopping iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdPhi_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdPhi_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
              */
 
             std::fill( result_begin, result_end, 0. );
@@ -474,24 +474,24 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &volume_fraction_begin: The starting point of the volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &volume_fraction_end: The stopping point of the volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &result_begin: The starting iterator of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the divergence part of the balance of linear momentum
              */
 
             for ( auto phi = volume_fraction_begin; phi != volume_fraction_end; phi++ ){
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                           cauchy_stress_begin + sot_dim * phase,      cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,          test_function_gradient_end,
+                                                           cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
                                                           *phi,
-                                                           result_begin + dim * phase,                 result_begin + dim * ( phase + 1 ) );
+                                                           result_begin + dim * phase,            result_begin + dim * ( phase + 1 ) );
 
             }
 
@@ -525,33 +525,33 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping point of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &cauchy_stress_begin: The starting point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &cauchy_stress_end: The stopping point of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
-             * \param &volume_fraction_begin: The starting point of the volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &volume_fraction_end: The stopping point of the volume fraction of the current phase \f$ \left( \phi \right) \f$
-             * \param &result_begin: The starting point of the divergence part of the balance of linear momentum
-             * \param &result_end: The stopping point of the divergence part of the balance of linear momentum
-             * \param &dRdGradPsi_begin: The starting point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
-             * \param &dRdGradPsi_end: The stopping point of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
-             * \param &dRdCauchy_begin: The starting point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdCauchy_end: The stopping point of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdPhi_begin: The starting point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
-             * \param &dRdPhi_end: The stopping point of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
+             * \param &result_begin: The starting iterator of the divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the divergence part of the balance of linear momentum
+             * \param &dRdGradPsi_begin: The starting iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdGradPsi_end: The stopping iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
+             * \param &dRdCauchy_begin: The starting iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdCauchy_end: The stopping iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
+             * \param &dRdPhi_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdPhi_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
              */
 
             for ( auto phi = volume_fraction_begin; phi != volume_fraction_end; phi++ ){
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                           cauchy_stress_begin + sot_dim * phase,      cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,            test_function_gradient_end,
+                                                           cauchy_stress_begin + sot_dim * phase,   cauchy_stress_begin + sot_dim * ( phase + 1 ),
                                                           *phi,
-                                                           result_begin + dim * phase,                 result_begin + dim * ( phase + 1 ),
-                                                           dRdGradPsi_begin + dim * dim * phase,       dRdGradPsi_begin + dim * dim * ( phase + 1 ),
-                                                           dRdCauchy_begin + dim * sot_dim * phase,    dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
-                                                           dRdPhi_begin + dim * phase,                 dRdPhi_begin + dim * ( phase + 1 ) );
+                                                           result_begin + dim * phase,              result_begin + dim * ( phase + 1 ),
+                                                           dRdGradPsi_begin + dim * dim * phase,    dRdGradPsi_begin + dim * dim * ( phase + 1 ),
+                                                           dRdCauchy_begin + dim * sot_dim * phase, dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
+                                                           dRdPhi_begin + dim * phase,              dRdPhi_begin + dim * ( phase + 1 ) );
 
             }
 

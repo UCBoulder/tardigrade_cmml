@@ -16,6 +16,7 @@ New Features
 - Added the calculation of the non-divergence part of the balance of linear momentum (:pull:`11`). By `Nathan Miller`_.
 - Added the calculation of the divergence part of the balance of linear momentum (:pull:`11`). By `Nathan Miller`_.
 - Added the multiphase balance of linear momentum (:pull:`12`). By `Nathan Miller`_.
+- Added the calculation of the balance of energy for single and multiphase reacting continuum (:pull:`13`). By `Nathan Miller`_.
 
 ******************
 0.1.0 (11-07-2024)

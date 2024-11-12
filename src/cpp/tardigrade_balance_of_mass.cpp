@@ -81,12 +81,12 @@ namespace tardigradeBalanceEquations{
              *
              * \param &density: The value of the density \f$ \rho \f$
              * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              */
 
@@ -118,21 +118,21 @@ namespace tardigradeBalanceEquations{
              *
              * \param &density: The value of the density \f$ \rho \f$
              * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              * \param &dCdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
              * \param &dCdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdGradRho_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV_begin: The starting point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdV_end: The stopping point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &dCdGradV_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dCdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
             computeBalanceOfMass( density, density_dot,
@@ -172,18 +172,18 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
              *
-             * \param &density_begin: The starting point of the density \f$ \rho \f$
-             * \param &density_end: The stopping point of the density \f$ \rho \f$
-             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &mass_change_rate_begin: The starting point of the rate of change of the mass \f$ c \f$
-             * \param &mass_change_rate_end: The stopping point of the rate of change of the mass \f$ c \f$
+             * \param &density_begin: The starting iterator of the density \f$ \rho \f$
+             * \param &density_end: The stopping iterator of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &mass_change_rate_begin: The starting iterator of the rate of change of the mass \f$ c \f$
+             * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
              */
 
             unsigned int phase;
@@ -219,28 +219,28 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
              *
-             * \param &density_begin: The starting point of the value of the density \f$ \rho \f$
-             * \param &density_end: The stopping point of the value of the density \f$ \rho \f$
-             * \param &density_dot_begin: The starting point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_dot_end: The stopping point of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &density_gradient_begin: The starting point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &density_gradient_end: The stopping point of the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &velocity_begin: The starting point of the velocity \f$ v_i \f$
-             * \param &velocity_end: The stopping point of the velocity \f$ v_i \f$
-             * \param &velocity_gradient_begin: The starting point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &velocity_gradient_end: The stopping point of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &mass_change_rate_begin: The starting point of the rate of change of the mass \f$ c \f$
-             * \param &mass_change_rate_end: The stopping point of the rate of change of the mass \f$ c \f$
-             * \param &dCdRho_begin: The starting point of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRho_end: The stopping point of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRhoDot_begin: The starting point of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdRhoDot_end: The stopping point of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdGradRho_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV_begin: The starting point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdV_end: The stopping point of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV_begin: The starting point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &dCdGradV_end: The stopping point of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &density_begin: The starting iterator of the value of the density \f$ \rho \f$
+             * \param &density_end: The stopping iterator of the value of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &mass_change_rate_begin: The starting iterator of the rate of change of the mass \f$ c \f$
+             * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
+             * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dCdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dCdRhoDot_begin: The starting iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dCdRhoDot_end: The stopping iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dCdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dCdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
             unsigned int phase;
