@@ -946,24 +946,23 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
     constexpr unsigned int sot_dim = 9;
 
-    std::array<floatType,dim*nphases> test_function_gradient = { 0.55237008, 0.57855147, 0.52153306, 0.00268806, 0.98834542, 0.90534158,
-                                                                 0.20763586, 0.29248941, 0.52001015, 0.90191137, 0.98363088, 0.25754206,
-                                                                 0.56435904, 0.80696868, 0.39437005 };
+    std::array<floatType,dim> test_function_gradient = { 0.69646919, 0.28613933, 0.22685145 };
 
-    std::array<floatType,sot_dim*nphases> cauchy_stress = { 0.73107304, 0.16106901, 0.60069857, 0.86586446, 0.98352161, 0.07936579,
-                                                            0.42834727, 0.20454286, 0.45063649, 0.54776357, 0.09332671, 0.29686078,
-                                                            0.92758424, 0.56900373, 0.457412  , 0.75352599, 0.74186215, 0.04857903,
-                                                            0.7086974 , 0.83924335, 0.16593788, 0.78099794, 0.28653662, 0.30646975,
-                                                            0.66526147, 0.11139217, 0.66487245, 0.88785679, 0.69631127, 0.44032788,
-                                                            0.43821438, 0.7650961 , 0.565642  , 0.08490416, 0.58267109, 0.8148437 ,
-                                                            0.33706638, 0.92757658, 0.750717  , 0.57406383, 0.75164399, 0.07914896,
-                                                            0.85938908, 0.82150411, 0.90987166 };
+    std::array<floatType,sot_dim*nphases> cauchy_stress = { 0.4809319 , 0.39211752, 0.34317802, 0.72904971, 0.43857224,
+                                                            0.0596779 , 0.39804426, 0.73799541, 0.18249173, 0.17545176,
+                                                            0.53155137, 0.53182759, 0.63440096, 0.84943179, 0.72445532,
+                                                            0.61102351, 0.72244338, 0.32295891, 0.36178866, 0.22826323,
+                                                            0.29371405, 0.63097612, 0.09210494, 0.43370117, 0.43086276,
+                                                            0.4936851 , 0.42583029, 0.31226122, 0.42635131, 0.89338916,
+                                                            0.94416002, 0.50183668, 0.62395295, 0.1156184 , 0.31728548,
+                                                            0.41482621, 0.86630916, 0.25045537, 0.48303426, 0.98555979,
+                                                            0.51948512, 0.61289453, 0.12062867, 0.8263408 , 0.60306013 };
 
-    std::array<floatType,nphases> volume_fraction = { 0.1286312 , 0.08178009, 0.13841557, 0.39937871, 0.42430686 };
+    std::array<floatType,nphases> volume_fraction = { 0.55131477, 0.71946897, 0.42310646, 0.9807642 , 0.68482974 };
 
-    std::array<floatType,dim*nphases> answer = { -0.14511751, -0.09835957, -0.07881837, -0.13088449, -0.10093803,
-                                                 -0.04063323, -0.09987062, -0.04373808, -0.06503238, -0.5006914 ,
-                                                 -0.61130723, -0.46462768, -0.42108014, -0.61694897, -0.35912094 };
+    std::array<floatType,dim*nphases> answer = { -0.34945691, -0.3120474 , -0.16400932, -0.31824658, -0.55913699,
+                                                 -0.4683458 , -0.22435795, -0.12580069, -0.17993109, -0.50398514,
+                                                 -0.50265385, -0.8776461 , -0.62506454, -0.34963036, -0.44417836 };
 
     std::array<floatType,dim*nphases> result;
 
@@ -978,7 +977,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
     std::array<floatType,dim*nphases> dRdPhi;
 
-    std::array<floatType,sot_dim*nphases> dRdGradPsi;
+    std::array<floatType,dim*dim*nphases> dRdGradPsi;
 
     std::array< floatType, dim * dim * dim * nphases > dRdCauchy;
 
@@ -994,12 +993,12 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
     floatType eps = 1e-6;
 
-    for ( unsigned int i = 0; i < dim * nphases; i++ ){
+    for ( unsigned int i = 0; i < dim; i++ ){
 
         floatType delta = eps * std::fabs( test_function_gradient[ i ] ) + eps;
 
-        std::array<floatType,dim*nphases> xp = test_function_gradient;
-        std::array<floatType,dim*nphases> xm = test_function_gradient;
+        std::array<floatType,dim> xp = test_function_gradient;
+        std::array<floatType,dim> xm = test_function_gradient;
 
         xp[ i ] += delta;
         xm[ i ] -= delta;
@@ -1021,20 +1020,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
             floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
 
-            if ( ( unsigned int )( j / dim ) == ( unsigned int )( i / dim ) ){
-
-                unsigned int phase = ( unsigned int )( j / dim );
-                unsigned int row   = ( j - phase * dim ) % nphases;
-                unsigned int col   = ( i - phase * dim ) % dim;
-
-                BOOST_TEST( dRdGradPsi[ sot_dim * phase + dim * row + col ] == grad );
-
-            }
-            else{
-
-                BOOST_TEST( grad == 0. );
-
-            }
+            BOOST_TEST( dRdGradPsi[ dim * j + i ] == grad );
 
         }
 

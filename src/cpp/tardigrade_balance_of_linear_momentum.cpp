@@ -488,10 +488,10 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                           cauchy_stress_begin + sot_dim * phase,      cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,          test_function_gradient_end,
+                                                           cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
                                                           *phi,
-                                                           result_begin + dim * phase,                 result_begin + dim * ( phase + 1 ) );
+                                                           result_begin + dim * phase,            result_begin + dim * ( phase + 1 ) );
 
             }
 
@@ -545,13 +545,13 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                           cauchy_stress_begin + sot_dim * phase,      cauchy_stress_begin + sot_dim * ( phase + 1 ),
+                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,            test_function_gradient_end,
+                                                           cauchy_stress_begin + sot_dim * phase,   cauchy_stress_begin + sot_dim * ( phase + 1 ),
                                                           *phi,
-                                                           result_begin + dim * phase,                 result_begin + dim * ( phase + 1 ),
-                                                           dRdGradPsi_begin + dim * dim * phase,       dRdGradPsi_begin + dim * dim * ( phase + 1 ),
-                                                           dRdCauchy_begin + dim * sot_dim * phase,    dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
-                                                           dRdPhi_begin + dim * phase,                 dRdPhi_begin + dim * ( phase + 1 ) );
+                                                           result_begin + dim * phase,              result_begin + dim * ( phase + 1 ),
+                                                           dRdGradPsi_begin + dim * dim * phase,    dRdGradPsi_begin + dim * dim * ( phase + 1 ),
+                                                           dRdCauchy_begin + dim * sot_dim * phase, dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
+                                                           dRdPhi_begin + dim * phase,              dRdPhi_begin + dim * ( phase + 1 ) );
 
             }
 
