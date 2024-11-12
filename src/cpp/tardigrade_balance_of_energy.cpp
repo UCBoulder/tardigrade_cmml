@@ -492,8 +492,8 @@ namespace tardigradeBalanceEquations{
 
                 const unsigned int phase = ( unsigned int )( r - result_begin );
 
-                computeBalanceOfEnergyDivergence( test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                  heat_flux_begin + dim * phase,              heat_flux_begin + dim * ( phase + 1 ),
+                computeBalanceOfEnergyDivergence( test_function_gradient_begin,  test_function_gradient_end,
+                                                  heat_flux_begin + dim * phase, heat_flux_begin + dim * ( phase + 1 ),
                                                   *r );
 
             }
@@ -529,11 +529,11 @@ namespace tardigradeBalanceEquations{
 
                 const unsigned int phase = ( unsigned int )( r - result_begin );
 
-                computeBalanceOfEnergyDivergence( test_function_gradient_begin + dim * phase, test_function_gradient_begin + dim * ( phase + 1 ),
-                                                  heat_flux_begin + dim * phase,              heat_flux_begin + dim * ( phase + 1 ),
+                computeBalanceOfEnergyDivergence( test_function_gradient_begin,   test_function_gradient_end,
+                                                  heat_flux_begin + dim * phase,  heat_flux_begin + dim * ( phase + 1 ),
                                                   *r,
-                                                  dRdGradPsi_begin + dim * phase,             dRdGradPsi_begin + dim * ( phase + 1 ),
-                                                  dRdq_begin + dim * phase,                   dRdq_begin + dim * ( phase + 1 ) );
+                                                  dRdGradPsi_begin + dim * phase, dRdGradPsi_begin + dim * ( phase + 1 ),
+                                                  dRdq_begin + dim * phase,       dRdq_begin + dim * ( phase + 1 ) );
 
             }
 
