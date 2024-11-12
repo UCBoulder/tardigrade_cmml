@@ -18,6 +18,10 @@ New Features
 - Added the multiphase balance of linear momentum (:pull:`12`). By `Nathan Miller`_.
 - Added the calculation of the balance of energy for single and multiphase reacting continuum (:pull:`13`). By `Nathan Miller`_.
 
+Internal Changes
+================
+- Corrected the nomenclature for the derivative of gradient quantities (:pull:`14`). By `Nathan Miller`_.
+
 ******************
 0.1.0 (11-07-2024)
 ******************

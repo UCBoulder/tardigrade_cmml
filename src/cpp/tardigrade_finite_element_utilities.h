@@ -33,7 +33,7 @@ namespace tardigradeBalanceEquations{
 
         template<typename grad_iterator, typename output_iterator>
         void computeGradientSpatialJacobian( const grad_iterator &grad_a_start, const unsigned int grad_a_size, 
-                                             floatVector grad_test, const unsigned int index, output_iterator dgrad_adui_start );
+                                             floatVector grad_interp, const unsigned int index, output_iterator dgrad_adui_start );
 
     }
 
