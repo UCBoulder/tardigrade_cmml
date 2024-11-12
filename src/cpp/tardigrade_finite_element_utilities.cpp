@@ -16,7 +16,7 @@ namespace tardigradeBalanceEquations{
 
         template<typename grad_iterator, typename output_iterator>
         void computeGradientSpatialJacobian( const grad_iterator &grad_a_start, const unsigned int grad_a_size,
-                                             floatVector grad_test, const unsigned int index, output_iterator dgrad_adui_start ){
+                                             floatVector grad_interp, const unsigned int index, output_iterator dgrad_adui_start ){
             /*!
              * Compute the derivative of the spatial gradient of a quantity a
              * in the current configuration w.r.t. the spatial degrees of freedom
@@ -25,7 +25,7 @@ namespace tardigradeBalanceEquations{
              * 
              * \param &grad_a_start: An iterator representing the start of the gradient of the quantity
              * \param &grad_a_size: The size of the gradient of a
-             * \param &grad_test: The gradient of the test function
+             * \param &grad_interp: The gradient of the interpolation function
              * \param &index: The index of the spatial degree of freedom to compute the derivative for (0, 1 or 2)
              * \param &dgrad_adui_start: An iterator representing the start of the output
              */
@@ -40,7 +40,7 @@ namespace tardigradeBalanceEquations{
 
                 for ( unsigned int j = 0; j < dim; j++ ){
 
-                    *( dgrad_adui_start + dim * i + j ) -= *( grad_a_start + dim * i + index ) * grad_test[ j ];
+                    *( dgrad_adui_start + dim * i + j ) -= *( grad_a_start + dim * i + index ) * grad_interp[ j ];
 
                 }
 
