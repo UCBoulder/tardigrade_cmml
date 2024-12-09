@@ -75,3 +75,98 @@ BOOST_AUTO_TEST_CASE( test_computeGradientSpatialJacobian, * boost::unit_test::t
 
 }
 
+BOOST_AUTO_TEST_CASE( test_LinearHex, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+
+    std::array< floatType, 24 > xi = { -1, -1, -1,
+                                        1, -1, -1,
+                                        1,  1, -1,
+                                       -1,  1, -1,
+                                       -1, -1,  1,
+                                        1, -1,  1,
+                                        1,  1,  1,
+                                       -1,  1,  1 };
+
+    std::array< floatType, 24 > X = { 0, 0, 0,
+                                      1, 0, 0,
+                                      1, 1, 0,
+                                      0, 1, 0,
+                                      0, 0, 1,
+                                      1, 0, 1,
+                                      1, 1, 1,
+                                      0, 1, 1 };
+
+    std::array< floatType, 9 > A = { 1.01964692, -0.02138607, -0.02731485,
+                                     0.00513148,  1.0219469 , -0.00768935,
+                                     0.04807642,  0.01848297,  0.99809319 };
+
+    std::array< floatType, 3 > b = { -0.21576496, -0.31364397,  0.45809941 };
+
+    std::array< floatType, 24 > x;
+
+    std::fill( std::begin( x ), std::end( x ), 0 );
+
+    for ( unsigned int i = 0; i < 8; ++i ){
+        for ( unsigned int j = 0; j < 3; ++j ){
+            for ( unsigned int k = 0; k < 3; ++k ){
+                x[ 3 * i + j ] += X[ 3 * i + k ] * A[ 3 * j + k ];
+            }
+            x[ 3 * i + j ] += b[ j ];
+        }
+    }
+
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<floatType, typename std::array< floatType, 24 >::const_iterator, typename std::array< floatType, 3>::const_iterator, typename std::array< floatType, 8>::iterator, typename std::array< floatType, 24>::iterator> e( std::cbegin( x ), std::cend( x ), std::cbegin( X ), std::cend( X ) );
+
+    std::array< floatType, 8 > result;
+
+    std::array< floatType, 8 > answer;
+
+    for ( unsigned int i = 0; i < 8; i++ ){
+
+        e.GetShapeFunctions( std::cbegin( xi ) + 3 * i, std::cbegin( xi ) + 3 * ( i + 1 ), std::begin( result ), std::end( result ) );
+
+        std::fill( std::begin( answer ), std::end( answer ), 0 );
+
+        answer[ i ] = 1;
+
+        BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    }
+
+    std::array< floatType, 3 > point = { 0, 0, 0 };
+
+    e.GetShapeFunctions( std::cbegin( point ), std::cend( point ), std::begin( result ), std::end( result ) );
+
+    std::fill( std::begin( answer ), std::end( answer ), 0.125 );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    std::array< floatType, 8 * 3 > dNdxi;
+
+    e.GetLocalShapeFunctionGradients( std::cbegin( point ), std::cend( point ), std::begin( dNdxi ), std::end( dNdxi ) );
+
+    floatType eps = 1e-6;
+
+    std::array< floatType, 8 > vp, vm;
+
+    for ( unsigned int i = 0; i < 3; ++i ){
+
+        floatType delta = eps * std::fabs( point[ i ] ) + eps;
+
+        std::array< floatType, 3 > pp = point;
+        std::array< floatType, 3 > pm = point;
+
+        pp[ i ] += delta;
+        pm[ i ] -= delta;
+
+        e.GetShapeFunctions( std::cbegin( pp ), std::cend( pp ), std::begin( vp ), std::end( vp ) );
+        e.GetShapeFunctions( std::cbegin( pm ), std::cend( pm ), std::begin( vm ), std::end( vm ) );
+
+        for ( unsigned int j = 0; j < 8; j++ ){
+
+            BOOST_TEST( ( ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) ) == dNdxi[ 3 * j + i ] );
+
+        }
+
+    }
+
+}
