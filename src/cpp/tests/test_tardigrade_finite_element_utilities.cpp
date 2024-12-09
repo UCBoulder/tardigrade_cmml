@@ -170,3 +170,86 @@ BOOST_AUTO_TEST_CASE( test_LinearHex, * boost::unit_test::tolerance( DEFAULT_TES
     }
 
 }
+
+BOOST_AUTO_TEST_CASE( test_LinearHex2, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE) ) {
+
+    // Test the interpolation
+    std::array< floatType, 40 > quantities = { 0.03096734, 0.25428207, 0.91240044, 0.9701742 , 0.24661978,
+                                               0.69880741, 0.86642932, 0.63952185, 0.45684365, 0.49879475,
+                                               0.72047501, 0.27125319, 0.80061903, 0.50925268, 0.81992102,
+                                               0.30771324, 0.65927822, 0.31350889, 0.54465191, 0.31984146,
+                                               0.45915279, 0.81309162, 0.95755166, 0.0039935 , 0.98393864,
+                                               0.98961971, 0.09200859, 0.46202094, 0.87754638, 0.37499295,
+                                               0.23868804, 0.37254533, 0.54245204, 0.73809604, 0.87751833,
+                                               0.53958266, 0.07906357, 0.74954525, 0.70097189, 0.83657464 };
+
+    std::array< floatType, 24 > X = { 0, 0, 0,
+                                      1, 0, 0,
+                                      1, 1, 0,
+                                      0, 1, 0,
+                                      0, 0, 1,
+                                      1, 0, 1,
+                                      1, 1, 1,
+                                      0, 1, 1 };
+
+    std::array< floatType, 9 > A = { 1.01964692, -0.02138607, -0.02731485,
+                                     0.00513148,  1.0219469 , -0.00768935,
+                                     0.04807642,  0.01848297,  0.99809319 };
+
+    std::array< floatType, 3 > b = { -0.21576496, -0.31364397,  0.45809941 };
+
+    std::array< floatType, 24 > x;
+
+    std::fill( std::begin( x ), std::end( x ), 0 );
+
+    for ( unsigned int i = 0; i < 8; ++i ){
+        for ( unsigned int j = 0; j < 3; ++j ){
+            for ( unsigned int k = 0; k < 3; ++k ){
+                x[ 3 * i + j ] += X[ 3 * i + k ] * A[ 3 * j + k ];
+            }
+            x[ 3 * i + j ] += b[ j ];
+        }
+    }
+
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<floatType, typename std::array< floatType, 24 >::const_iterator, typename std::array< floatType, 3>::const_iterator, typename std::array< floatType, 8>::iterator, typename std::array< floatType, 24>::iterator> e( std::cbegin( x ), std::cend( x ), std::cbegin( X ), std::cend( X ) );
+
+    std::array< floatType, 3 > point = { 0.1626388 , 0.45020513, 0.22368613 };
+
+    std::array< floatType, 5 > answer = { 0.48974732, 0.3641928 , 0.64009587, 0.62582472, 0.70145625 };
+
+    std::array< floatType, 5 > result;
+
+    e.InterpolateQuantity( std::cbegin( point ), std::cend( point ), std::cbegin( quantities ), std::cend( quantities ), std::begin( result ), std::end( result ) );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    std::array< floatType, 15 > dQuantitydxi;
+
+    e.GetLocalQuantityGradient( std::cbegin( point ), std::cend( point ), std::cbegin( quantities ), std::cend( quantities ), std::begin( dQuantitydxi ), std::end( dQuantitydxi ) );
+
+    floatType eps = 1e-6;
+
+    std::array< floatType, 5 > vp, vm;
+
+    for ( unsigned int i = 0; i < 3; ++i ){
+
+        floatType delta = eps * std::fabs( point[ i ] ) + eps;
+
+        std::array< floatType, 3 > pp = point;
+        std::array< floatType, 3 > pm = point;
+
+        pp[ i ] += delta;
+        pm[ i ] -= delta;
+
+        e.InterpolateQuantity( std::cbegin( pp ), std::cend( pp ), std::begin( quantities ), std::end( quantities ), std::begin( vp ), std::end( vp ) );
+        e.InterpolateQuantity( std::cbegin( pm ), std::cend( pm ), std::begin( quantities ), std::end( quantities ), std::begin( vm ), std::end( vm ) );
+
+        for ( unsigned int j = 0; j < 5; j++ ){
+
+            BOOST_TEST( ( ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) ) == dQuantitydxi[ 3 * j + i ] );
+
+        }
+
+    }
+
+}

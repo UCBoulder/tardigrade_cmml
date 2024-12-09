@@ -49,8 +49,8 @@ namespace tardigradeBalanceEquations{
         }
 
         //! A base class for a simple finite element formulation useful for testing
-        template<int dim, class node_in, class local_node_in, class local_point_in, class shape_functions_out, class grad_shape_functions_out>
-        FiniteElementBase<dim,node_in,local_node_in,local_point_in,shape_functions_out,grad_shape_functions_out>::FiniteElementBase(
+        template<int dim, int local_dim, int node_count, class node_in, class local_node_in, class local_point_in, class shape_functions_out, class grad_shape_functions_out>
+        FiniteElementBase<dim,local_dim,node_count,node_in,local_node_in,local_point_in,shape_functions_out,grad_shape_functions_out>::FiniteElementBase(
             const node_in &_x_begin,             const node_in &_x_end,
             const node_in &_X_begin,             const node_in &_X_end,
             const local_node_in &_local_node_xi_begin, const local_node_in &_local_node_xi_end )
@@ -70,7 +70,7 @@ namespace tardigradeBalanceEquations{
 
         template<typename T, class node_in, class local_point_in, class shape_functions_out, class grad_shape_functions_out>
         LinearHex<T,node_in,local_point_in,shape_functions_out,grad_shape_functions_out>::LinearHex( const node_in &_x_begin, const node_in &_x_end, const node_in &_X_begin, const node_in &_X_end ) :
-                              FiniteElementBase<3,node_in,typename std::array< T, 3 * 8 >::const_iterator,local_point_in,shape_functions_out,grad_shape_functions_out>( _x_begin, _x_end, _X_begin, _X_end, std::cbegin( local_nodes ), std::cend( local_nodes ) ){
+                              FiniteElementBase<3,3,8,node_in,typename std::array< T, 3 * 8 >::const_iterator,local_point_in,shape_functions_out,grad_shape_functions_out>( _x_begin, _x_end, _X_begin, _X_end, std::cbegin( local_nodes ), std::cend( local_nodes ) ){
             /*!
              * Constructor for the base finite element class
              * 
@@ -78,8 +78,6 @@ namespace tardigradeBalanceEquations{
              * \param &_x_end: The stopping iterator for the current node positions
              * \param &_X_begin: The starting iterator for the reference node positions
              * \param &_X_end: The stopping iterator for the reference node positions
-             * \param &_node_xi_begin: The starting iterator for the local node positions
-             * \param &_node_xi_end: The stopping iterator for the local node positions
              */
 
         }
