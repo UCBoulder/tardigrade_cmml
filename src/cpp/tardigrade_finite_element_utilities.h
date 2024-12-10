@@ -92,6 +92,21 @@ namespace tardigradeBalanceEquations{
                      
                 }
 
+                virtual void GetVolumeIntegralJacobianOfTransformation( const local_point_in &xi_begin, const local_point_in &xi_end,
+                                                                        typename std::iterator_traits<node_in>::value_type &value, const bool configuration = 1 ){
+                    /*!
+                     * Compute the value of the Jacobian of transformation from the local coordinates to the configuration for volume integrals
+                     * 
+                     * \param &xi_begin: The starting iterator of the local coordinates
+                     * \param &xi_end: The stopping iterator of the local coordinates
+                     * \param value: The Jacobian of transformation going from the local coordinates to the indicated configuration
+                     * \param configuration: Compute the gradient w.r.t. the current configuration ( true ) or reference configuration ( false )
+                     */
+
+                    throw std::logic_error("Function not implemented");
+                     
+                }
+
                 template<class quantity_in, class quantity_out>
                 void InterpolateQuantity( const local_point_in &xi_begin, const local_point_in &xi_end, const quantity_in &quantity_begin, const quantity_in &quantity_end,
                                           quantity_out value_begin, quantity_out value_end ){
@@ -260,6 +275,9 @@ namespace tardigradeBalanceEquations{
                 virtual void GetGlobalShapeFunctionGradients( const local_point_in &xi_begin, const local_point_in &xi_end,
                                                               const node_in &node_positions_begin, const node_in &node_positions_end,
                                                               grad_shape_functions_out value_begin, grad_shape_functions_out value_end ) override;
+
+                virtual void GetVolumeIntegralJacobianOfTransformation( const local_point_in &xi_begin, const local_point_in &xi_end,
+                                                                        typename std::iterator_traits<node_in>::value_type &value, const bool configuration = 1 ) override;
 
         };
 

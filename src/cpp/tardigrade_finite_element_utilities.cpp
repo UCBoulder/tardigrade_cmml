@@ -146,15 +146,15 @@ namespace tardigradeBalanceEquations{
 
             TARDIGRADE_ERROR_TOOLS_CHECK( ( size_type )( value_end - value_begin ) == 24, "The shape function global gradient must have a size of 24" );
 
-            std::array< T, 9 > dxdxi;
-            std::array< T, 9 > dxidx;
+            std::array< typename std::iterator_traits<node_in>::value_type, 9 > dxdxi;
+            std::array< typename std::iterator_traits<node_in>::value_type, 9 > dxidx;
 
             TARDIGRADE_ERROR_TOOLS_CATCH( this->GetLocalQuantityGradient( xi_begin, xi_end, node_positions_begin, node_positions_end,
                                                                           std::begin( dxdxi ), std::end( dxdxi ) ) );
 
-            Eigen::Map< const Eigen::Matrix< T, 3, 3, Eigen::RowMajor > > _dxdxi( dxdxi.data( ) );
+            Eigen::Map< const Eigen::Matrix< typename std::iterator_traits<node_in>::value_type, 3, 3, Eigen::RowMajor > > _dxdxi( dxdxi.data( ) );
 
-            Eigen::Map< Eigen::Matrix< T, 3, 3, Eigen::RowMajor > > _dxidx( dxidx.data( ) );
+            Eigen::Map< Eigen::Matrix< typename std::iterator_traits<node_in>::value_type, 3, 3, Eigen::RowMajor > > _dxidx( dxidx.data( ) );
 
             _dxidx = ( _dxdxi.inverse( ) ).eval( );
 
@@ -173,6 +173,38 @@ namespace tardigradeBalanceEquations{
                 }
 
             }
+
+        }
+
+        template<typename T, class node_in, class local_point_in, class shape_functions_out, class grad_shape_functions_out>
+        void LinearHex<T,node_in,local_point_in,shape_functions_out,grad_shape_functions_out>::GetVolumeIntegralJacobianOfTransformation(
+            const local_point_in &xi_begin, const local_point_in &xi_end,
+            typename std::iterator_traits<node_in>::value_type &value, const bool configuration ){
+            /*!
+             * Compute the value of the Jacobian of transformation from the local coordinates to the configuration for volume integrals
+             * 
+             * \param &xi_begin: The starting iterator of the local coordinates
+             * \param &xi_end: The stopping iterator of the local coordinates
+             * \param value: The Jacobian of transformation going from the local coordinates to the indicated configuration
+             * \param configuration: Compute the gradient w.r.t. the current configuration ( true ) or reference configuration ( false )
+             */
+
+            std::array< typename std::iterator_traits<node_in>::value_type, 9 > dxdxi;
+
+            if ( configuration ){
+
+                this->GetLocalQuantityGradient( xi_begin, xi_end, this->x_begin, this->x_end, std::begin( dxdxi ), std::end( dxdxi ) );
+
+            }
+            else{
+
+                this->GetLocalQuantityGradient( xi_begin, xi_end, this->X_begin, this->X_end, std::begin( dxdxi ), std::end( dxdxi ) );
+
+            }
+
+            Eigen::Map< const Eigen::Matrix< typename std::iterator_traits<node_in>::value_type, 3, 3, Eigen::RowMajor > > _dxdxi( dxdxi.data( ) );
+
+            value = _dxdxi.determinant( );
 
         }
 
