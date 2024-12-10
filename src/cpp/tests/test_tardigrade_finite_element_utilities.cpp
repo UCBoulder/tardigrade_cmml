@@ -374,4 +374,19 @@ BOOST_AUTO_TEST_CASE( test_LinearHex4, * boost::unit_test::tolerance( DEFAULT_TE
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
+    std::fill( std::begin( quantity ), std::end( quantity ), 0 );
+
+    for ( unsigned int i = 0; i < 8; ++i ){
+        for ( unsigned int j = 0; j < 5; ++j ){
+            for ( unsigned int k = 0; k < 3; ++k ){
+                quantity[ 5 * i + j ] += answer[ 3 * j + k ] * X[ 3 * i + k ];
+            }
+            quantity[ 5 * i + j ] += b2[ j ];
+        }
+    }
+
+    e.GetGlobalQuantityGradient( std::cbegin( point ), std::cend( point ), std::cbegin( quantity ), std::cend( quantity ), std::begin( result ), std::end( result ), 0 );
+
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
+
 }
