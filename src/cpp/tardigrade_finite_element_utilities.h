@@ -146,7 +146,7 @@ namespace tardigradeBalanceEquations{
 
                     TARDIGRADE_ERROR_TOOLS_CHECK( quantity_dim * node_count == ( size_type )( quantity_end - quantity_begin ), "The returned value size (" + std::to_string( quantity_dim ) + ") and the quantity dimension (" + std::to_string( ( size_type )( quantity_end - quantity_begin ) ) + ") are inconsistent with the node count (" + std::to_string( node_count ) + ")" );
 
-                    TARDIGRADE_ERROR_TOOLS_CATCH( GetLocalShapeFunctionGradients( xi_begin, xi_end, std::begin( _gradshapefunctions ), std::end( _gradshapefunctions ) ) );
+                    TARDIGRADE_ERROR_TOOLS_CATCH( GetLocalShapeFunctionGradients( xi_begin, xi_end, std::begin( _local_gradshapefunctions ), std::end( _local_gradshapefunctions ) ) );
 
                     std::fill( value_begin, value_end, 0 );
 
@@ -156,7 +156,55 @@ namespace tardigradeBalanceEquations{
 
                             for ( unsigned int col = 0; col < local_dim; ++col ){
 
-                                *( value_begin + local_dim * row + col ) += _gradshapefunctions[ local_dim * node + col ] * ( *( quantity_begin + quantity_dim * node + row ) );
+                                *( value_begin + local_dim * row + col ) += _local_gradshapefunctions[ local_dim * node + col ] * ( *( quantity_begin + quantity_dim * node + row ) );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                template<class quantity_in, class quantity_gradient_out>
+                void GetGlobalQuantityGradient( const local_point_in &xi_begin, const local_point_in &xi_end, const quantity_in &quantity_begin, const quantity_in &quantity_end,
+                                               quantity_gradient_out value_begin, quantity_gradient_out value_end, const bool configuration = true ){
+                    /*!
+                     * Compute the global gradient of the quantity at a local point
+                     * 
+                     * \param &xi_begin: The starting iterator of the local coordinates
+                     * \param &xi_end: The stopping iterator of the local coordinates
+                     * \param &quantity_begin: The starting iterator of the quantity at the nodes (row-major)
+                     * \param &quantity_end: The stopping iterator of the quantity at the nodes (row-major)
+                     * \param value_begin: The starting iterator for the computed global gradient of the quantity
+                     * \param value_end: The stopping iterator for the computed global gradient of the quantity in row-major form
+                     * \param configuration: Compute the gradient w.r.t. the current configuration ( true ) or reference configuration ( false )
+                     */
+
+                    const size_type quantity_dim = ( size_type )( value_end - value_begin ) / dim;
+
+                    TARDIGRADE_ERROR_TOOLS_CHECK( quantity_dim * node_count == ( size_type )( quantity_end - quantity_begin ), "The returned value size (" + std::to_string( quantity_dim ) + ") and the quantity dimension (" + std::to_string( ( size_type )( quantity_end - quantity_begin ) ) + ") are inconsistent with the node count (" + std::to_string( node_count ) + ")" );
+
+                    if ( configuration ){
+
+                        TARDIGRADE_ERROR_TOOLS_CATCH( GetGlobalShapeFunctionGradients( xi_begin, xi_end, x_begin, x_end, std::begin( _global_gradshapefunctions ), std::end( _global_gradshapefunctions ) ) );
+
+                    }
+                    else{
+
+                        TARDIGRADE_ERROR_TOOLS_CATCH( GetGlobalShapeFunctionGradients( xi_begin, xi_end, X_begin, X_end, std::begin( _global_gradshapefunctions ), std::end( _global_gradshapefunctions ) ) );
+
+                    }
+
+                    std::fill( value_begin, value_end, 0 );
+
+                    for ( unsigned int node = 0; node < node_count; ++node ){
+
+                        for ( unsigned int row = 0; row < quantity_dim; ++row ){
+
+                            for ( unsigned int col = 0; col < local_dim; ++col ){
+
+                                *( value_begin + local_dim * row + col ) += _global_gradshapefunctions[ local_dim * node + col ] * ( *( quantity_begin + quantity_dim * node + row ) );
 
                             }
 
@@ -179,7 +227,9 @@ namespace tardigradeBalanceEquations{
 
                 std::array<typename std::iterator_traits<shape_functions_out>::value_type, node_count> _shapefunctions; //!< A temporary storage container for shapefunction values
 
-                std::array<typename std::iterator_traits<shape_functions_out>::value_type, local_dim * node_count> _gradshapefunctions; //!< A temporary storage container for grad shapefunction values
+                std::array<typename std::iterator_traits<shape_functions_out>::value_type, local_dim * node_count> _local_gradshapefunctions; //!< A temporary storage container for local grad shapefunction values
+
+                std::array<typename std::iterator_traits<shape_functions_out>::value_type, dim * node_count> _global_gradshapefunctions; //!< A temporary storage container for global grad shapefunction values
 
         };
 

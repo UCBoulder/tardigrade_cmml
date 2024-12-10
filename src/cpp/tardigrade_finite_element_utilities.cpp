@@ -166,7 +166,7 @@ namespace tardigradeBalanceEquations{
 
                     for ( unsigned int outer = 0; outer < 3; ++outer ){
 
-                        *( value_begin + 3 * node + outer ) += this->_gradshapefunctions[ 3 * node + inner ] * dxidx[ 3 * inner + outer ];
+                        *( value_begin + 3 * node + outer ) += this->_local_gradshapefunctions[ 3 * node + inner ] * dxidx[ 3 * inner + outer ];
 
                     }
 
