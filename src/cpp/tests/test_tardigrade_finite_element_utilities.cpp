@@ -253,3 +253,62 @@ BOOST_AUTO_TEST_CASE( test_LinearHex2, * boost::unit_test::tolerance( DEFAULT_TE
     }
 
 }
+
+BOOST_AUTO_TEST_CASE( test_LinearHex3, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE) ) {
+
+    // Test the interpolation
+    std::array< floatType, 24 > X = { 0, 0, 0,
+                                      1, 0, 0,
+                                      1, 1, 0,
+                                      0, 1, 0,
+                                      0, 0, 1,
+                                      1, 0, 1,
+                                      1, 1, 1,
+                                      0, 1, 1 };
+
+    std::array< floatType, 9 > A = { 1.01964692, -0.02138607, -0.02731485,
+                                     0.00513148,  1.0219469 , -0.00768935,
+                                     0.04807642,  0.01848297,  0.99809319 };
+
+    std::array< floatType, 3 > b = { -0.21576496, -0.31364397,  0.45809941 };
+
+    std::array< floatType, 24 > x;
+
+    std::fill( std::begin( x ), std::end( x ), 0 );
+
+    for ( unsigned int i = 0; i < 8; ++i ){
+        for ( unsigned int j = 0; j < 3; ++j ){
+            for ( unsigned int k = 0; k < 3; ++k ){
+                x[ 3 * i + j ] += X[ 3 * i + k ] * A[ 3 * j + k ];
+            }
+            x[ 3 * i + j ] += b[ j ];
+        }
+    }
+
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<floatType, typename std::array< floatType, 24 >::const_iterator, typename std::array< floatType, 3>::const_iterator, typename std::array< floatType, 8>::iterator, typename std::array< floatType, 24>::iterator> e( std::cbegin( x ), std::cend( x ), std::cbegin( X ), std::cend( X ) );
+
+    std::array< floatType, 3 > point = { 0.1626388 , 0.45020513, 0.22368613 };
+
+    std::array< floatType, 24 > answer = { -0.09822601, -0.15892292, -0.11922661,  0.11321351, -0.21555842,
+                                           -0.15867086,  0.2942983 ,  0.23441585, -0.41246145, -0.26220936,
+                                            0.15914528, -0.31011619, -0.16879031, -0.25616407,  0.10872132,
+                                            0.15907466, -0.347635  ,  0.16178372,  0.41277349,  0.34878489,
+                                            0.43630492, -0.45013428,  0.23593439,  0.29366517 };
+
+    std::array< floatType, 24 > result;
+
+    e.GetGlobalShapeFunctionGradients( std::cbegin( point ), std::cend( point ), std::cbegin( x ), std::cend( x ), std::begin( result ), std::end( result ) );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    answer = { -0.10670335, -0.16251378, -0.11509422,  0.10670335, -0.22564316,
+               -0.15980321,  0.28145359,  0.22564316, -0.42151619, -0.28145359,
+                0.16251378, -0.30358638, -0.16819409, -0.25616682,  0.11509422,
+                0.16819409, -0.35567624,  0.15980321,  0.44364897,  0.35567624,
+                0.42151619, -0.44364897,  0.25616682,  0.30358638 };
+
+    e.GetGlobalShapeFunctionGradients( std::cbegin( point ), std::cend( point ), std::cbegin( X ), std::cend( X ), std::begin( result ), std::end( result ) );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+}

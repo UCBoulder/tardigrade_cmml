@@ -10,6 +10,8 @@
   ******************************************************************************
   */
 
+#include<Eigen/Dense>
+
 namespace tardigradeBalanceEquations{
 
     namespace finiteElementUtilities{
@@ -121,6 +123,54 @@ namespace tardigradeBalanceEquations{
                 *( dNdxi_begin + 3 * i + 0 ) = ( *( this->local_node_xi_begin + 3 * i + 0 ) ) * ( 1 + ( *( this->local_node_xi_begin + 3 * i + 1 ) ) * ( *( xi_begin + 1 ) ) ) * ( 1 + ( *( this->local_node_xi_begin + 3 * i + 2 ) ) * ( *( xi_begin + 2 ) ) ) / 8;
                 *( dNdxi_begin + 3 * i + 1 ) = ( 1 + ( *( this->local_node_xi_begin + 3 * i + 0 ) ) * ( *( xi_begin + 0 ) ) ) * ( *( this->local_node_xi_begin + 3 * i + 1 ) ) * ( 1 + ( *( this->local_node_xi_begin + 3 * i + 2 ) ) * ( *( xi_begin + 2 ) ) ) / 8;
                 *( dNdxi_begin + 3 * i + 2 ) = ( 1 + ( *( this->local_node_xi_begin + 3 * i + 0 ) ) * ( *( xi_begin + 0 ) ) ) * ( 1 + ( *( this->local_node_xi_begin + 3 * i + 1 ) ) * ( *( xi_begin + 1 ) ) ) * ( *( this->local_node_xi_begin + 3 * i + 2 ) ) / 8;
+
+            }
+
+        }
+
+        template<typename T, class node_in, class local_point_in, class shape_functions_out, class grad_shape_functions_out>
+        void LinearHex<T,node_in,local_point_in,shape_functions_out,grad_shape_functions_out>::GetGlobalShapeFunctionGradients(
+            const local_point_in &xi_begin, const local_point_in &xi_end,
+            const node_in &node_positions_begin, const node_in &node_positions_end,
+            grad_shape_functions_out value_begin, grad_shape_functions_out value_end ){
+            /*!
+             * Compute the global gradient of the quantity in the global coordinates
+             *
+             * \param &xi_begin: The starting iterator of the local point
+             * \param &xi_end: The stopping iterator of the local point
+             * \param &node_positions_begin: The starting iterator of the nodal positions (row major)
+             * \param &node_positions_end: The stopping iterator of the nodal positions (row major)
+             * \param &value_begin: The starting iterator of the shape function global gradient (row major)
+             * \param &value_end: The stopping iterator of the shape function global gradient (row major)
+             */
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( ( size_type )( value_end - value_begin ) == 24, "The shape function global gradient must have a size of 24" );
+
+            std::array< T, 9 > dxdxi;
+            std::array< T, 9 > dxidx;
+
+            TARDIGRADE_ERROR_TOOLS_CATCH( this->GetLocalQuantityGradient( xi_begin, xi_end, node_positions_begin, node_positions_end,
+                                                                          std::begin( dxdxi ), std::end( dxdxi ) ) );
+
+            Eigen::Map< const Eigen::Matrix< T, 3, 3, Eigen::RowMajor > > _dxdxi( dxdxi.data( ) );
+
+            Eigen::Map< Eigen::Matrix< T, 3, 3, Eigen::RowMajor > > _dxidx( dxidx.data( ) );
+
+            _dxidx = ( _dxdxi.inverse( ) ).eval( );
+
+            std::fill( value_begin, value_end, 0 );
+
+            for ( unsigned int node = 0; node < 8; ++node ){
+
+                for ( unsigned int inner = 0; inner < 3; ++inner ){
+
+                    for ( unsigned int outer = 0; outer < 3; ++outer ){
+
+                        *( value_begin + 3 * node + outer ) += this->_gradshapefunctions[ 3 * node + inner ] * dxidx[ 3 * inner + outer ];
+
+                    }
+
+                }
 
             }
 

@@ -74,6 +74,24 @@ namespace tardigradeBalanceEquations{
 
                 }
 
+                virtual void GetGlobalShapeFunctionGradients( const local_point_in &xi_begin, const local_point_in &xi_end,
+                                                              const node_in &node_positions_begin, const node_in &node_positions_end,
+                                                              grad_shape_functions_out value_begin, grad_shape_functions_out value_end ){
+                    /*!
+                     * Compute the global gradient of the shape functions
+                     *
+                     * \param &xi_begin: The starting iterator of the local point
+                     * \param &xi_end: The stopping iterator of the local point
+                     * \param &node_positions_begin: The starting iterator of the nodal positions (row major)
+                     * \param &node_positions_end: The stopping iterator of the nodal positions (row major)
+                     * \param &value_begin: The starting iterator of the shape function global gradient (row major)
+                     * \param &value_end: The stopping iterator of the shape function global gradient (row major)
+                     */
+
+                    throw std::logic_error("Function not implemented");
+                     
+                }
+
                 template<class quantity_in, class quantity_out>
                 void InterpolateQuantity( const local_point_in &xi_begin, const local_point_in &xi_end, const quantity_in &quantity_begin, const quantity_in &quantity_end,
                                           quantity_out value_begin, quantity_out value_end ){
@@ -148,7 +166,6 @@ namespace tardigradeBalanceEquations{
 
                 }
 
-
             protected:
 
                 const node_in x_begin; //!< Starting iterator for the current position of the nodal coordinates
@@ -189,6 +206,10 @@ namespace tardigradeBalanceEquations{
                 virtual void GetShapeFunctions( const local_point_in &xi_begin, const local_point_in &xi_end, shape_functions_out N_begin, shape_functions_out N_end ) override;
 
                 virtual void GetLocalShapeFunctionGradients( const local_point_in &xi_begin, const local_point_in &xi_end, grad_shape_functions_out dNdxi_begin, grad_shape_functions_out dNdxi_end ) override;
+
+                virtual void GetGlobalShapeFunctionGradients( const local_point_in &xi_begin, const local_point_in &xi_end,
+                                                              const node_in &node_positions_begin, const node_in &node_positions_end,
+                                                              grad_shape_functions_out value_begin, grad_shape_functions_out value_end ) override;
 
         };
 
