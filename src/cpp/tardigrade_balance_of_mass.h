@@ -70,6 +70,27 @@ namespace tardigradeBalanceEquations{
         );
 
         template<
+            int dim, typename density_type, typename densityDot_type, typename c_type,
+            typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
+            class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out,
+            class dCdU_iter_out
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
+            const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
+            c_type &mass_change_rate,
+            dCdRho_type &dCdRho, dCdRhoDot_type &dCdRhoDot,
+            dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
+            dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
+            dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end,
+            dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end
+        );
+
+        template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out
         >
