@@ -170,13 +170,13 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, class density_iter, class densityDot_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
+        template<int dim, class density_iter, class densityDot_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out>
         void computeBalanceOfMass( const density_iter &density_begin,                          const density_iter &density_end,
                                    const densityDot_iter &density_dot_begin,                   const densityDot_iter &density_dot_end,
-                                   const floatVectorArray_iter &density_gradient_begin,        const floatVectorArray_iter &density_gradient_end,
-                                   const floatVectorArray_iter &velocity_begin,                const floatVectorArray_iter &velocity_end,
-                                   const secondOrderTensorArray_iter &velocity_gradient_begin, const secondOrderTensorArray_iter &velocity_gradient_end,
-                                   scalarArray_iter_out mass_change_rate_begin,                scalarArray_iter_out mass_change_rate_end ){
+                                   const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
+                                   const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
+                                   const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
+                                   mass_change_rate_iter_out mass_change_rate_begin,           mass_change_rate_iter_out mass_change_rate_end ){
             /*!
              * Compute the balance of mass for a multi-phase continuum returning the values of the mass-change rate
              * 
@@ -212,15 +212,15 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, class density_iter, class densityDot_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class scalarArray_iter_out, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
+        template<int dim, class density_iter, class densityDot_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out, class dCdRho_iter_out, class dCdRhoDot_iter_out, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
         void computeBalanceOfMass( const density_iter &density_begin,                    const density_iter &density_end,
                                    const densityDot_iter &density_dot_begin,             const densityDot_iter &density_dot_end,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
                                    const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   scalarArray_iter_out mass_change_rate_begin, scalarArray_iter_out mass_change_rate_end,
-                                   scalarArray_iter_out dCdRho_begin,    scalarArray_iter_out dCdRho_end,
-                                   scalarArray_iter_out dCdRhoDot_begin, scalarArray_iter_out dCdRhoDot_end,
+                                   mass_change_rate_iter_out mass_change_rate_begin,     mass_change_rate_iter_out mass_change_rate_end,
+                                   dCdRho_iter_out dCdRho_begin,         dCdRho_iter_out dCdRho_end,
+                                   dCdRhoDot_iter_out dCdRhoDot_begin,   dCdRhoDot_iter_out dCdRhoDot_end,
                                    dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
                                    dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
                                    dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end ){
