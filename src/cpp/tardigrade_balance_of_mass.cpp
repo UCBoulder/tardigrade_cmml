@@ -68,12 +68,12 @@ namespace tardigradeBalanceEquations{
                                   std::begin( dCdGradV ),   std::end( dCdGradV ) );
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter>
-        void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,
+        template<typename T, class floatVector_iter, class secondOrderTensor_iter>
+        void computeBalanceOfMass( const T   &density,  const T         &density_dot,
                                    const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
                                    const floatVector_iter &velocity_begin, const floatVector_iter &velocity_end,
                                    const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                   floatType &mass_change_rate ){
+                                   T &mass_change_rate ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
@@ -101,13 +101,13 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
-        void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,
+        template<typename T, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        void computeBalanceOfMass( const T   &density,  const T         &density_dot,
                                    const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
                                    const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
                                    const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                   floatType &mass_change_rate,
-                                   floatType &dCdRho, floatType &dCdRhoDot,
+                                   T &mass_change_rate,
+                                   T &dCdRho, T &dCdRhoDot,
                                    floatVector_iter_out dCdGradRho_begin,     floatVector_iter_out dCdGradRho_end,
                                    floatVector_iter_out dCdV_begin,           floatVector_iter_out dCdV_end,
                                    secondOrderTensor_iter_out dCdGradV_begin, secondOrderTensor_iter_out dCdGradV_end ){
