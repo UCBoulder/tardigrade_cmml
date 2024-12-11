@@ -14,7 +14,7 @@ namespace tardigradeBalanceEquations{
 
     namespace balanceOfLinearMomentum{
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
         void computeBalanceOfLinearMomentumNonDivergence( const floatType &density, const floatType &density_dot,
                                                           const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
                                                           const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
@@ -79,7 +79,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumNonDivergence( const floatType &density, const floatType &density_dot,
                                                           const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
                                                           const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
@@ -193,7 +193,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
         void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
                                                           const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
                                                           const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
@@ -237,20 +237,22 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
-                                                             *( density_dot_begin + phase ),
-                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
-                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
-                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
-                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
-                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumNonDivergence<dim>(
+                    *( density_begin + phase ),
+                    *( density_dot_begin + phase ),
+                    density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                    velocity_dot_begin + dim * phase,            velocity_dot_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    body_force_begin + dim * phase,              body_force_begin + dim * dim * ( phase + 1 ),
+                    result_begin + dim * phase,                  result_begin + dim * ( phase + 1 )
+                );
 
             }
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
                                                           const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
                                                           const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
@@ -315,27 +317,28 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
-                                                             *( density_dot_begin + phase ),
-                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
-                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
-                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
-                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
-                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ),
-                                                             dRdRho_begin + dim * phase,                dRdRho_begin + dim * ( phase + 1 ),
-                                                             dRdRhoDot_begin + dim * phase,             dRdRhoDot_begin + dim * ( phase + 1 ),
-                                                             dRdGradRho_begin + sot_dim * phase,        dRdGradRho_begin + sot_dim * ( phase + 1 ),
-                                                             dRdV_begin + sot_dim * phase,              dRdV_begin + sot_dim * ( phase + 1 ),
-                                                             dRdVDot_begin + sot_dim * phase,           dRdVDot_begin + sot_dim * ( phase + 1 ),
-                                                             dRdGradV_begin + dim * dim * dim * phase,  dRdGradV_begin + dim * dim * dim * ( phase + 1 ),
-                                                             dRdB_begin + sot_dim * phase,              dRdB_begin + sot_dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumNonDivergence<dim>(
+                    *( density_begin + phase ),
+                    *( density_dot_begin + phase ),
+                    density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                    velocity_dot_begin + dim * phase,            velocity_dot_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    body_force_begin + dim * phase,              body_force_begin + dim * dim * ( phase + 1 ),
+                    result_begin + dim * phase,                  result_begin + dim * ( phase + 1 ),
+                    dRdRho_begin + dim * phase,                  dRdRho_begin + dim * ( phase + 1 ),
+                    dRdRhoDot_begin + dim * phase,               dRdRhoDot_begin + dim * ( phase + 1 ),
+                    dRdGradRho_begin + dim * dim * phase,        dRdGradRho_begin + dim * dim * ( phase + 1 ),
+                    dRdV_begin + dim * dim * phase,              dRdV_begin + dim * dim * ( phase + 1 ),
+                    dRdVDot_begin + dim * dim * phase,           dRdVDot_begin + dim * dim * ( phase + 1 ),
+                    dRdGradV_begin + dim * dim * dim * phase,    dRdGradV_begin + dim * dim * dim * ( phase + 1 ),
+                    dRdB_begin + dim * dim * phase,              dRdB_begin + dim * dim * ( phase + 1 ) );
 
             }
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const floatType &volume_fraction,
@@ -383,7 +386,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const floatType &volume_fraction,
@@ -449,7 +452,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
@@ -488,16 +491,18 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,          test_function_gradient_end,
-                                                           cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                          *phi,
-                                                           result_begin + dim * phase,            result_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumDivergence<dim>(
+                    test_function_gradient_begin,            test_function_gradient_end,
+                    cauchy_stress_begin + dim * dim * phase, cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *phi,
+                    result_begin + dim * phase,              result_begin + dim * ( phase + 1 )
+                );
 
             }
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                        const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
                                                        const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
@@ -545,13 +550,15 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,            test_function_gradient_end,
-                                                           cauchy_stress_begin + sot_dim * phase,   cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                          *phi,
-                                                           result_begin + dim * phase,              result_begin + dim * ( phase + 1 ),
-                                                           dRdGradPsi_begin + dim * dim * phase,    dRdGradPsi_begin + dim * dim * ( phase + 1 ),
-                                                           dRdCauchy_begin + dim * sot_dim * phase, dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
-                                                           dRdPhi_begin + dim * phase,              dRdPhi_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumDivergence<dim>(
+                    test_function_gradient_begin,            test_function_gradient_end,
+                    cauchy_stress_begin + dim * dim * phase,   cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *phi,
+                    result_begin + dim * phase,                result_begin + dim * ( phase + 1 ),
+                    dRdGradPsi_begin + dim * dim * phase,      dRdGradPsi_begin + dim * dim * ( phase + 1 ),
+                    dRdCauchy_begin + dim * dim * dim * phase, dRdCauchy_begin + dim * dim * dim * ( phase + 1 ),
+                    dRdPhi_begin + dim * phase,                dRdPhi_begin + dim * ( phase + 1 )
+                );
 
             }
 

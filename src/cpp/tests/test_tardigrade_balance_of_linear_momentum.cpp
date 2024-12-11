@@ -72,10 +72,12 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
     floatVector result;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                      std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                      std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ), std::end( body_force ),
-                                                                                                      std::begin( result ), std::end( result ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+        density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+        std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+        std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ), std::end( body_force ),
+        std::begin( result ), std::end( result )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -87,17 +89,19 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
     std::array< floatType, dim * dim * dim > dRdGradV;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                      std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                      std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ), std::end( body_force ),
-                                                                                                      std::begin( result ),     std::end( result ),
-                                                                                                      std::begin( dRdRho ),     std::end( dRdRho ),
-                                                                                                      std::begin( dRdRhoDot ),  std::end( dRdRhoDot ),
-                                                                                                      std::begin( dRdGradRho ), std::end( dRdGradRho ),
-                                                                                                      std::begin( dRdV ),       std::end( dRdV ),
-                                                                                                      std::begin( dRdVDot ),    std::end( dRdVDot ),
-                                                                                                      std::begin( dRdGradV ),   std::end( dRdGradV ),
-                                                                                                      std::begin( dRdB ),       std::end( dRdB ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+        density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+        std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+        std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ), std::end( body_force ),
+        std::begin( result ),     std::end( result ),
+        std::begin( dRdRho ),     std::end( dRdRho ),
+        std::begin( dRdRhoDot ),  std::end( dRdRhoDot ),
+        std::begin( dRdGradRho ), std::end( dRdGradRho ),
+        std::begin( dRdV ),       std::end( dRdV ),
+        std::begin( dRdVDot ),    std::end( dRdVDot ),
+        std::begin( dRdGradV ),   std::end( dRdGradV ),
+        std::begin( dRdB ),       std::end( dRdB )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -115,17 +119,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( xp, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            xp, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( xm, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            xm, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -149,17 +157,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, xp, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, xp, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, xm, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, xm, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -183,17 +195,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( xp ), std::end( xp ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( xp ), std::end( xp ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( xm ), std::end( xm ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( xm ), std::end( xm ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -217,17 +233,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( xp ), std::end( xp ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( xp ), std::end( xp ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( xm ), std::end( xm ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( xm ), std::end( xm ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -251,17 +271,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( xp ), std::end( xp ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( xp ), std::end( xp ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( xm ), std::end( xm ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( xm ), std::end( xm ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -285,17 +309,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( xp ), std::end( xp ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( xp ), std::end( xp ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( xm ), std::end( xm ), std::begin( body_force ),
-                                                                                                          std::end( body_force ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( xm ), std::end( xm ), std::begin( body_force ),
+            std::end( body_force ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -319,17 +347,21 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost:
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( xp ),
-                                                                                                          std::end( xp ),
-                                                                                                          std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( xp ),
+            std::end( xp ),
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
-                                                                                                          std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( xm ),
-                                                                                                          std::end( xm ),
-                                                                                                          std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            density, density_dot, std::begin( density_gradient ), std::end( density_gradient ),
+            std::begin( velocity ), std::end( velocity ), std::begin( velocity_dot ), std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( xm ),
+            std::end( xm ),
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -359,10 +391,12 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumDivergence, * boost::un
 
     floatVector result;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                   volume_fraction,
-                                                                                                   std::begin( result ), std::end( result ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+        std::begin( test_function_gradient ), std::end( test_function_gradient ),
+        std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+        volume_fraction,
+        std::begin( result ), std::end( result )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -374,13 +408,15 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumDivergence, * boost::un
 
     std::array< floatType, dim * dim * dim > dRdCauchy;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                   volume_fraction,
-                                                                                                   std::begin( result ),     std::end( result ),
-                                                                                                   std::begin( dRdGradPsi ), std::end( dRdGradPsi ),
-                                                                                                   std::begin( dRdCauchy ),  std::end( dRdCauchy ),
-                                                                                                   std::begin( dRdPhi ),     std::end( dRdPhi ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+        std::begin( test_function_gradient ), std::end( test_function_gradient ),
+        std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+        volume_fraction,
+        std::begin( result ),     std::end( result ),
+        std::begin( dRdGradPsi ), std::end( dRdGradPsi ),
+        std::begin( dRdCauchy ),  std::end( dRdCauchy ),
+        std::begin( dRdPhi ),     std::end( dRdPhi )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -398,15 +434,19 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumDivergence, * boost::un
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xp ), std::end( xp ),
-                                                                                                       std::begin( cauchy_stress ), std::end( cauchy_stress ),
-                                                                                                       volume_fraction,
-                                                                                                       std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( xp ), std::end( xp ),
+            std::begin( cauchy_stress ), std::end( cauchy_stress ),
+            volume_fraction,
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xm ), std::end( xm ),
-                                                                                                       std::begin( cauchy_stress ), std::end( cauchy_stress ),
-                                                                                                       volume_fraction,
-                                                                                                       std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( xm ), std::end( xm ),
+            std::begin( cauchy_stress ), std::end( cauchy_stress ),
+            volume_fraction,
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -430,15 +470,19 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumDivergence, * boost::un
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( xp ),                     std::end( xp ),
-                                                                                                       volume_fraction,
-                                                                                                       std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( xp ),                     std::end( xp ),
+            volume_fraction,
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( xm ),          std::end( xm ),
-                                                                                                       volume_fraction,
-                                                                                                       std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( xm ),          std::end( xm ),
+            volume_fraction,
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -462,15 +506,19 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumDivergence, * boost::un
 
         floatVector vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       xp,
-                                                                                                       std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            xp,
+            std::begin( vp ), std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       xm,
-                                                                                                       std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            xm,
+            std::begin( vm ), std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim; j++ ){
 
@@ -527,14 +575,16 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
     std::array<floatType,dim*nphases> result;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                      std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                      std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                      std::begin( velocity ),          std::end( velocity ),
-                                                                                                      std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                      std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                      std::begin( body_force ),        std::end( body_force ),
-                                                                                                      std::begin( result ),            std::end( result ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+        std::begin( density ),           std::end( density ),
+        std::begin( density_dot ),       std::end( density_dot ),
+        std::begin( density_gradient ),  std::end( density_gradient ),
+        std::begin( velocity ),          std::end( velocity ),
+        std::begin( velocity_dot ),      std::end( velocity_dot ),
+        std::begin( velocity_gradient ), std::end( velocity_gradient ),
+        std::begin( body_force ),        std::end( body_force ),
+        std::begin( result ),            std::end( result )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -546,21 +596,23 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
     std::array< floatType, dim * dim * dim * nphases > dRdGradV;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                      std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                      std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                      std::begin( velocity ),          std::end( velocity ),
-                                                                                                      std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                      std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                      std::begin( body_force ),        std::end( body_force ),
-                                                                                                      std::begin( result ),            std::end( result ),
-                                                                                                      std::begin( dRdRho ),            std::end( dRdRho ),
-                                                                                                      std::begin( dRdRhoDot ),         std::end( dRdRhoDot ),
-                                                                                                      std::begin( dRdGradRho ),        std::end( dRdGradRho ),
-                                                                                                      std::begin( dRdV ),              std::end( dRdV ),
-                                                                                                      std::begin( dRdVDot ),           std::end( dRdVDot ),
-                                                                                                      std::begin( dRdGradV ),          std::end( dRdGradV ),
-                                                                                                      std::begin( dRdB ),              std::end( dRdB ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+        std::begin( density ),           std::end( density ),
+        std::begin( density_dot ),       std::end( density_dot ),
+        std::begin( density_gradient ),  std::end( density_gradient ),
+        std::begin( velocity ),          std::end( velocity ),
+        std::begin( velocity_dot ),      std::end( velocity_dot ),
+        std::begin( velocity_gradient ), std::end( velocity_gradient ),
+        std::begin( body_force ),        std::end( body_force ),
+        std::begin( result ),            std::end( result ),
+        std::begin( dRdRho ),            std::end( dRdRho ),
+        std::begin( dRdRhoDot ),         std::end( dRdRhoDot ),
+        std::begin( dRdGradRho ),        std::end( dRdGradRho ),
+        std::begin( dRdV ),              std::end( dRdV ),
+        std::begin( dRdVDot ),           std::end( dRdVDot ),
+        std::begin( dRdGradV ),          std::end( dRdGradV ),
+        std::begin( dRdB ),              std::end( dRdB )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -578,24 +630,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( xp ),                std::end( xp ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( xm ),                std::end( xm ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -628,24 +683,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -678,24 +736,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -732,24 +793,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -786,24 +850,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -840,24 +907,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( body_force ),        std::end( body_force ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( body_force ),        std::end( body_force ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -894,24 +964,27 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( xp ),                std::end( xp ),
-                                                                                                          std::begin( vp ),                std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( xp ),                std::end( xp ),
+            std::begin( vp ),                std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence( std::begin( density ),           std::end( density ),
-                                                                                                          std::begin( density_dot ),       std::end( density_dot ),
-                                                                                                          std::begin( density_gradient ),  std::end( density_gradient ),
-                                                                                                          std::begin( velocity ),          std::end( velocity ),
-                                                                                                          std::begin( velocity_dot ),      std::end( velocity_dot ),
-                                                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                                                                                          std::begin( xm ),                std::end( xm ),
-                                                                                                          std::begin( vm ),                std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumNonDivergence<dim>(
+            std::begin( density ),           std::end( density ),
+            std::begin( density_dot ),       std::end( density_dot ),
+            std::begin( density_gradient ),  std::end( density_gradient ),
+            std::begin( velocity ),          std::end( velocity ),
+            std::begin( velocity_dot ),      std::end( velocity_dot ),
+            std::begin( velocity_gradient ), std::end( velocity_gradient ),
+            std::begin( xm ),                std::end( xm ),
+            std::begin( vm ),                std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -966,10 +1039,12 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
     std::array<floatType,dim*nphases> result;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                   std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                   std::begin( result ), std::end( result ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+        std::begin( test_function_gradient ), std::end( test_function_gradient ),
+        std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+        std::begin( volume_fraction ),        std::end( volume_fraction ),
+        std::begin( result ), std::end( result )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -981,13 +1056,15 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
     std::array< floatType, dim * dim * dim * nphases > dRdCauchy;
 
-    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                   std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                   std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                   std::begin( result ),     std::end( result ),
-                                                                                                   std::begin( dRdGradPsi ), std::end( dRdGradPsi ),
-                                                                                                   std::begin( dRdCauchy ),  std::end( dRdCauchy ),
-                                                                                                   std::begin( dRdPhi ),     std::end( dRdPhi ) );
+    tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+        std::begin( test_function_gradient ), std::end( test_function_gradient ),
+        std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+        std::begin( volume_fraction ),        std::end( volume_fraction ),
+        std::begin( result ),     std::end( result ),
+        std::begin( dRdGradPsi ), std::end( dRdGradPsi ),
+        std::begin( dRdCauchy ),  std::end( dRdCauchy ),
+        std::begin( dRdPhi ),     std::end( dRdPhi )
+    );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -1005,16 +1082,19 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xp ),                     std::end( xp ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                       std::begin( vp ),                     std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( xp ),                     std::end( xp ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            std::begin( volume_fraction ),        std::end( volume_fraction ),
+            std::begin( vp ),                     std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( xm ),                     std::end( xm ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                       std::begin( vm ),                     std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( xm ),                     std::end( xm ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            std::begin( volume_fraction ),        std::end( volume_fraction ),
+            std::begin( vm ),                     std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -1038,16 +1118,19 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( xp ),                     std::end( xp ),
-                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                       std::begin( vp ),                     std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( xp ),                     std::end( xp ),
+            std::begin( volume_fraction ),        std::end( volume_fraction ),
+            std::begin( vp ),                     std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( xm ),                     std::end( xm ),
-                                                                                                       std::begin( volume_fraction ),        std::end( volume_fraction ),
-                                                                                                       std::begin( vm ),                     std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( xm ),                     std::end( xm ),
+            std::begin( volume_fraction ),        std::end( volume_fraction ),
+            std::begin( vm ),                     std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
@@ -1084,16 +1167,19 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumDivergence, 
 
         std::array<floatType,dim*nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       std::begin( xp ),                     std::end( xp ),
-                                                                                                       std::begin( vp ),                     std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            std::begin( xp ),                     std::end( xp ),
+            std::begin( vp ),                     std::end( vp )
+        );
 
-        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence( std::begin( test_function_gradient ), std::end( test_function_gradient ),
-                                                                                                       std::begin( cauchy_stress ),          std::end( cauchy_stress ),
-                                                                                                       std::begin( xm ),                     std::end( xm ),
-                                                                                                       std::begin( vm ),                     std::end( vm ) );
-
+        tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentumDivergence<dim>(
+            std::begin( test_function_gradient ), std::end( test_function_gradient ),
+            std::begin( cauchy_stress ),          std::end( cauchy_stress ),
+            std::begin( xm ),                     std::end( xm ),
+            std::begin( vm ),                     std::end( vm )
+        );
 
         for ( unsigned int j = 0; j < dim * nphases; j++ ){
 
