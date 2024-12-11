@@ -43,7 +43,7 @@ namespace tardigradeBalanceEquations{
                                    V &mass_change_rate );
 
         template<int dim, typename T, typename U, typename V, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
-        void computeBalanceOfMass( const T   &density,  const U         &density_dot,
+        void computeBalanceOfMass( const T &density,  const U &density_dot,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
                                    const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
