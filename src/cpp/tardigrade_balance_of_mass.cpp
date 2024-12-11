@@ -13,8 +13,10 @@ namespace tardigradeBalanceEquations{
 
     namespace balanceOfMass{
 
-        void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
-                                   const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate ){
+        void computeBalanceOfMass(
+            const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
+            const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate
+        ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
@@ -38,10 +40,12 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        void computeBalanceOfMass( const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
-                                   const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate, 
-                                   floatType   &dCdRho, floatType         &dCdRhoDot, floatVector &dCdGradRho,
-                                   floatVector &dCdV,   secondOrderTensor &dCdGradV ){
+        void computeBalanceOfMass(
+            const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
+            const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &mass_change_rate, 
+            floatType   &dCdRho, floatType         &dCdRhoDot, floatVector &dCdGradRho,
+            floatVector &dCdV,   secondOrderTensor &dCdGradV
+        ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate including the Jacobians
              * 
@@ -72,12 +76,17 @@ namespace tardigradeBalanceEquations{
             );
         }
 
-        template<int dim, typename density_type, typename densityDot_type, typename c_type, class densityGradient_iter, class velocity_iter, class velocityGradient_iter>
-        void computeBalanceOfMass( const density_type &density,  const densityDot_type &density_dot,
-                                   const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
-                                   const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
-                                   const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   c_type &mass_change_rate ){
+        template<
+            int dim, typename density_type, typename densityDot_type, typename c_type,
+            class densityGradient_iter, class velocity_iter, class velocityGradient_iter
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
+            c_type &mass_change_rate
+        ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
@@ -109,16 +118,23 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, typename density_type, typename densityDot_type, typename c_type, typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
-        void computeBalanceOfMass( const density_type &density,  const densityDot_type &density_dot,
-                                   const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
-                                   const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
-                                   const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   c_type &mass_change_rate,
-                                   dCdRho_type &dCdRho, dCdRhoDot_type &dCdRhoDot,
-                                   dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
-                                   dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
-                                   dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end ){
+        template<
+            int dim, typename density_type, typename densityDot_type, typename c_type,
+            typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out,
+            class dCdV_iter_out, class dCdGradV_iter_out
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
+            c_type &mass_change_rate,
+            dCdRho_type &dCdRho,                  dCdRhoDot_type &dCdRhoDot,
+            dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
+            dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
+            dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end
+        ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
@@ -170,13 +186,18 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, class density_iter, class densityDot_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out>
-        void computeBalanceOfMass( const density_iter &density_begin,                          const density_iter &density_end,
-                                   const densityDot_iter &density_dot_begin,                   const densityDot_iter &density_dot_end,
-                                   const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
-                                   const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
-                                   const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
-                                   mass_change_rate_iter_out mass_change_rate_begin,           mass_change_rate_iter_out mass_change_rate_end ){
+        template<
+            int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out
+        >
+        void computeBalanceOfMass(
+            const density_iter &density_begin,                          const density_iter &density_end,
+            const densityDot_iter &density_dot_begin,                   const densityDot_iter &density_dot_end,
+            const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
+            mass_change_rate_iter_out mass_change_rate_begin,           mass_change_rate_iter_out mass_change_rate_end
+        ){
             /*!
              * Compute the balance of mass for a multi-phase continuum returning the values of the mass-change rate
              * 
@@ -222,18 +243,25 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, class density_iter, class densityDot_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out, class dCdRho_iter_out, class dCdRhoDot_iter_out, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
-        void computeBalanceOfMass( const density_iter &density_begin,                    const density_iter &density_end,
-                                   const densityDot_iter &density_dot_begin,             const densityDot_iter &density_dot_end,
-                                   const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
-                                   const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
-                                   const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   mass_change_rate_iter_out mass_change_rate_begin,     mass_change_rate_iter_out mass_change_rate_end,
-                                   dCdRho_iter_out dCdRho_begin,         dCdRho_iter_out dCdRho_end,
-                                   dCdRhoDot_iter_out dCdRhoDot_begin,   dCdRhoDot_iter_out dCdRhoDot_end,
-                                   dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
-                                   dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
-                                   dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end ){
+        template<
+            int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter, class mass_change_rate_iter_out,
+            class dCdRho_iter_out, class dCdRhoDot_iter_out, class dCdGradRho_iter_out,
+            class dCdV_iter_out, class dCdGradV_iter_out
+        >
+        void computeBalanceOfMass(
+            const density_iter &density_begin,                    const density_iter &density_end,
+            const densityDot_iter &density_dot_begin,             const densityDot_iter &density_dot_end,
+            const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
+            mass_change_rate_iter_out mass_change_rate_begin,     mass_change_rate_iter_out mass_change_rate_end,
+            dCdRho_iter_out dCdRho_begin,                         dCdRho_iter_out dCdRho_end,
+            dCdRhoDot_iter_out dCdRhoDot_begin,                   dCdRhoDot_iter_out dCdRhoDot_end,
+            dCdGradRho_iter_out dCdGradRho_begin,                 dCdGradRho_iter_out dCdGradRho_end,
+            dCdV_iter_out dCdV_begin,                             dCdV_iter_out dCdV_end,
+            dCdGradV_iter_out dCdGradV_begin,                     dCdGradV_iter_out dCdGradV_end
+        ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
