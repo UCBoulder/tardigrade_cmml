@@ -72,12 +72,12 @@ namespace tardigradeBalanceEquations{
             );
         }
 
-        template<int dim, typename T, typename U, typename V, class densityGradient_iter, class velocity_iter, class velocityGradient_iter>
-        void computeBalanceOfMass( const T &density,  const U &density_dot,
+        template<int dim, typename density_type, typename densityDot_type, typename c_type, class densityGradient_iter, class velocity_iter, class velocityGradient_iter>
+        void computeBalanceOfMass( const density_type &density,  const densityDot_type &density_dot,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
                                    const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   V &mass_change_rate ){
+                                   c_type &mass_change_rate ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
@@ -109,13 +109,13 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, typename T, typename U, typename V, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
-        void computeBalanceOfMass( const T   &density,  const U         &density_dot,
+        template<int dim, typename density_type, typename densityDot_type, typename c_type, typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
+        void computeBalanceOfMass( const density_type &density,  const densityDot_type &density_dot,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
                                    const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-                                   V &mass_change_rate,
-                                   V &dCdRho, V &dCdRhoDot,
+                                   c_type &mass_change_rate,
+                                   dCdRho_type &dCdRho, dCdRhoDot_type &dCdRhoDot,
                                    dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
                                    dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
                                    dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end ){
@@ -196,6 +196,16 @@ namespace tardigradeBalanceEquations{
              * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
              */
 
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( mass_change_rate_end - mass_change_rate_begin ), "The density and mass change rate arrays must be the same length" );
+
             unsigned int phase;
 
             for ( auto rho = density_begin; rho != density_end; rho++ ){
@@ -252,6 +262,26 @@ namespace tardigradeBalanceEquations{
              * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient arrays are of inconsistent length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( mass_change_rate_end - mass_change_rate_begin ), "The density and mass change rate arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRho_end - dCdRho_begin ), "The density and dCdRho arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRhoDot_end - dCdRhoDot_begin ), "The density and dCdRhoDot arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdGradRho_end - dCdGradRho_begin ), "The density and dCdGradRho arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdV_end - dCdV_begin ), "The density and dCdV arrays must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdGradV_end - dCdGradV_begin ), "The density and dCdGradV arrays must be the same length" );
 
             unsigned int phase;
 
