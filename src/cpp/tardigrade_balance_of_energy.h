@@ -17,17 +17,17 @@ namespace tardigradeBalanceEquations{
 
     namespace balanceOfEnergy{
 
-        constexpr unsigned int dim = 3; //!< Set the dimension as 3D by default
+        constexpr unsigned int global_dim = 3; //!< Set the dimension as 3D by default
 
-        constexpr unsigned int sot_dim = dim * dim; //!< Set the dimensions of a standard second order tensor
+        constexpr unsigned int global_sot_dim = global_dim * global_dim; //!< Set the dimensions of a standard second order tensor
 
         typedef double floatType; //!< Define the float type as a double
 
-        typedef std::array< floatType, dim > floatVector; //!< Define a standard vector
+        typedef std::array< floatType, global_dim > floatVector; //!< Define a standard vector
 
-        typedef std::array< floatType, sot_dim > secondOrderTensor; //!< Define a standard second-order tensor
+        typedef std::array< floatType, global_sot_dim > secondOrderTensor; //!< Define a standard second-order tensor
 
-        template<class floatVector_iter, class secondOrderTensor_iter>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter>
         void computeBalanceOfEnergyNonDivergence( const floatType &density, const floatType &density_dot,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
                                                   const floatType &internal_energy, const floatType &internal_energy_dot,
@@ -40,7 +40,7 @@ namespace tardigradeBalanceEquations{
                                                   const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
                                                   floatType &result );
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
         void computeBalanceOfEnergyNonDivergence( const floatType &density, const floatType &density_dot,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
                                                   const floatType &internal_energy, const floatType &internal_energy_dot,
@@ -60,7 +60,7 @@ namespace tardigradeBalanceEquations{
                                                   floatType &dRdPhi, floatType &dRdr,
                                                   floatVector_iter_out dRdpi_begin, floatVector_iter_out dRdpi_end );
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out>
         void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin, const scalarArray_iter &density_end,
                                                   const scalarArray_iter &density_dot_begin, const scalarArray_iter &density_dot_end,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
@@ -75,7 +75,7 @@ namespace tardigradeBalanceEquations{
                                                   const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
                                                   scalarArray_iter_out result_begin, scalarArray_iter_out result_end );
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
         void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin,                  const scalarArray_iter &density_end,
                                                   const scalarArray_iter &density_dot_begin,              const scalarArray_iter &density_dot_end,
                                                   const floatVector_iter &density_gradient_begin,         const floatVector_iter &density_gradient_end,
@@ -102,24 +102,24 @@ namespace tardigradeBalanceEquations{
                                                   scalarArray_iter_out dRdr_begin,                        scalarArray_iter_out dRdr_end,
                                                   floatVector_iter_out dRdpi_begin,                       floatVector_iter_out dRdpi_end );
 
-        template<class floatVector_iter>
+        template<int dim, class floatVector_iter>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                floatType &result );
 
-        template<class floatVector_iter, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class floatVector_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                floatType &result,
                                                floatVector_iter_out dRdGradPsi_begin,                floatVector_iter_out dRdGradPsi_end,
                                                floatVector_iter_out dRdq_begin,                      floatVector_iter_out dRdq_end );
 
-        template<class floatVector_iter, class scalarArray_iter_out>
+        template<int dim, class floatVector_iter, class scalarArray_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                scalarArray_iter_out result_begin,                    scalarArray_iter_out result_end );
 
-        template<class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                scalarArray_iter_out result_begin,                    scalarArray_iter_out result_end,

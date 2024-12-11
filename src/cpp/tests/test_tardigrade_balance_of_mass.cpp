@@ -240,9 +240,9 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
     std::array<floatType,nphases> result;
 
-    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                     std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                     std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( result ), std::end( result ) );
+    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                          std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( result ), std::end( result ) );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -252,14 +252,14 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
     std::array<floatType,nphases*dim*dim> dCdGradV;
 
-    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                     std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                     std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( result ), std::end( result ),
-                                                                     std::begin( dCdRho ),     std::end( dCdRho ),
-                                                                     std::begin( dCdRhoDot ),  std::end( dCdRhoDot ),
-                                                                     std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                                                                     std::begin( dCdV ),       std::end( dCdV ),
-                                                                     std::begin( dCdGradV ),   std::end( dCdGradV ) );
+    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                          std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                          std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( result ), std::end( result ),
+                                                                          std::begin( dCdRho ),     std::end( dCdRho ),
+                                                                          std::begin( dCdRhoDot ),  std::end( dCdRhoDot ),
+                                                                          std::begin( dCdGradRho ), std::end( dCdGradRho ),
+                                                                          std::begin( dCdV ),       std::end( dCdV ),
+                                                                          std::begin( dCdGradV ),   std::end( dCdGradV ) );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -279,13 +279,13 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
         std::array<floatType,nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( xp ), std::end( xp ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( xp ), std::end( xp ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( xm ), std::end( xm ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( xm ), std::end( xm ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
 
         for ( unsigned int j = 0; j < nphases; j++ ){
 
@@ -316,13 +316,13 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
         std::array<floatType,nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( xp ), std::end( xp ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( xp ), std::end( xp ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( xm ), std::end( xm ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( xm ), std::end( xm ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
 
         for ( unsigned int j = 0; j < nphases; j++ ){
 
@@ -353,13 +353,13 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
         std::array<floatType,nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( xp ), std::end( xp ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( xp ), std::end( xp ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( xm ), std::end( xm ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( xm ), std::end( xm ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
 
         for ( unsigned int j = 0; j < nphases; j++ ){
 
@@ -394,13 +394,13 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
         std::array<floatType,nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( xp ), std::end( xp ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( xp ), std::end( xp ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vp ), std::end( vp ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( xm ), std::end( xm ),
-                                                                         std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( xm ), std::end( xm ),
+                                                                              std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( vm ), std::end( vm ) );
 
         for ( unsigned int j = 0; j < nphases; j++ ){
 
@@ -435,13 +435,13 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
         std::array<floatType,nphases> vp, vm;
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( xp ), std::end( xp ), std::begin( vp ), std::end( vp ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( xp ), std::end( xp ), std::begin( vp ), std::end( vp ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
-                                                                         std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
-                                                                         std::begin( xm ), std::end( xm ), std::begin( vm ), std::end( vm ) );
+        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
+                                                                              std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
+                                                                              std::begin( xm ), std::end( xm ), std::begin( vm ), std::end( vm ) );
 
         for ( unsigned int j = 0; j < nphases; j++ ){
 

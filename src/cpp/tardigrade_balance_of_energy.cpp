@@ -16,7 +16,7 @@ namespace tardigradeBalanceEquations{
 
     namespace balanceOfEnergy{
 
-        template<class floatVector_iter, class secondOrderTensor_iter>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter>
         void computeBalanceOfEnergyNonDivergence( const floatType &density, const floatType &density_dot,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
                                                   const floatType &internal_energy, const floatType &internal_energy_dot,
@@ -57,8 +57,8 @@ namespace tardigradeBalanceEquations{
             // Compute the mass change rate 
             floatType mass_change_rate;
 
-            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient_begin, density_gradient_end, velocity_begin, velocity_end,
-                                                                             velocity_gradient_begin, velocity_gradient_end, mass_change_rate );
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( density, density_dot, density_gradient_begin, density_gradient_end, velocity_begin, velocity_end,
+                                                                                  velocity_gradient_begin, velocity_gradient_end, mass_change_rate );
 
             // Compute the trace of the velocity gradient
             floatType trace_velocity_gradient = 0.;
@@ -86,7 +86,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out>
         void computeBalanceOfEnergyNonDivergence( const floatType &density, const floatType &density_dot,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
                                                   const floatType &internal_energy, const floatType &internal_energy_dot,
@@ -158,10 +158,10 @@ namespace tardigradeBalanceEquations{
 
             secondOrderTensor dCdGradV;
 
-            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient_begin, density_gradient_end, velocity_begin, velocity_end,
-                                                                             velocity_gradient_begin, velocity_gradient_end, mass_change_rate,
-                                                                             dCdRho, dCdRhoDot, std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                                                                             std::begin( dCdV ), std::end( dCdV ), std::begin( dCdGradV ), std::end( dCdGradV ) );
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( density, density_dot, density_gradient_begin, density_gradient_end, velocity_begin, velocity_end,
+                                                                                  velocity_gradient_begin, velocity_gradient_end, mass_change_rate,
+                                                                                  dCdRho, dCdRhoDot, std::begin( dCdGradRho ), std::end( dCdGradRho ),
+                                                                                  std::begin( dCdV ), std::end( dCdV ), std::begin( dCdGradV ), std::end( dCdGradV ) );
 
             // Compute the trace of the velocity gradient
             floatType trace_velocity_gradient = 0.;
@@ -234,7 +234,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out>
         void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin, const scalarArray_iter &density_end,
                                                   const scalarArray_iter &density_dot_begin, const scalarArray_iter &density_dot_end,
                                                   const floatVector_iter &density_gradient_begin, const floatVector_iter &density_gradient_end,
@@ -289,21 +289,23 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfEnergyNonDivergence( *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
-                                                     *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
-                                                     internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
-                                                     velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
-                                                     velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                     cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                     *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
-                                                     net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
-                                                     *( result_begin + phase ) );
+                computeBalanceOfEnergyNonDivergence<dim>(
+                    *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
+                    *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
+                    internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    cauchy_stress_begin + dim * dim * phase, cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
+                    net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
+                    *( result_begin + phase )
+                );
 
             }
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
+        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class scalarArray_iter_out, class floatVector_iter_out, class secondOrderTensor_iter_out>
         void computeBalanceOfEnergyNonDivergence( const scalarArray_iter &density_begin,                  const scalarArray_iter &density_end,
                                                   const scalarArray_iter &density_dot_begin,              const scalarArray_iter &density_dot_end,
                                                   const floatVector_iter &density_gradient_begin,         const floatVector_iter &density_gradient_end,
@@ -394,28 +396,30 @@ namespace tardigradeBalanceEquations{
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfEnergyNonDivergence( *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
-                                                     *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
-                                                     internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
-                                                     velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
-                                                     velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                     cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                     *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
-                                                     net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
-                                                     *( result_begin + phase ),
-                                                     *( dRdRho_begin + phase ), *( dRdRhoDot_begin + phase ), dRdGradRho_begin + dim * phase, dRdGradRho_begin + dim * ( phase + 1 ),
-                                                     *( dRdE_begin + phase ), *( dRdEDot_begin + phase ), dRdGradE_begin + dim * phase, dRdGradE_begin + dim * ( phase + 1 ),
-                                                     dRdV_begin + dim * phase, dRdV_begin + dim * ( phase + 1 ),
-                                                     dRdGradV_begin + sot_dim * phase, dRdGradV_begin + sot_dim * ( phase + 1 ),
-                                                     dRdCauchy_begin + sot_dim * phase, dRdCauchy_begin + sot_dim * ( phase + 1 ),
-                                                     *( dRdPhi_begin + phase ), *( dRdr_begin + phase ),
-                                                     dRdpi_begin + dim * phase, dRdpi_begin + dim * ( phase + 1 ) );
+                computeBalanceOfEnergyNonDivergence<dim>(
+                    *( density_begin + phase ), *( density_dot_begin + phase ), density_gradient_begin + dim * phase, density_gradient_begin + dim * ( phase + 1 ),
+                    *( internal_energy_begin + phase ), *( internal_energy_dot_begin + phase ),
+                    internal_energy_gradient_begin + dim * phase, internal_energy_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase, velocity_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    cauchy_stress_begin + dim * dim * phase, cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *( volume_fraction_begin + phase ), *( internal_heat_generation_begin + phase ),
+                    net_interphase_force_begin + dim * phase, net_interphase_force_begin + dim * ( phase + 1 ),
+                    *( result_begin + phase ),
+                    *( dRdRho_begin + phase ), *( dRdRhoDot_begin + phase ), dRdGradRho_begin + dim * phase, dRdGradRho_begin + dim * ( phase + 1 ),
+                    *( dRdE_begin + phase ), *( dRdEDot_begin + phase ), dRdGradE_begin + dim * phase, dRdGradE_begin + dim * ( phase + 1 ),
+                    dRdV_begin + dim * phase, dRdV_begin + dim * ( phase + 1 ),
+                    dRdGradV_begin + dim * dim * phase, dRdGradV_begin + dim * dim * ( phase + 1 ),
+                    dRdCauchy_begin + dim * dim * phase, dRdCauchy_begin + dim * dim * ( phase + 1 ),
+                    *( dRdPhi_begin + phase ), *( dRdr_begin + phase ),
+                    dRdpi_begin + dim * phase, dRdpi_begin + dim * ( phase + 1 )
+                );
 
             }
 
         }
 
-        template<class floatVector_iter>
+        template<int dim, class floatVector_iter>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                floatType &result ){
@@ -437,7 +441,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class floatVector_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                floatType &result,
@@ -469,7 +473,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class scalarArray_iter_out>
+        template<int dim, class floatVector_iter, class scalarArray_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                scalarArray_iter_out result_begin, scalarArray_iter_out result_end ){
@@ -492,15 +496,17 @@ namespace tardigradeBalanceEquations{
 
                 const unsigned int phase = ( unsigned int )( r - result_begin );
 
-                computeBalanceOfEnergyDivergence( test_function_gradient_begin,  test_function_gradient_end,
-                                                  heat_flux_begin + dim * phase, heat_flux_begin + dim * ( phase + 1 ),
-                                                  *r );
+                computeBalanceOfEnergyDivergence<dim>(
+                    test_function_gradient_begin,  test_function_gradient_end,
+                    heat_flux_begin + dim * phase, heat_flux_begin + dim * ( phase + 1 ),
+                    *r
+                );
 
             }
 
         }
 
-        template<class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
+        template<int dim, class floatVector_iter, class scalarArray_iter_out, class floatVector_iter_out>
         void computeBalanceOfEnergyDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
                                                const floatVector_iter &heat_flux_begin,              const floatVector_iter &heat_flux_end,
                                                scalarArray_iter_out result_begin, scalarArray_iter_out result_end,
@@ -529,11 +535,13 @@ namespace tardigradeBalanceEquations{
 
                 const unsigned int phase = ( unsigned int )( r - result_begin );
 
-                computeBalanceOfEnergyDivergence( test_function_gradient_begin,   test_function_gradient_end,
-                                                  heat_flux_begin + dim * phase,  heat_flux_begin + dim * ( phase + 1 ),
-                                                  *r,
-                                                  dRdGradPsi_begin + dim * phase, dRdGradPsi_begin + dim * ( phase + 1 ),
-                                                  dRdq_begin + dim * phase,       dRdq_begin + dim * ( phase + 1 ) );
+                computeBalanceOfEnergyDivergence<dim>(
+                    test_function_gradient_begin,   test_function_gradient_end,
+                    heat_flux_begin + dim * phase,  heat_flux_begin + dim * ( phase + 1 ),
+                    *r,
+                    dRdGradPsi_begin + dim * phase, dRdGradPsi_begin + dim * ( phase + 1 ),
+                    dRdq_begin + dim * phase,       dRdq_begin + dim * ( phase + 1 )
+                );
 
             }
 

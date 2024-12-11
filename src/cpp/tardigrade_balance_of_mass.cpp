@@ -28,11 +28,13 @@ namespace tardigradeBalanceEquations{
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              */
 
-            computeBalanceOfMass( density, density_dot,
-                                  std::begin( density_gradient ),  std::end( density_gradient ),
-                                  std::begin( velocity ),          std::end( velocity ),
-                                  std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                  mass_change_rate );
+            computeBalanceOfMass<global_dim>(
+                density, density_dot,
+                std::begin( density_gradient ),  std::end( density_gradient ),
+                std::begin( velocity ),          std::end( velocity ),
+                std::begin( velocity_gradient ), std::end( velocity_gradient ),
+                mass_change_rate
+            );
 
         }
 
@@ -58,17 +60,19 @@ namespace tardigradeBalanceEquations{
              * \param &dCdGradV: The derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
-            computeBalanceOfMass( density,  density_dot,
-                                  std::begin( density_gradient ),  std::end( density_gradient ),
-                                  std::begin( velocity ),          std::end( velocity ),
-                                  std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                                  mass_change_rate, dCdRho, dCdRhoDot,
-                                  std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                                  std::begin( dCdV ),       std::end( dCdV ),
-                                  std::begin( dCdGradV ),   std::end( dCdGradV ) );
+            computeBalanceOfMass<global_dim>(
+                density,  density_dot,
+                std::begin( density_gradient ),  std::end( density_gradient ),
+                std::begin( velocity ),          std::end( velocity ),
+                std::begin( velocity_gradient ), std::end( velocity_gradient ),
+                mass_change_rate, dCdRho, dCdRhoDot,
+                std::begin( dCdGradRho ), std::end( dCdGradRho ),
+                std::begin( dCdV ),       std::end( dCdV ),
+                std::begin( dCdGradV ),   std::end( dCdGradV )
+            );
         }
 
-        template<typename T, class densityGradient_iter, class velocity_iter, class velocityGradient_iter>
+        template<int dim, typename T, class densityGradient_iter, class velocity_iter, class velocityGradient_iter>
         void computeBalanceOfMass( const T &density,  const T &density_dot,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
@@ -90,6 +94,10 @@ namespace tardigradeBalanceEquations{
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              */
 
+            TARDIGRADE_ERROR_TOOLS_CHECK( ( unsigned int )( density_gradient_end - density_gradient_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density gradient and the velocity must have the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ) == dim * dim, "The velocity gradient has a size of " + std::to_string( ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ) ) + " and must have a size of " + std::to_string( dim * dim ) );
+
             mass_change_rate = std::inner_product( density_gradient_begin, density_gradient_end,
                                                    velocity_begin, density_dot );
 
@@ -101,7 +109,7 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<typename T, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
+        template<int dim, typename T, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
         void computeBalanceOfMass( const T   &density,  const T         &density_dot,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
@@ -135,10 +143,12 @@ namespace tardigradeBalanceEquations{
              * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
-            computeBalanceOfMass( density, density_dot,
-                                  density_gradient_begin, density_gradient_end,
-                                  velocity_begin, velocity_end,
-                                  velocity_gradient_begin, velocity_gradient_end, mass_change_rate );
+            computeBalanceOfMass<dim>(
+                density, density_dot,
+                density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end,
+                velocity_gradient_begin, velocity_gradient_end, mass_change_rate
+            );
 
             dCdRho = 0;
 
@@ -160,8 +170,8 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
-        void computeBalanceOfMass( const scalarArray_iter &density_begin,                      const scalarArray_iter &density_end,
+        template<int dim, class density_iter, class scalarArray_iter, class floatVectorArray_iter, class secondOrderTensorArray_iter, class scalarArray_iter_out>
+        void computeBalanceOfMass( const density_iter &density_begin,                          const density_iter &density_end,
                                    const scalarArray_iter &density_dot_begin,                  const scalarArray_iter &density_dot_end,
                                    const floatVectorArray_iter &density_gradient_begin,        const floatVectorArray_iter &density_gradient_end,
                                    const floatVectorArray_iter &velocity_begin,                const floatVectorArray_iter &velocity_end,
@@ -192,18 +202,18 @@ namespace tardigradeBalanceEquations{
 
                 phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfMass( *( density_begin + phase ), *( density_dot_begin + phase ),
-                                      density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
-                                      velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
-                                      velocity_gradient_begin + sot_dim * phase,   velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                      *( mass_change_rate_begin + phase ) );
+                computeBalanceOfMass<dim>( *( density_begin + phase ), *( density_dot_begin + phase ),
+                                           density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                                           velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                                           velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                                           *( mass_change_rate_begin + phase ) );
 
             }
 
         }
 
-        template<class scalarArray_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class scalarArray_iter_out, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
-        void computeBalanceOfMass( const scalarArray_iter &density_begin,                const scalarArray_iter &density_end,
+        template<int dim, class density_iter, class scalarArray_iter, class densityGradient_iter, class velocity_iter, class velocityGradient_iter, class scalarArray_iter_out, class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out>
+        void computeBalanceOfMass( const density_iter &density_begin,                    const density_iter &density_end,
                                    const scalarArray_iter &density_dot_begin,            const scalarArray_iter &density_dot_end,
                                    const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
                                    const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
@@ -249,14 +259,14 @@ namespace tardigradeBalanceEquations{
 
                 phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfMass( *( density_begin + phase ), *( density_dot_begin + phase ),
-                                      density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
-                                      velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
-                                      velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                      *( mass_change_rate_begin + phase ), *( dCdRho_begin + phase ), *( dCdRhoDot_begin + phase ),
-                                      dCdGradRho_begin + dim * phase,   dCdGradRho_begin + dim * ( phase + 1 ),
-                                      dCdV_begin + dim * phase,         dCdV_begin + dim * ( phase + 1 ),
-                                      dCdGradV_begin + sot_dim * phase, dCdGradV_begin + sot_dim * ( phase + 1 ) );
+                computeBalanceOfMass<dim>( *( density_begin + phase ),                *( density_dot_begin + phase ),
+                                           density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
+                                           velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
+                                           velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                                           *( mass_change_rate_begin + phase ),       *( dCdRho_begin + phase ), *( dCdRhoDot_begin + phase ),
+                                           dCdGradRho_begin + dim * phase,            dCdGradRho_begin + dim * ( phase + 1 ),
+                                           dCdV_begin + dim * phase,                  dCdV_begin + dim * ( phase + 1 ),
+                                           dCdGradV_begin + dim * dim * phase,         dCdGradV_begin + dim * dim * ( phase + 1 ) );
 
             }
 
