@@ -5,6 +5,7 @@
   */
 
 #include<tardigrade_balance_of_mass.h>
+#include<tardigrade_finite_element_utilities.h>
 #include<sstream>
 #include<fstream>
 #include<iostream>
@@ -205,158 +206,471 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+template<
+  typename dt_type, class v_t_in, class v_tp1_in,
+  class vDot_t_in, typename alpha_type, class vDot_tp1_out
+>
+void compute_current_rate_of_change(
+    const dt_type &dt,
+    const v_t_in &v_t_begin, const v_t_in &v_t_end,
+    const v_tp1_in &v_tp1_begin, const v_tp1_in &v_tp1_end,
+    const vDot_t_in &vDot_t_begin, const vDot_t_in &vDot_t_end,
+    alpha_type alpha, vDot_tp1_out vDot_tp1_begin, vDot_tp1_out vDot_tp1_end
+){
+
+    for ( unsigned int i = 0; i < ( unsigned int )( v_t_end - v_t_begin ); ++i ){
+
+        *( vDot_tp1_begin + i ) = ( ( *( v_tp1_begin + i ) ) - ( *( v_t_begin + i ) ) ) / ( alpha * dt ) - ( ( 1 - alpha ) / alpha ) * ( *( vDot_t_begin + i ) );
+
+    }
+
+}
+
+template<
+    int dim, int node_count,
+    class xi_in, typename dt_type, class density_t_in, class density_tp1_in,
+    class u_t_in, class u_tp1_in, class density_dot_t_in, class v_t_in,
+    class X_in, typename alpha_type, class value_out
+>
+void evaluate_at_nodes(
+    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt, const density_t_in &density_t_begin,
+    const density_t_in &density_t_end, const density_tp1_in &density_tp1_begin,
+    const density_tp1_in &density_tp1_end, const u_t_in &u_t_begin, const u_t_in &u_t_end,
+    const u_tp1_in &u_tp1_begin, const u_tp1_in &u_tp1_end,
+    const density_dot_t_in &density_dot_t_begin, const density_dot_t_in &density_dot_t_end,
+    const v_t_in &v_t_begin, const v_t_in &v_t_end, const X_in &X_begin, const X_in &X_end,
+    const alpha_type &alpha, value_out value_begin, value_out value_end
+){
+
+    // Update the mesh nodes
+    std::array< typename std::iterator_traits<u_t_in  >::value_type, dim * node_count > x_t;
+    std::array< typename std::iterator_traits<u_tp1_in>::value_type, dim * node_count > x_tp1;
+
+    std::transform( X_begin, X_end,   u_t_begin,   std::begin( x_t ), std::plus<typename std::iterator_traits<u_t_in  >::value_type>( ) );
+    std::transform( X_begin, X_end, u_tp1_begin, std::begin( x_tp1 ), std::plus<typename std::iterator_traits<u_tp1_in>::value_type>( ) );
+
+    // Calculate the current rates of change
+    std::array< typename std::iterator_traits<density_tp1_in>::value_type, node_count > density_dot_tp1;
+    std::array< typename std::iterator_traits<u_tp1_in>::value_type, dim * node_count > v_tp1;
+
+    compute_current_rate_of_change(
+        dt, density_t_begin, density_t_end, density_tp1_begin, density_tp1_end,
+        density_dot_t_begin, density_dot_t_end, alpha,
+        std::begin( density_dot_tp1 ), std::end( density_dot_tp1 )
+    );
+
+    compute_current_rate_of_change(
+        dt, u_t_begin, u_t_end, u_tp1_begin, u_tp1_end,
+        v_t_begin, v_t_end, alpha,
+        std::begin( v_tp1 ), std::end( v_tp1 )
+    );
+
+    // Instantiate the element
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<
+        floatType, typename std::array< floatType, 24 >::const_iterator,
+        typename std::array< floatType, 3>::const_iterator,
+        typename std::array< floatType, 8>::iterator,
+        typename std::array< floatType, 24>::iterator
+    > e(
+        std::cbegin( x_tp1 ), std::cend( x_tp1 ), X_begin, X_end
+    );
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, 1
+    > density_tp1_p, density_dot_tp1_p;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim
+    > v_tp1_p;
+
+    // Interpolate quantities to the local point
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( density_tp1_p ), std::end( density_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( density_dot_tp1 ), std::cend( density_dot_tp1 ),
+        std::begin( density_dot_tp1_p ), std::end( density_dot_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( v_tp1_p ), std::end( v_tp1_p )
+    );
+
+    // Compute the gradients at the local point
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, dim
+    > grad_density_tp1;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim * dim
+    > grad_velocity_tp1;
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( grad_density_tp1 ), std::end( grad_density_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( grad_velocity_tp1 ), std::end( grad_velocity_tp1 )
+    );
+
+    typename std::iterator_traits<value_out>::value_type balance_of_mass;
+
+    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>(
+        density_tp1_p[ 0 ], density_dot_tp1_p[ 0 ],
+        std::cbegin( grad_density_tp1 ), std::cend( grad_density_tp1 ),
+        std::cbegin( v_tp1_p ), std::cend( v_tp1_p ),
+        std::cbegin( grad_velocity_tp1 ), std::cend( grad_velocity_tp1 ),
+        balance_of_mass
+    );
+
+    e.GetShapeFunctions( xi_begin, xi_end, value_begin, value_end );
+
+    std::transform( value_begin, value_end, value_begin, std::bind( std::multiplies<typename std::iterator_traits<value_out>::value_type>( ), std::placeholders::_1, balance_of_mass ) );
+
+}
+
+template<
+    int dim, int node_count,
+    class xi_in, typename dt_type, class density_t_in, class density_tp1_in,
+    class u_t_in, class u_tp1_in, class density_dot_t_in, class v_t_in,
+    class X_in, typename alpha_type, class value_out,
+    class dCdRho_iter_out, class dCdRhoDot_iter_out, class dCdGradRho_iter_out,
+    class dCdV_iter_out, class dCdGradV_iter_out, class dCdU_iter_out
+>
+void evaluate_at_nodes(
+    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt, const density_t_in &density_t_begin,
+    const density_t_in &density_t_end, const density_tp1_in &density_tp1_begin,
+    const density_tp1_in &density_tp1_end, const u_t_in &u_t_begin, const u_t_in &u_t_end,
+    const u_tp1_in &u_tp1_begin, const u_tp1_in &u_tp1_end,
+    const density_dot_t_in &density_dot_t_begin, const density_dot_t_in &density_dot_t_end,
+    const v_t_in &v_t_begin, const v_t_in &v_t_end, const X_in &X_begin, const X_in &X_end,
+    const alpha_type &alpha, value_out value_begin, value_out value_end,
+    dCdRho_iter_out dCdRho_begin, dCdRho_iter_out dCdRho_end,
+    dCdRhoDot_iter_out dCdRhoDot_begin, dCdRhoDot_iter_out dCdRhoDot_end,
+    dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
+    dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
+    dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end,
+    dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end
+){
+
+    // Update the mesh nodes
+    std::array< typename std::iterator_traits<u_t_in  >::value_type, dim * node_count > x_t;
+    std::array< typename std::iterator_traits<u_tp1_in>::value_type, dim * node_count > x_tp1;
+
+    std::transform( X_begin, X_end,   u_t_begin,   std::begin( x_t ), std::plus<typename std::iterator_traits<u_t_in  >::value_type>( ) );
+    std::transform( X_begin, X_end, u_tp1_begin, std::begin( x_tp1 ), std::plus<typename std::iterator_traits<u_tp1_in>::value_type>( ) );
+
+    // Calculate the current rates of change
+    std::array< typename std::iterator_traits<density_tp1_in>::value_type, node_count > density_dot_tp1;
+    std::array< typename std::iterator_traits<u_tp1_in>::value_type, dim * node_count > v_tp1;
+
+    compute_current_rate_of_change(
+        dt, density_t_begin, density_t_end, density_tp1_begin, density_tp1_end,
+        density_dot_t_begin, density_dot_t_end, alpha,
+        std::begin( density_dot_tp1 ), std::end( density_dot_tp1 )
+    );
+
+    compute_current_rate_of_change(
+        dt, u_t_begin, u_t_end, u_tp1_begin, u_tp1_end,
+        v_t_begin, v_t_end, alpha,
+        std::begin( v_tp1 ), std::end( v_tp1 )
+    );
+
+    // Instantiate the element
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<
+        floatType, typename std::array< floatType, 24 >::const_iterator,
+        typename std::array< floatType, 3>::const_iterator,
+        typename std::array< floatType, 8>::iterator,
+        typename std::array< floatType, 24>::iterator
+    > e(
+        std::cbegin( x_tp1 ), std::cend( x_tp1 ), X_begin, X_end
+    );
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, 1
+    > density_tp1_p, density_dot_tp1_p;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim
+    > v_tp1_p;
+
+    // Interpolate quantities to the local point
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( density_tp1_p ), std::end( density_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( density_dot_tp1 ), std::cend( density_dot_tp1 ),
+        std::begin( density_dot_tp1_p ), std::end( density_dot_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( v_tp1_p ), std::end( v_tp1_p )
+    );
+
+    // Compute the gradients at the local point
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, dim
+    > grad_density_tp1;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim * dim
+    > grad_velocity_tp1;
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( grad_density_tp1 ), std::end( grad_density_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( grad_velocity_tp1 ), std::end( grad_velocity_tp1 )
+    );
+
+    typename std::iterator_traits<value_out>::value_type balance_of_mass;
+
+    typename std::iterator_traits<dCdRho_iter_out>::value_type dCdRho_p;
+    typename std::iterator_traits<dCdRhoDot_iter_out>::value_type dCdRhoDot_p;
+    std::array< typename std::iterator_traits<dCdGradRho_iter_out>::value_type, dim > dCdGradRho_p;
+    std::array< typename std::iterator_traits<dCdV_iter_out>::value_type, dim > dCdV_p;
+    std::array< typename std::iterator_traits<dCdGradV_iter_out>::value_type, dim * dim > dCdGradV_p;
+
+    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>(
+        density_tp1_p[ 0 ], density_dot_tp1_p[ 0 ],
+        std::cbegin( grad_density_tp1 ), std::cend( grad_density_tp1 ),
+        std::cbegin( v_tp1_p ), std::cend( v_tp1_p ),
+        std::cbegin( grad_velocity_tp1 ), std::cend( grad_velocity_tp1 ),
+        balance_of_mass,
+        dCdRho_p, dCdRhoDot_p,
+        std::begin( dCdGradRho_p ), std::end( dCdGradRho_p ),
+        std::begin( dCdV_p ), std::end( dCdV_p ),
+        std::begin( dCdGradV_p ), std::end( dCdGradV_p )
+    );
+
+    std::array< floatType, node_count> Ns;
+    e.GetShapeFunctions( xi_begin, xi_end, std::begin( Ns ), std::end( Ns ) );
+
+    std::transform( std::begin( Ns ), std::end( Ns ), value_begin,     std::bind( std::multiplies<typename std::iterator_traits<value_out>::value_type>( ), std::placeholders::_1, balance_of_mass ) );
+
+    for ( unsigned int i = 0; i < node_count; ++i ){ //Loop over the test functions
+
+        for ( unsigned int j = 0; j < node_count; ++j ){ //Loop over the interpolation functions
+
+            *( dCdRho_begin + dim * i + j ) = dCdRho_p * Ns[ i ] * Ns[ j ];
+
+            *( dCdRhoDot_begin + dim * i + j ) = dCdRho_p * Ns[ i ] * Ns[ j ];
+
+//            std::transform(
+//                std::begin( dCdGradRho_p ), std::end( dCdGradRho_p ), dCdGradRho_begin + node_count * dim * i + dim * j,
+//                std::bind(
+//                    std::multiplies<
+//                        typename std::iterator_traits<dCdGradRho_iter_out>::value_type
+//                    >( ),
+//                    std::placeholders::_1,
+//                    Ns[ i ] * Ns[ j ]
+//                )
+//            );
+//
+//            std::transform(
+//                std::begin( dCdV_p ), std::end( dCdV_p ), dCdV_begin + node_count * dim * i + dim * j,
+//                std::bind(
+//                    std::multiplies<
+//                        typename std::iterator_traits<dCdV_iter_out>::value_type
+//                    >( ),
+//                    std::placeholders::_1,
+//                    Ns[ i ] * Ns[ j ]
+//                )
+//            );
+//
+//            std::transform(
+//                std::begin( dCdGradV_p ), std::end( dCdGradV_p ), dCdGradV_begin + node_count * dim * dim * i + dim * dim * j,
+//                std::bind(
+//                    std::multiplies<
+//                        typename std::iterator_traits<dCdGradV_iter_out>::value_type
+//                    >( ),
+//                    std::placeholders::_1,
+//                    Ns[ i ] * Ns[ j ]
+//                )
+//            );
+
+        }
+
+    }
+
+}
+
+BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
      * Test computing the balance of mass in a finite element context
      */
 
-    floatType density = 1.4;
+    std::array< floatType, 8 > density_t = {
+        0.61289453, 0.12062867, 0.8263408 , 0.60306013, 0.54506801,
+        0.34276383, 0.30412079, 0.41702221
+    };
 
-    floatType density_dot = 2.8;
+    std::array< floatType, 8 > density_tp1 = {
+        0.08319499, 0.76368284, 0.24366637, 0.19422296, 0.57245696,
+        0.09571252, 0.88532683, 0.62724897
+    };
 
-    floatVector density_gradient = { 1., 2., 3. };
+    std::array< floatType, 24 > u_t = {
+        0.53182759, 0.63440096, 0.84943179, 0.51044152, 0.65634786,
+        0.86791477, 0.48312667, 0.6486585 , 0.86600796, 0.50451273,
+        0.6267116 , 0.84752498, 0.53695906, 0.68247738, 0.83864355,
+        0.515573  , 0.70442428, 0.85712652, 0.48825814, 0.69673492,
+        0.85521971, 0.50964421, 0.67478802, 0.83673674
+    };
 
-    floatVector velocity = { 0.1, 0.2, 0.3 };
+    std::array< floatType, 24 > u_tp1 = {
+        0.72445532, 0.61102351, 0.72244338, 0.70877313, 0.5669913 ,
+        0.69069256, 0.7316781 , 0.55679573, 0.65823773, 0.7473603 ,
+        0.60082794, 0.68998856, 0.71831255, 0.63482305, 0.72559852,
+        0.70263035, 0.59079084, 0.69384769, 0.72553532, 0.58059527,
+        0.66139287, 0.74121752, 0.62462748, 0.6931437
+    };
 
-    secondOrderTensor velocity_gradient = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 };
+    std::array< floatType, 8 > density_dot_t = {
+        0.68130077, 0.87545684, 0.51042234, 0.66931378, 0.58593655,
+        0.6249035 , 0.67468905, 0.84234244
+    };
 
-    floatType answer = 6.3;
+    std::array< floatType, 24 > v_t = {
+        -0.35408217, -0.27642269, -0.54347354, -0.41257191,  0.26195225,
+        -0.81579012, -0.13259765, -0.13827447, -0.0126298 , -0.14833942,
+        -0.37547755, -0.14729739,  0.78677833,  0.88832004,  0.00367335,
+         0.2479059 , -0.76876321, -0.36542904, -0.17034758,  0.73261832,
+        -0.49908927, -0.03393147,  0.97111957,  0.03897024
+    };
 
-    floatType result;
-    
-    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, velocity_gradient, result );
+    std::array< floatType, 24 > X = {
+        0., 0., 0., 1., 0., 0., 1., 1., 0., 0., 1., 0., 0., 0., 1., 1., 0.,
+       1., 1., 1., 1., 0., 1., 1.
+    };
 
-    BOOST_TEST( answer == result );
+    std::array< floatType, 8 > answer = {
+        -0.0830957 , -0.21734036, -0.003563  , -0.00136224, -0.12179146,
+        -0.31855078, -0.0052222 , -0.0019966
+    };
 
-    floatType dCdRho, dCdRhoDot;
+    std::array< floatType, 8 > result;
 
-    floatVector dCdGradRho, dCdV;
+    std::array< floatType, 3 > local_point = {
+        0.44683272, -0.96774159,  0.18886376
+    };
 
-    secondOrderTensor dCdGradV;
+    floatType dt = 1.3929383711957233;
 
-    result = 0.;
+    floatType alpha = 0.56;
 
-    tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, velocity_gradient, result,
-                                                                     dCdRho,  dCdRhoDot,   dCdGradRho      , dCdV,     dCdGradV );
+    evaluate_at_nodes<3, 8>(
+        std::cbegin( local_point ), std::cend( local_point ), dt,
+        std::cbegin( density_t ), std::cend( density_t ),
+        std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+        std::cbegin( u_t ), std::cend( u_t ),
+        std::cbegin( u_tp1 ), std::cend( u_tp1 ),
+        std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+        std::cbegin( v_t ), std::cend( v_t ),
+        std::cbegin( X ), std::cend( X ),
+        alpha,
+        std::begin( result ), std::end( result )
+    );
 
-    BOOST_TEST( answer == result );
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
+
+    std::fill( std::begin( result ), std::end( result ), 0 );
+
+    std::array< floatType, 1 * 8 * 8 > dCdRho, dCdRhoDot;
+
+    std::array< floatType, 3 * 8 * 8 > dCdGradRho, dCdV, dCdU;
+
+    std::array< floatType, 9 * 8 * 8 > dCdGradV;
+
+    evaluate_at_nodes<3, 8>(
+        std::cbegin( local_point ), std::cend( local_point ), dt,
+        std::cbegin( density_t ), std::cend( density_t ),
+        std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+        std::cbegin( u_t ), std::cend( u_t ),
+        std::cbegin( u_tp1 ), std::cend( u_tp1 ),
+        std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+        std::cbegin( v_t ), std::cend( v_t ),
+        std::cbegin( X ), std::cend( X ),
+        alpha,
+        std::begin( result ), std::end( result ),
+        std::begin( dCdRho ), std::end( dCdRho ),
+        std::begin( dCdRhoDot ), std::end( dCdRhoDot ),
+        std::begin( dCdGradRho ), std::end( dCdGradRho ),
+        std::begin( dCdV ), std::end( dCdV ),
+        std::begin( dCdGradV ), std::end( dCdGradV ),
+        std::begin( dCdU ), std::end( dCdU )
+    );
+
+    BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
     floatType eps = 1e-6;
 
-    // Derivative w.r.t. density
-    for ( unsigned int i = 0; i < 1; i++ ){
+    // Check the derivatives w.r.t. the density
+    {
 
-        floatType delta = eps * std::fabs( density ) + eps;
+        constexpr vardim = 8;
+        constexpr outdim = 8;
 
-        floatType xp = density + delta;
+        for ( unsigned int i = 0; i < vardim; i++ ){
+    
+            floatType delta = eps * std::fabs( rho_tp1[ i ] ) + eps;
+    
+            std::array< floatType, vardim > xp = density_tp1;
+            std::array< floatType, vardim > xm = density_tp1;
+    
+            xp[ i ] += delta;
+            xm[ i ] += delta;
+    
+            std::array< floatType, vardim > vp, vm;
+    
+            evaluate_at_nodes<3, 8>(
+                std::cbegin( local_point ), std::cend( local_point ), dt,
+                std::cbegin( density_t ), std::cend( density_t ),
+                std::cbegin( xp ), std::cend( xp ),
+                std::cbegin( u_t ), std::cend( u_t ),
+                std::cbegin( u_tp1 ), std::cend( u_tp1 ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( v_t ), std::cend( v_t ),
+                std::cbegin( X ), std::cend( X ),
+                alpha,
+                std::begin( vp ), std::end( vp )
+            );
 
-        floatType xm = density - delta;
+            evaluate_at_nodes<3, 8>(
+                std::cbegin( local_point ), std::cend( local_point ), dt,
+                std::cbegin( density_t ), std::cend( density_t ),
+                std::cbegin( xm ), std::cend( xm ),
+                std::cbegin( u_t ), std::cend( u_t ),
+                std::cbegin( u_tp1 ), std::cend( u_tp1 ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( v_t ), std::cend( v_t ),
+                std::cbegin( X ), std::cend( X ),
+                alpha,
+                std::begin( vm ), std::end( vm )
+            );
 
-        floatType vp;
+            for ( unsigned int j = 0; j < outdim; j++ ){
 
-        floatType vm;
+                BOOST_TEST( *( dCdRho_begin + vardim * j + i ) == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( xp, density_dot, density_gradient, velocity, velocity_gradient, vp );
+            }
 
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( xm, density_dot, density_gradient, velocity, velocity_gradient, vm );
-
-        BOOST_TEST( dCdRho == ( vp - vm ) / ( 2 * delta ) );
-
-    }
-
-    // Derivative w.r.t. density dot
-    for ( unsigned int i = 0; i < 1; i++ ){
-
-        floatType delta = eps * std::fabs( density_dot ) + eps;
-
-        floatType xp = density_dot + delta;
-
-        floatType xm = density_dot - delta;
-
-        floatType vp;
-
-        floatType vm;
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, xp, density_gradient, velocity, velocity_gradient, vp );
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, xm, density_gradient, velocity, velocity_gradient, vm );
-
-        BOOST_TEST( dCdRhoDot == ( vp - vm ) / ( 2 * delta ) );
-
-    }
-
-    // Derivative w.r.t. density gradient
-    for ( unsigned int i = 0; i < 3; i++ ){
-
-        floatType delta = eps * std::fabs( density_gradient[ i ] ) + eps;
-
-        floatVector xp = density_gradient;
-
-        floatVector xm = density_gradient;
-
-        xp[ i ] += delta;
-
-        xm[ i ] -= delta;
-
-        floatType vp;
-
-        floatType vm;
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, xp, velocity, velocity_gradient, vp );
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, xm, velocity, velocity_gradient, vm );
-
-        BOOST_TEST( dCdGradRho[ i ] == ( vp - vm ) / ( 2 * delta ) );
-
-    }
-
-    // Derivative w.r.t. velocity
-    for ( unsigned int i = 0; i < 3; i++ ){
-
-        floatType delta = eps * std::fabs( velocity[ i ] ) + eps;
-
-        floatVector xp = velocity;
-
-        floatVector xm = velocity;
-
-        xp[ i ] += delta;
-
-        xm[ i ] -= delta;
-
-        floatType vp;
-
-        floatType vm;
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, xp, velocity_gradient, vp );
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, xm, velocity_gradient, vm );
-
-        BOOST_TEST( dCdV[ i ] == ( vp - vm ) / ( 2 * delta ) );
-
-    }
-
-    // Derivative w.r.t. velocity gradient
-    for ( unsigned int i = 0; i < 9; i++ ){
-
-        floatType delta = eps * std::fabs( velocity_gradient[ i ] ) + eps;
-
-        secondOrderTensor xp = velocity_gradient;
-
-        secondOrderTensor xm = velocity_gradient;
-
-        xp[ i ] += delta;
-
-        xm[ i ] -= delta;
-
-        floatType vp;
-
-        floatType vm;
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, xp, vp );
-
-        tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, xm, vm );
-
-        BOOST_TEST( dCdGradV[ i ] == ( vp - vm ) / ( 2 * delta ) );
+        }
 
     }
 
