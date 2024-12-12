@@ -591,11 +591,11 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
 
     std::fill( std::begin( result ), std::end( result ), 0 );
 
-    std::array< floatType, 1 * 8 * 8 > dCdRho, dCdRhoDot;
+    std::array< floatType, 1 * 1 * 8 * 8 > dCdRho, dCdRhoDot;
 
-    std::array< floatType, 3 * 8 * 8 > dCdGradRho, dCdV, dCdU;
+    std::array< floatType, 3 * 3 * 8 * 8 > dCdGradRho, dCdV, dCdU;
 
-    std::array< floatType, 9 * 8 * 8 > dCdGradV;
+    std::array< floatType, 9 * 9 * 8 * 8 > dCdGradV;
 
     evaluate_at_nodes<3, 8>(
         std::cbegin( local_point ), std::cend( local_point ), dt,
@@ -673,6 +673,64 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
         }
 
     }
+
+//    // Check the derivatives w.r.t. the deformation
+//    {
+//
+//        constexpr vardim = 3 * 8;
+//        constexpr outdim = 3 * 8;
+//
+//        for ( unsigned int i = 0; i < vardim; i++ ){
+//    
+//            floatType delta = eps * std::fabs( u_tp1[ i ] ) + eps;
+//    
+//            std::array< floatType, vardim > xp = u_tp1;
+//            std::array< floatType, vardim > xm = u_tp1;
+//    
+//            xp[ i ] += delta;
+//            xm[ i ] += delta;
+//    
+//            std::array< floatType, vardim > vp, vm;
+//    
+//            evaluate_at_nodes<3, 8>(
+//                std::cbegin( local_point ), std::cend( local_point ), dt,
+//                std::cbegin( density_t ), std::cend( density_t ),
+//                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+//                std::cbegin( u_t ), std::cend( u_t ),
+//                std::cbegin( xp ), std::cend( xp ),
+//                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+//                std::cbegin( v_t ), std::cend( v_t ),
+//                std::cbegin( X ), std::cend( X ),
+//                alpha,
+//                std::begin( vp ), std::end( vp )
+//            );
+//
+//            evaluate_at_nodes<3, 8>(
+//                std::cbegin( local_point ), std::cend( local_point ), dt,
+//                std::cbegin( density_t ), std::cend( density_t ),
+//                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+//                std::cbegin( u_t ), std::cend( u_t ),
+//                std::cbegin( xm ), std::cend( xm ),
+//                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+//                std::cbegin( v_t ), std::cend( v_t ),
+//                std::cbegin( X ), std::cend( X ),
+//                alpha,
+//                std::begin( vp ), std::end( vp )
+//            );
+//
+//            for ( unsigned int j = 0; j < outdim; j++ ){
+//
+//                unsigned int node = outdim / 3;
+//
+//                unsigned int direction = j - 3 * node;
+//
+//                BOOST_TEST( *( dCdU_begin + vardim * j + i ) == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+//
+//            }
+//
+//        }
+//
+//    }
 
 }
 
