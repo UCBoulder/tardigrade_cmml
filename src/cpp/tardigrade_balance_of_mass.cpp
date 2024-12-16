@@ -120,6 +120,46 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim, typename density_type, typename densityDot_type, typename c_type,
+            typename testFunction_type,
+            class densityGradient_iter, class velocity_iter, class velocityGradient_iter
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
+            const testFunction_type &psi,
+            c_type &mass_change_rate
+        ){
+            /*!
+             * Compute the value of the balance of mass returning the value of the mass change rate
+             * 
+             * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
+             *
+             * \param &density: The value of the density \f$ \rho \f$
+             * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &psi: The value of the test function \f$ \psi \f$
+             * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
+             */
+
+            computeBalanceOfMass<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_gradient_begin, velocity_gradient_end,
+                mass_change_rate
+            );
+
+            mass_change_rate *= psi;
+
+        }
+
+        template<
+            int dim, typename density_type, typename densityDot_type, typename c_type,
             typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out,
             class dCdV_iter_out, class dCdGradV_iter_out
@@ -188,27 +228,30 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim, typename density_type, typename densityDot_type, typename c_type,
-            typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
+            typename testFunction_type, typename interpolationFunction_type,
+            typename dCdRho_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
-            class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out, class dCdU_iter_out
+            class dCdU_iter_out, class dCdUMesh_iter_out,
+            typename dDensityDotdDensity_type, typename dUDotdU_type
         >
         void computeBalanceOfMass(
             const density_type &density,                                  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
+            const testFunction_type &psi,                                 const interpolationFunction_type &phi,
             const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
+            const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
             c_type &mass_change_rate,
-            dCdRho_type &dCdRho,                  dCdRhoDot_type &dCdRhoDot,
-            dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
-            dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
-            dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end,
-            dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end
+            dCdRho_type &dCdRho,
+            dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end,
+            dCdUMesh_iter_out dCdUMesh_begin,     dCdUMesh_iter_out dCdUMesh_end
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
              * 
-             * Adds the gradient with respect to the grid deformation
+             * By assuming that the function is being used for a Galerkin integration method we can reduce the
+             * dimensionality.
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
              *
@@ -220,42 +263,64 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &phi_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi \f$
-             * \param &phi_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi \f$
+             * \param &psi: The test function \f$ \psi \f$
+             * \param &phi: The interpolation function \f$ \phi \f$
+             * \param &phi_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &phi_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &dDensityDotdDensity: The derivative of the time-derivative of the density w.r.t. the density (based on timestep and integration scheme)
+             * \param &dUDotdU: The derivative of the time-derivative of the displacement w.r.t. the displacement (may not be mesh displacement)
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              * \param &dCdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dCdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dCdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dCdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement
+             * \param &dCdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement
              */
+
+            density_type dCdRhoDot;
+
+            std::array< density_type, dim > dCdGradRho;
+            std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim > dCdV;
+            std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim * dim > dCdGradV;
 
             computeBalanceOfMass<dim>(
                 density, density_dot,
-                density_gradient_begin,  density_gradient_end,
-                velocity_begin,          velocity_end,
-                velocity_gradient_begin, velocity_gradient_end,
+                density_gradient_begin,   density_gradient_end,
+                velocity_begin,           velocity_end,
+                velocity_gradient_begin,  velocity_gradient_end,
                 mass_change_rate,
-                dCdRho,                  dCdRhoDot,
-                dCdGradRho_begin,        dCdGradRho_end,
-                dCdV_begin,              dCdV_end,
-                dCdGradV_begin,          dCdGradV_end
+                dCdRho,                   dCdRhoDot,
+                std::begin( dCdGradRho ), std::end( dCdGradRho ),
+                std::begin( dCdV ),       std::end( dCdV ),
+                std::begin( dCdGradV ),   std::end( dCdGradV )
             );
 
+            // Set the mass change rate
+            mass_change_rate *= psi;
+
+            // Assemble the derivatives w.r.t. the density
+            dCdRho += dCdRhoDot * dDensityDotdDensity;
+            dCdRho *= psi * phi;
+
+            dCdRho += psi * std::inner_product( std::begin( dCdGradRho ), std::end( dCdGradRho ), phi_gradient_begin, dCdRho_type( ) );
+
+            // Assemble the derivatives w.r.t. the mesh displacement
             std::fill( dCdU_begin, dCdU_end, 0 );
+            std::fill( dCdUMesh_begin, dCdUMesh_end, 0 );
 
             for ( unsigned int a = 0; a < dim; ++a ){
 
+                *( dCdU_begin + a ) += psi * dCdV[ a ] * dUDotdU * phi;
+
                 for ( unsigned int i = 0; i < dim; ++i ){
 
-                    *( dCdU_begin + a ) -= ( *( dCdGradRho_begin + i ) ) * ( *( density_gradient_begin + a ) ) * ( *( phi_gradient_begin + i ) );
+                    *( dCdU_begin + a ) += psi * dCdGradV[ dim * a + i ] * ( *( phi_gradient_begin + i ) ) * dUDotdU;
+
+                    *( dCdUMesh_begin + a ) -= psi * dCdGradRho[ i ] * ( *( density_gradient_begin + a ) ) * ( *( phi_gradient_begin + i ) );
 
                     for ( unsigned int j = 0; j < dim; ++j ){
 
-                        *( dCdU_begin + a ) -= ( *( dCdGradV_begin + dim * j + i ) ) * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( phi_gradient_begin + i ) );
+                        *( dCdUMesh_begin + a ) -= psi * dCdGradV[ dim * j + i ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( phi_gradient_begin + i ) );
 
                     }
 

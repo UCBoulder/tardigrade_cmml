@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( test_LinearHex2, * boost::unit_test::tolerance( DEFAULT_TE
 
 BOOST_AUTO_TEST_CASE( test_LinearHex3, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE) ) {
 
-    // Test the interpolation
+    // Test the global shape function gradients
     std::array< floatType, 24 > X = { 0, 0, 0,
                                       1, 0, 0,
                                       1, 1, 0,
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( test_LinearHex3, * boost::unit_test::tolerance( DEFAULT_TE
 
 BOOST_AUTO_TEST_CASE( test_LinearHex4, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE) ) {
 
-    // Test the interpolation
+    // Test the global gradient of a quantity
     std::array< floatType, 24 > X = { 0, 0, 0,
                                       1, 0, 0,
                                       1, 1, 0,
@@ -389,11 +389,65 @@ BOOST_AUTO_TEST_CASE( test_LinearHex4, * boost::unit_test::tolerance( DEFAULT_TE
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
 
+    floatType eps = 1e-6;
+
+    std::array< floatType, 24 > dNdx;
+    e.GetGlobalShapeFunctionGradients( std::cbegin( point ), std::cend( point ), std::cbegin( x ), std::cend( x ), std::begin( dNdx ), std::end( dNdx ) );
+
+    for ( unsigned int i = 0; i < 40; ++i ){
+
+        floatType delta = eps * std::fabs( quantity[ i ] ) + eps;
+
+        std::array< floatType, 40 > qp, qm;
+
+        qp = quantity;
+        qm = quantity;
+
+        qp[ i ] += delta;
+        qm[ i ] -= delta;
+
+        std::array< floatType, 15 > vp, vm;
+
+        e.GetGlobalQuantityGradient(
+            std::cbegin( point ), std::cend( point ),
+            std::cbegin( qp ), std::cend( qp ),
+            std::begin( vp ), std::end( vp )
+        );
+
+        e.GetGlobalQuantityGradient(
+            std::cbegin( point ), std::cend( point ),
+            std::cbegin( qm ), std::cend( qm ),
+            std::begin( vm ), std::end( vm )
+        );
+
+        unsigned int node = i / 5;
+        unsigned int component = i - node * 5;
+
+        for ( unsigned int j = 0; j < 15; ++j ){
+
+            unsigned int row = j / 3;
+            unsigned int col = j - 3 * row;
+
+            if ( component == row ){
+
+                BOOST_TEST( dNdx[ 3 * node + col ] == ( ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) ) );
+
+            }
+            else{
+
+                BOOST_TEST( ( ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) ) == 0 );
+
+            }
+            
+        }
+
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE( test_LinearHex5, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE) ) {
 
-    // Test the interpolation
+    // Test the calculation of the volume integral Jacobian of transformation
     std::array< floatType, 24 > X = { 0, 0, 0,
                                       1, 0, 0,
                                       1, 1, 0,
