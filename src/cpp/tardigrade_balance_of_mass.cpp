@@ -256,6 +256,9 @@ namespace tardigradeBalanceEquations{
              * dimensionality.
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
+             * 
+             * We note that dCdUMesh also includes the term associated with the volumetric change ( \f$ c \phi_{,i} \f$ )
+             * where \f$ \phi_{,i} \f$ is the interpolation function
              *
              * \param &density: The value of the density \f$ \rho \f$
              * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
@@ -313,6 +316,8 @@ namespace tardigradeBalanceEquations{
             for ( unsigned int a = 0; a < dim; ++a ){
 
                 *( dCdU_begin + a ) += psi * dCdV[ a ] * dUDotdU * phi;
+
+                *( dCdUMesh_begin + a ) += mass_change_rate * ( *( phi_gradient_begin + a ) );
 
                 for ( unsigned int i = 0; i < dim; ++i ){
 

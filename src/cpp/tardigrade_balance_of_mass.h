@@ -11,6 +11,7 @@
 
 #include<array>
 
+#define USE_EIGEN
 #include "tardigrade_error_tools.h"
 
 namespace tardigradeBalanceEquations{

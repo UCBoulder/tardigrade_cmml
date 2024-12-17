@@ -10,6 +10,9 @@
 #include<fstream>
 #include<iostream>
 
+
+#include<tardigrade_vector_tools.h>
+
 #define BOOST_TEST_MODULE test_tardigrade_balance_equations_balance_of_mass
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/output_test_stream.hpp>
@@ -323,6 +326,22 @@ void evaluate_at_nodes(
         std::begin( grad_velocity_tp1 ), std::end( grad_velocity_tp1 )
     );
 
+    // Get the Jacobian of transformation
+    std::array< floatType, dim * dim > dxdxi;
+    e.GetLocalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( x_tp1 ), std::cend( x_tp1 ),
+        std::begin( dxdxi ), std::end( dxdxi )
+    );
+
+    floatType J = tardigradeVectorTools::determinant
+    <
+        typename std::array< floatType, dim * dim >::const_iterator,
+        floatType, 3, 3
+    >(
+        std::cbegin( dxdxi ), std::cend( dxdxi ),
+        3, 3
+    );
+
     typename std::iterator_traits<value_out>::value_type balance_of_mass;
 
     e.GetShapeFunctions( xi_begin, xi_end, value_begin, value_end );
@@ -337,7 +356,7 @@ void evaluate_at_nodes(
             *( value_begin + i ), balance_of_mass
         );
 
-        *( value_begin + i ) = balance_of_mass;
+        *( value_begin + i ) = balance_of_mass * J;
 
     }
 
@@ -449,6 +468,22 @@ void evaluate_at_nodes(
         std::begin( grad_velocity_tp1 ), std::end( grad_velocity_tp1 )
     );
 
+    // Get the Jacobian of transformation
+    std::array< floatType, dim * dim > dxdxi;
+    e.GetLocalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( x_tp1 ), std::cend( x_tp1 ),
+        std::begin( dxdxi ), std::end( dxdxi )
+    );
+
+    floatType J = tardigradeVectorTools::determinant
+    <
+        typename std::array< floatType, dim * dim >::const_iterator,
+        floatType, 3, 3
+    >(
+        std::cbegin( dxdxi ), std::cend( dxdxi ),
+        3, 3
+    );
+
     typename std::iterator_traits<value_out>::value_type balance_of_mass;
 
     typename std::iterator_traits<dCdRho_iter_out>::value_type dCdRho_p;
@@ -471,6 +506,8 @@ void evaluate_at_nodes(
             Ns[ i ], *( value_begin + i )
         );
 
+        *( value_begin + i ) *= J;
+
     }
 
     for ( unsigned int i = 0; i < node_count; ++i ){ //Loop over the test functions
@@ -491,16 +528,24 @@ void evaluate_at_nodes(
                 std::begin( dCdUMesh_p ), std::end( dCdUMesh_p )
             );
 
-            BOOST_TEST( balance_of_mass == ( *( value_begin + i ) ) );
+            BOOST_TEST( balance_of_mass * J == ( *( value_begin + i ) ) );
 
-            *( dCdRho_begin + node_count * i + j ) = dCdRho_p;
+            *( dCdRho_begin + node_count * i + j ) = dCdRho_p * J;
 
-            std::copy(
-                std::begin( dCdU_p ), std::end( dCdU_p ), dCdU_begin + node_count * dim * i + dim * j
+            std::transform(
+                std::begin( dCdU_p ), std::end( dCdU_p ), dCdU_begin + node_count * dim * i + dim * j,
+                std::bind(
+                    std::multiplies< typename std::iterator_traits< dCdU_iter_out >::value_type >( ),
+                    std::placeholders::_1, J
+                )
             );
 
-            std::copy(
-                std::begin( dCdUMesh_p ), std::end( dCdUMesh_p ), dCdUMesh_begin + node_count * dim * i + dim * j
+            std::transform(
+                std::begin( dCdUMesh_p ), std::end( dCdUMesh_p ), dCdUMesh_begin + node_count * dim * i + dim * j,
+                std::bind(
+                    std::multiplies< typename std::iterator_traits< dCdUMesh_iter_out >::value_type >( ),
+                    std::placeholders::_1, J
+                )
             );
 
         }
@@ -575,8 +620,8 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
     };
 
     std::array< floatType, 8 > answer = {
-        -0.12882448, -0.33694594, -0.00552376, -0.0021119 , -0.18881508,
-        -0.49385393, -0.00809606, -0.00309536
+        -0.01576343, -0.04122993, -0.00067591, -0.00025842, -0.0231041 ,
+       -0.06042976, -0.00099066, -0.00037876
     };
 
     std::array< floatType, 8 > result;
