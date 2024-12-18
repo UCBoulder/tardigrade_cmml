@@ -542,7 +542,7 @@ namespace tardigradeBalanceEquations{
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
             class mass_change_rate_iter_out,
             class dCdRho_iter_out, class dCdU_iter_out, class dCdUMesh_iter_out,
-            typename dDensityDotdDensity_type, typename dUDotdU_type
+            class dDensityDotdDensity_iter, class dUDotdU_iter
         >
         void computeBalanceOfMass(
             const density_iter &density_begin,                            const density_iter &density_end,
@@ -552,7 +552,8 @@ namespace tardigradeBalanceEquations{
             const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
             const testFunction_type &psi,                                 const interpolationFunction_type &phi,
             const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
-            const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type dUDotdU,
+            const dDensityDotdDensity_iter &dDensityDotdDensity_begin,    const dDensityDotdDensity_iter &dDensityDotdDensity_end,      
+            const dUDotdU_iter &dUDotdU_begin,                            const dUDotdU_iter &dUDotdU_end,
             mass_change_rate_iter_out mass_change_rate_begin,     mass_change_rate_iter_out mass_change_rate_end,
             dCdRho_iter_out dCdRho_begin,         dCdRho_iter_out dCdRho_end,
             dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end,
@@ -577,8 +578,10 @@ namespace tardigradeBalanceEquations{
              * \param &phi: The value of the interpolation function \f$ \phi \f$
              * \param &phi_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
              * \param &phi_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
-             * \param &dDensityDotdDensity: The derivative of the time rate of change of the density w.r.t. the density
-             * \param &dUDotdU: The derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
+             * \param &dDensityDotdDensity_begin: The starting iterator of the derivative of the time rate of change of the density w.r.t. the density
+             * \param &dDensityDotdDensity_end: The stopping iterator of the derivative of the time rate of change of the density w.r.t. the density
+             * \param &dUDotdU_begin: The starting iterator of the derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
+             * \param &dUDotdU_end: The stopping iterator of the derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
              * \param &mass_change_rate_begin: The starting iterator of the rate of change of the mass \f$ c \f$
              * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
              * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
@@ -599,6 +602,10 @@ namespace tardigradeBalanceEquations{
 
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( mass_change_rate_end - mass_change_rate_begin ), "The density and mass change rate arrays must be the same length" );
 
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dDensityDotdDensity_end - dDensityDotdDensity_begin ), "The density and the derivative of the density time derivative w.r.t. the density must be the same length" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dUDotdU_end - dUDotdU_begin ), "The density and the derivative of the dof time derivative w.r.t. the dof must be the same length" );
+
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRho_end - dCdRho_begin ), "The density and dCdRho arrays must be the same length" );
 
             TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdU_end - dCdU_begin ), "The density and dCdU arrays must have consistent lengths" );
@@ -612,11 +619,11 @@ namespace tardigradeBalanceEquations{
                 phase = ( unsigned int )( rho - density_begin );
 
                 computeBalanceOfMass<dim>(
-                    *( density_begin + phase ),                *( density_dot_begin + phase ),
-                    density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
-                    velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
+                    *( density_begin + phase ),                  *( density_dot_begin + phase ),
+                    density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
                     velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
-                    dDensityDotdDensity,                         dUDotdU,
+                    *( dDensityDotdDensity_begin + phase ),      *( dUDotdU_begin + phase ),
                     *( mass_change_rate_begin + phase ),
                     *( dCdRho_begin + phase ),
                     dCdU_begin + dim * phase,                    dCdU_begin + dim * ( phase + 1 ),
