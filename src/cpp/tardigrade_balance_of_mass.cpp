@@ -554,7 +554,7 @@ namespace tardigradeBalanceEquations{
             const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
             const dDensityDotdDensity_iter &dDensityDotdDensity_begin,    const dDensityDotdDensity_iter &dDensityDotdDensity_end,      
             const dUDotdU_iter &dUDotdU_begin,                            const dUDotdU_iter &dUDotdU_end,
-            mass_change_rate_iter_out mass_change_rate_begin,     mass_change_rate_iter_out mass_change_rate_end,
+            mass_change_rate_iter_out mass_change_rate_begin,             mass_change_rate_iter_out mass_change_rate_end,
             dCdRho_iter_out dCdRho_begin,         dCdRho_iter_out dCdRho_end,
             dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end,
             dCdUMesh_iter_out dCdUMesh_begin,     dCdUMesh_iter_out dCdUMesh_end
@@ -623,6 +623,8 @@ namespace tardigradeBalanceEquations{
                     density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
                     velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
                     velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    psi,                                         phi,
+                    phi_gradient_begin,                          phi_gradient_end,
                     *( dDensityDotdDensity_begin + phase ),      *( dUDotdU_begin + phase ),
                     *( mass_change_rate_begin + phase ),
                     *( dCdRho_begin + phase ),
