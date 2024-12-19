@@ -660,24 +660,18 @@ void evaluate_at_nodes(
                     *( dCdRho_begin + nphases * node_count * nphases * i + node_count * nphases * k + nphases * j + k )
                         = dCdRho_p[ k ] * J;
 
+                    for ( unsigned int l = 0; l < dim; ++l ){
+
+                        *( dCdU_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * k + nphases * dim * j + dim * k + l )
+                            = dCdU_p[ dim * k + l ] * J;
+
+                        *( dCdUMesh_begin + nphases * node_count * dim * i + node_count * dim * k + dim * j + l )
+                            = dCdUMesh_p[ dim * k + l ] * J;
+
+                    }
+
                 }
 
-                std::transform(
-                    std::begin( dCdU_p ), std::end( dCdU_p ), dCdU_begin + node_count * dim * nphases * i + dim * nphases * j,
-                    std::bind(
-                        std::multiplies< typename std::iterator_traits< dCdU_iter_out >::value_type >( ),
-                        std::placeholders::_1, J
-                    )
-                );
-    
-                std::transform(
-                    std::begin( dCdUMesh_p ), std::end( dCdUMesh_p ), dCdUMesh_begin + node_count * dim * nphases * i + dim * nphases * j,
-                    std::bind(
-                        std::multiplies< typename std::iterator_traits< dCdUMesh_iter_out >::value_type >( ),
-                        std::placeholders::_1, J
-                    )
-                );
-    
             }
     
         }
@@ -1239,64 +1233,64 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
 
     }
 
-//    // Check the derivatives w.r.t. the deformation
-//    {
-//
-//        constexpr unsigned int vardim = 3 * 8;
-//        constexpr unsigned int outdim = 8;
-//
-//        for ( unsigned int i = 0; i < vardim; ++i ){
-//    
-//            floatType delta = eps * std::fabs( u_tp1[ i ] ) + eps;
-//    
-//            std::array< floatType, vardim > xp = u_tp1;
-//            std::array< floatType, vardim > xm = u_tp1;
-//    
-//            xp[ i ] += delta;
-//            xm[ i ] -= delta;
-//    
-//            std::array< floatType, outdim > vp, vm;
-//
-//            evaluate_at_nodes<3, 8, nphases>(
-//                std::cbegin( local_point ), std::cend( local_point ), dt,
-//                std::cbegin( density_t ), std::cend( density_t ),
-//                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
-//                std::cbegin( u_t ), std::cend( u_t ),
-//                std::cbegin( xp ), std::cend( xp ),
-//                std::cbegin( umesh_t ), std::cend( umesh_t ),
-//                std::cbegin( umesh_tp1 ), std::cend( umesh_tp1 ),
-//                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
-//                std::cbegin( v_t ), std::cend( v_t ),
-//                std::cbegin( X ), std::cend( X ),
-//                alpha,
-//                std::begin( vp ), std::end( vp )
-//            );
-//
-//            evaluate_at_nodes<3, 8, nphases>(
-//                std::cbegin( local_point ), std::cend( local_point ), dt,
-//                std::cbegin( density_t ), std::cend( density_t ),
-//                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
-//                std::cbegin( u_t ), std::cend( u_t ),
-//                std::cbegin( xm ), std::cend( xm ),
-//                std::cbegin( umesh_t ), std::cend( umesh_t ),
-//                std::cbegin( umesh_tp1 ), std::cend( umesh_tp1 ),
-//                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
-//                std::cbegin( v_t ), std::cend( v_t ),
-//                std::cbegin( X ), std::cend( X ),
-//                alpha,
-//                std::begin( vm ), std::end( vm )
-//            );
-//
-//            for ( unsigned int j = 0; j < outdim; ++j ){
-//
-//                BOOST_TEST( dCdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
-//
-//            }
-//
-//        }
-//
-//    }
-//
+    // Check the derivatives w.r.t. the deformation
+    {
+
+        constexpr unsigned int vardim = 3 * 8 * nphases;
+        constexpr unsigned int outdim = 8 * nphases;
+
+        for ( unsigned int i = 0; i < vardim; ++i ){
+    
+            floatType delta = eps * std::fabs( u_tp1[ i ] ) + eps;
+    
+            std::array< floatType, vardim > xp = u_tp1;
+            std::array< floatType, vardim > xm = u_tp1;
+    
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+    
+            std::array< floatType, outdim > vp, vm;
+
+            evaluate_at_nodes<3, 8, nphases>(
+                std::cbegin( local_point ), std::cend( local_point ), dt,
+                std::cbegin( density_t ), std::cend( density_t ),
+                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+                std::cbegin( u_t ), std::cend( u_t ),
+                std::cbegin( xp ), std::cend( xp ),
+                std::cbegin( umesh_t ), std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ), std::cend( umesh_tp1 ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( v_t ), std::cend( v_t ),
+                std::cbegin( X ), std::cend( X ),
+                alpha,
+                std::begin( vp ), std::end( vp )
+            );
+
+            evaluate_at_nodes<3, 8, nphases>(
+                std::cbegin( local_point ), std::cend( local_point ), dt,
+                std::cbegin( density_t ), std::cend( density_t ),
+                std::cbegin( density_tp1 ), std::cend( density_tp1 ),
+                std::cbegin( u_t ), std::cend( u_t ),
+                std::cbegin( xm ), std::cend( xm ),
+                std::cbegin( umesh_t ), std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ), std::cend( umesh_tp1 ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( v_t ), std::cend( v_t ),
+                std::cbegin( X ), std::cend( X ),
+                alpha,
+                std::begin( vm ), std::end( vm )
+            );
+
+            for ( unsigned int j = 0; j < outdim; ++j ){
+
+                BOOST_TEST( dCdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
 //    // Check the derivatives w.r.t. the mesh deformation
 //    {
 //
