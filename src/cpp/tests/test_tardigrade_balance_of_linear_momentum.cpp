@@ -952,12 +952,12 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfLinearMomentumNonDivergenc
 
     }
 
-    for ( unsigned int i = 0; i < sot_dim * nphases; i++ ){
+    for ( unsigned int i = 0; i < dim * nphases; i++ ){
 
-        floatType delta = eps * std::fabs( velocity_gradient[ i ] ) + eps;
+        floatType delta = eps * std::fabs( body_force[ i ] ) + eps;
 
-        std::array<floatType,dim*dim*nphases> xp = velocity_gradient;
-        std::array<floatType,dim*dim*nphases> xm = velocity_gradient;
+        std::array<floatType,dim*nphases> xp = body_force;
+        std::array<floatType,dim*nphases> xm = body_force;
 
         xp[ i ] += delta;
         xm[ i ] -= delta;
