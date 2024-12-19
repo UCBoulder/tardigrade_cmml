@@ -46,9 +46,9 @@ namespace tardigradeBalanceEquations{
         template<
             int dim, typename density_type, typename density_dot_type, typename testFunction_type,
             class density_gradient_iter, class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
-            class body_force_iter, class result_iter
+            class body_force_iter, class result_iter, class testFunctionGradient_iter
         >
-        void computeBalanceOfLinearMomentumNonDivergence(
+        void computeBalanceOfLinearMomentum(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
@@ -56,6 +56,7 @@ namespace tardigradeBalanceEquations{
             const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
             const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
             const testFunction_type &psi,
+            const testFunctionGradient_iter &psi_gradient_begin,   const testFunctionGradient_iter &psi_gradient_end,
             result_iter result_begin,                              result_iter result_end
         );
 
