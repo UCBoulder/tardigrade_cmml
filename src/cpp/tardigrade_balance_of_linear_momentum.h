@@ -44,9 +44,9 @@ namespace tardigradeBalanceEquations{
         );
 
         template<
-            int dim, typename density_type, typename density_dot_type,
+            int dim, typename density_type, typename density_dot_type, typename testFunction_type,
             class density_gradient_iter, class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
-            class body_force_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out
+            class body_force_iter, class result_iter
         >
         void computeBalanceOfLinearMomentumNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
@@ -55,6 +55,59 @@ namespace tardigradeBalanceEquations{
             const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
             const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
             const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const testFunction_type &psi,
+            result_iter result_begin,                              result_iter result_end
+        );
+
+        template<
+            int dim, typename density_type, typename density_dot_type,
+            class density_gradient_iter, class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter, class result_iter, class dRdRho_iter, class dRdRhoDot_iter, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdRhoDot_iter dRdRhoDot_begin,                        dRdRhoDot_iter dRdRhoDot_end,
+            secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
+            secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
+            secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
+            thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
+            secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end
+        );
+
+        template<
+            int dim, class density_iter, class density_dot_iter,
+            class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+            const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+            const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+            const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+            const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+            const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
+            floatVector_iter_out result_begin,                     floatVector_iter_out result_end
+        );
+
+        template<
+            int dim, class density_iter, class density_dot_iter,
+            class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+            const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
+            const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
+            const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
+            const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
+            const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
             floatVector_iter_out result_begin,                     floatVector_iter_out result_end,
             floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
             floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
@@ -64,33 +117,6 @@ namespace tardigradeBalanceEquations{
             thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
             secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end
         );
-
-        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
-                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end );
-
-        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
-                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end,
-                                                          floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
-                                                          floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
-                                                          secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
-                                                          secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
-                                                          secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
-                                                          thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
-                                                          secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end );
 
         template<int dim, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
         void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,

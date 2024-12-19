@@ -9,6 +9,8 @@
 
 #include "tardigrade_balance_of_linear_momentum.h"
 #include<numeric>
+#include<algorithm>
+#include<functional>
 
 namespace tardigradeBalanceEquations{
 
@@ -60,7 +62,7 @@ namespace tardigradeBalanceEquations{
             // Compute the inner product of the velocity and the density gradient
             using density_gradient_type  = typename std::iterator_traits<density_gradient_iter>::value_type;
             using velocity_type          = typename std::iterator_traits<velocity_iter>::value_type;
-            using grad_rho_dot_type = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
+            using grad_rho_dot_type      = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
             using velocity_gradient_type = typename std::iterator_traits<velocity_gradient_iter>::value_type;
 
             grad_rho_dot_type grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
@@ -91,10 +93,9 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
-            int dim, typename density_type, typename density_dot_type,
+            int dim, typename density_type, typename density_dot_type, typename testFunction_type,
             class density_gradient_iter, class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
-            class body_force_iter,
-            class floatVector_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out
+            class body_force_iter, class result_iter
         >
         void computeBalanceOfLinearMomentumNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
@@ -103,9 +104,77 @@ namespace tardigradeBalanceEquations{
             const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
             const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
             const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
-            floatVector_iter_out result_begin,                     floatVector_iter_out result_end, 
-            floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
-            floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
+            const testFunction_type &psi,
+            result_iter result_begin,                              result_iter result_end
+        ){
+
+            /*!
+             * Compute the non-divergence part of the balance of linear momentum where the full equation is
+             *
+             * \f$ \left( \sigma_{ji} - \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) = -f_i \f$
+             * 
+             * and the non-divergence part is
+             * 
+             * \f$ -\left( \rho v_i v_j \right)_{,j} + \rho b_i - \frac{\partial}{\partial t} \left( \rho v_i \right) + f_i = 0 \f$
+             * 
+             * and \f$ f_i \f$ is the vector of additional forces not accounted for in these equations. The expression we implement is therefore
+             * 
+             * \f$ -\rho_{,j} v_j v_i - \rho v_{i,j} v_j - \rho v_i v_{j,j} + \rho b_i - \frac{\partial \rho}{\partial t} v_i - \rho \frac{\partial v_i}{\partial t} \f$
+             * 
+             * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             */
+
+            using result_type = typename std::iterator_traits<result_iter>::value_type;
+            using final_type  = decltype( std::declval<result_type&>( ) * std::declval<testFunction_type&>( ) );
+
+            computeBalanceOfLinearMomentumNonDivergence<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
+                velocity_gradient_begin, velocity_gradient_end,
+                body_force_begin, body_force_end,
+                result_begin, result_end
+            );
+
+            std::transform(
+                result_begin, result_end, result_begin,
+                std::bind(
+                    std::multiplies< typename std::iterator_traits<final_type>::value_type >( ),
+                    std::placeholders::_1,
+                    psi
+                )
+            );
+
+        }
+
+        template<
+            int dim, typename density_type, typename density_dot_type,
+            class density_gradient_iter, class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class result_iter, class dRdRho_iter, class dRdRhoDot_iter, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdRhoDot_iter dRdRhoDot_begin,                        dRdRhoDot_iter dRdRhoDot_end,
             secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
             secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
             secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
@@ -158,7 +227,7 @@ namespace tardigradeBalanceEquations{
             // Compute the inner product of the velocity and the density gradient
             using density_gradient_type  = typename std::iterator_traits<density_gradient_iter>::value_type;
             using velocity_type          = typename std::iterator_traits<velocity_iter>::value_type;
-            using grad_rho_dot_type = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
+            using grad_rho_dot_type      = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
             using velocity_gradient_type = typename std::iterator_traits<velocity_gradient_iter>::value_type;
 
             grad_rho_dot_type grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
@@ -216,9 +285,10 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<int dim, class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
-                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
+        template<
+            int dim, class density_iter, class density_dot_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
+        void computeBalanceOfLinearMomentumNonDivergence( const density_iter &density_begin,                     const density_iter &density_end,
+                                                          const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
                                                           const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
                                                           const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
                                                           const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
@@ -255,6 +325,20 @@ namespace tardigradeBalanceEquations{
              * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
              * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
              */
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors are not the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and velocity dot vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( body_force_end - body_force_begin ), "The density and body force vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( result_end - result_begin ), "The density and result vectors are of inconsistent sizes" );
 
             for ( auto rho = density_begin; rho != density_end; rho++ ){
 
@@ -335,6 +419,32 @@ namespace tardigradeBalanceEquations{
              * \param &dRdB_begin: The starting iterator of the derivative of the result w.r.t. the body force
              * \param &dRdB_end: The stopping iterator of the derivative of the result w.r.t. the body force
              */
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(                   ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors are not the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and velocity dot vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( body_force_end - body_force_begin ), "The density and body force vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( result_end - result_begin ), "The density and result vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRhoDot_end - dRdRhoDot_begin ), "The density and dRdRhoDot are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradRho_end - dRdGradRho_begin ), "The density and dRdGradRho are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdV_end - dRdV_begin ), "The density and dRdV are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradV_end - dRdGradV_begin ), "The density and dRdGradV are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdB_end - dRdB_begin ), "The density and dRdB are of inconsistent sizes" );
 
             for ( auto rho = density_begin; rho != density_end; rho++ ){
 
