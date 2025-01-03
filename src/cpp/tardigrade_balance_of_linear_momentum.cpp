@@ -335,7 +335,7 @@ namespace tardigradeBalanceEquations{
                 std::plus< final_type >( )
             );
 
-            // Assemble the Jacobians w.r.t. the density
+            // Assemble the Jacobians
             for ( unsigned int i = 0; i < dim; ++i ){
 
                 *( dRdRho_begin + i ) = test_function * ( ( *( dRdRho_begin + i ) ) + dNonDivRdRhoDot[ i ] * dRhoDotdRho ) * interpolation_function;
@@ -343,6 +343,16 @@ namespace tardigradeBalanceEquations{
                 for ( unsigned int j = 0; j < dim; ++j ){
 
                     *( dRdRho_begin + i ) += test_function * dNonDivRdGradRho[ dim * i + j ] * ( *( interpolation_function_gradient_begin + j ) );
+
+                    *( dRdU_begin + dim * i + j ) = test_function * ( ( *( dRdU_begin + dim * i + j ) ) * dUDotdU + dNonDivRdVDot[ dim * i + j ] * dUDDotdU ) * interpolation_function;
+
+                    *( dRdB_begin + dim * i + j ) = test_function * ( *( dRdB_begin + dim * i + j ) );
+
+                    for ( unsigned int k = 0; k < dim; ++k ){
+
+                        *( dRdU_begin + dim * i + j ) += test_function * dNonDivRdGradV[ dim * dim * i + dim * j + k ] * dUDotdU * ( *( interpolation_function_gradient_begin + k  ) );
+
+                    }
 
                 }
 
