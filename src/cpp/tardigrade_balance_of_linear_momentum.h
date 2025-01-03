@@ -71,6 +71,45 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class cauchy_stress_iter, typename volume_fraction_type,
+            typename testFunction_type, class testFunctionGradient_iter,
+            typename interpolationFunction_type, class interpolationFunctionGradient_iter,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdB_iter, class dRdCauchy_iter,
+            class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            typename dRhoDotdRho_type, typename dUDotdU_type, typename dUDDotdU_type
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const cauchy_stress_iter &cauchy_stress_begin,         const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_type &volume_fraction,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const dRhoDotdRho_type dRhoDotdRho,
+            const dUDotdU_type dUDotdU, const dUDDotdU_type dUDDotdU,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                                  dRdU_iter dRdU_end,
+            dRdB_iter dRdB_begin,                                  dRdB_iter dRdB_end,
+            dRdCauchy_iter dRdCauchy_begin,                        dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,        dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                          dRdUMesh_iter dRdUMesh_end
+        );
+
+        template<
+            int dim,
             class density_iter, class density_dot_iter, class density_gradient_iter,
             class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
             class body_force_iter,
