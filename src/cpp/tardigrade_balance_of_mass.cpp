@@ -130,7 +130,7 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-            const testFunction_type &psi,
+            const testFunction_type &test_function,
             c_type &mass_change_rate
         ){
             /*!
@@ -146,7 +146,7 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &psi: The value of the test function \f$ \psi \f$
+             * \param &test_function: The value of the test function \f$ \psi \f$
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
              */
 
@@ -156,7 +156,7 @@ namespace tardigradeBalanceEquations{
                 mass_change_rate
             );
 
-            mass_change_rate *= psi;
+            mass_change_rate *= test_function;
 
         }
 
@@ -241,8 +241,9 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
-            const testFunction_type &psi,                                 const interpolationFunction_type &phi,
-            const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
+            const testFunction_type &test_function,                       const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
             const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
             c_type &mass_change_rate,
             dCdRho_type &dCdRho,
@@ -268,10 +269,10 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &psi: The test function \f$ \psi \f$
-             * \param &phi: The interpolation function \f$ \phi \f$
-             * \param &phi_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
-             * \param &phi_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &test_function: The test function \f$ \psi \f$
+             * \param &interpolation_function: The interpolation function \f$ \phi \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
              * \param &dDensityDotdDensity: The derivative of the time-derivative of the density w.r.t. the density (based on timestep and integration scheme)
              * \param &dUDotdU: The derivative of the time-derivative of the displacement w.r.t. the displacement (may not be mesh displacement)
              * \param &mass_change_rate: The rate of change of the mass \f$ c \f$
@@ -301,13 +302,13 @@ namespace tardigradeBalanceEquations{
             );
 
             // Set the mass change rate
-            mass_change_rate *= psi;
+            mass_change_rate *= test_function;
 
             // Assemble the derivatives w.r.t. the density
             dCdRho += dCdRhoDot * dDensityDotdDensity;
-            dCdRho *= psi * phi;
+            dCdRho *= test_function * interpolation_function;
 
-            dCdRho += psi * std::inner_product( std::begin( dCdGradRho ), std::end( dCdGradRho ), phi_gradient_begin, dCdRho_type( ) );
+            dCdRho += test_function * std::inner_product( std::begin( dCdGradRho ), std::end( dCdGradRho ), interpolation_function_gradient_begin, dCdRho_type( ) );
 
             // Assemble the derivatives w.r.t. the mesh displacement
             std::fill( dCdU_begin, dCdU_end, 0 );
@@ -315,19 +316,19 @@ namespace tardigradeBalanceEquations{
 
             for ( unsigned int a = 0; a < dim; ++a ){
 
-                *( dCdU_begin + a ) += psi * dCdV[ a ] * dUDotdU * phi;
+                *( dCdU_begin + a ) += test_function * dCdV[ a ] * dUDotdU * interpolation_function;
 
-                *( dCdUMesh_begin + a ) += mass_change_rate * ( *( phi_gradient_begin + a ) );
+                *( dCdUMesh_begin + a ) += mass_change_rate * ( *( interpolation_function_gradient_begin + a ) );
 
                 for ( unsigned int i = 0; i < dim; ++i ){
 
-                    *( dCdU_begin + a ) += psi * dCdGradV[ dim * a + i ] * ( *( phi_gradient_begin + i ) ) * dUDotdU;
+                    *( dCdU_begin + a ) += test_function * dCdGradV[ dim * a + i ] * ( *( interpolation_function_gradient_begin + i ) ) * dUDotdU;
 
-                    *( dCdUMesh_begin + a ) -= psi * dCdGradRho[ i ] * ( *( density_gradient_begin + a ) ) * ( *( phi_gradient_begin + i ) );
+                    *( dCdUMesh_begin + a ) -= test_function * dCdGradRho[ i ] * ( *( density_gradient_begin + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
 
                     for ( unsigned int j = 0; j < dim; ++j ){
 
-                        *( dCdUMesh_begin + a ) -= psi * dCdGradV[ dim * j + i ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( phi_gradient_begin + i ) );
+                        *( dCdUMesh_begin + a ) -= test_function * dCdGradV[ dim * j + i ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
 
                     }
 
@@ -405,7 +406,7 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
-            const testFunction_type &psi,
+            const testFunction_type &test_function,
             mass_change_rate_iter_out mass_change_rate_begin,           mass_change_rate_iter_out mass_change_rate_end
         ){
             /*!
@@ -425,7 +426,7 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &psi: The value of the test function \f$ \psi \f$
+             * \param &test_function: The value of the test function \f$ \psi \f$
              * \param &mass_change_rate_begin: The starting iterator of the rate of change of the mass \f$ c \f$
              * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
              */
@@ -443,7 +444,7 @@ namespace tardigradeBalanceEquations{
                 std::bind(
                     std::multiplies< typename std::iterator_traits<mass_change_rate_iter_out>::value_type >( ),
                     std::placeholders::_1,
-                    psi
+                    test_function
                 )
             );
 
@@ -550,8 +551,9 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
-            const testFunction_type &psi,                                 const interpolationFunction_type &phi,
-            const interpolationFunctionGradient_iter &phi_gradient_begin, const interpolationFunctionGradient_iter &phi_gradient_end,
+            const testFunction_type &test_function,                       const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
             const dDensityDotdDensity_iter &dDensityDotdDensity_begin,    const dDensityDotdDensity_iter &dDensityDotdDensity_end,      
             const dUDotdU_iter &dUDotdU_begin,                            const dUDotdU_iter &dUDotdU_end,
             mass_change_rate_iter_out mass_change_rate_begin,             mass_change_rate_iter_out mass_change_rate_end,
@@ -574,10 +576,10 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &psi: The value of the test function \f$ \psi \f$
-             * \param &phi: The value of the interpolation function \f$ \phi \f$
-             * \param &phi_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
-             * \param &phi_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &test_function: The value of the test function \f$ \psi \f$
+             * \param &interpolation_function: The value of the interpolation function \f$ \phi \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
              * \param &dDensityDotdDensity_begin: The starting iterator of the derivative of the time rate of change of the density w.r.t. the density
              * \param &dDensityDotdDensity_end: The stopping iterator of the derivative of the time rate of change of the density w.r.t. the density
              * \param &dUDotdU_begin: The starting iterator of the derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
@@ -623,8 +625,8 @@ namespace tardigradeBalanceEquations{
                     density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
                     velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
                     velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
-                    psi,                                         phi,
-                    phi_gradient_begin,                          phi_gradient_end,
+                    test_function,                               interpolation_function,
+                    interpolation_function_gradient_begin,       interpolation_function_gradient_end,
                     *( dDensityDotdDensity_begin + phase ),      *( dUDotdU_begin + phase ),
                     *( mass_change_rate_begin + phase ),
                     *( dCdRho_begin + phase ),

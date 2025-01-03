@@ -10,7 +10,7 @@
 #include<fstream>
 #include<iostream>
 
-
+#define USE_EIGEN
 #include<tardigrade_vector_tools.h>
 
 #define BOOST_TEST_MODULE test_tardigrade_balance_equations_balance_of_mass
