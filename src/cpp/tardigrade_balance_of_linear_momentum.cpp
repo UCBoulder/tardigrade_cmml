@@ -336,6 +336,7 @@ namespace tardigradeBalanceEquations{
             );
 
             // Assemble the Jacobians
+            std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
             for ( unsigned int i = 0; i < dim; ++i ){
 
                 *( dRdRho_begin + i ) = test_function * ( ( *( dRdRho_begin + i ) ) + dNonDivRdRhoDot[ i ] * dRhoDotdRho ) * interpolation_function;
@@ -348,13 +349,27 @@ namespace tardigradeBalanceEquations{
 
                     *( dRdB_begin + dim * i + j ) = test_function * ( *( dRdB_begin + dim * i + j ) );
 
+                    *( dRdUMesh_begin + dim * i + j ) += ( *( result_begin + i ) ) * ( *( interpolation_function_gradient_begin + j ) );
+
                     for ( unsigned int k = 0; k < dim; ++k ){
 
                         *( dRdU_begin + dim * i + j ) += test_function * dNonDivRdGradV[ dim * dim * i + dim * j + k ] * dUDotdU * ( *( interpolation_function_gradient_begin + k  ) );
 
+                        *( dRdUMesh_begin + dim * i + k )
+                            -= (
+                                    test_function * dNonDivRdGradRho[ dim * i + j ] * ( *( density_gradient_begin + k ) ) + dDivRdTestFunctionGradient[ dim * i + j ] * ( *( test_function_gradient_begin + k ) )
+                               ) * ( *( interpolation_function_gradient_begin + j ) );
+
+                        for ( unsigned int a = 0; a < dim; ++ a ){
+
+                            *( dRdUMesh_begin + dim * i + a ) -= test_function * dNonDivRdGradV[ dim * dim * i + dim * j + k ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
                     }
 
                 }
+
 
             }
 
