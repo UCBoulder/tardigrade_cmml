@@ -586,12 +586,18 @@ namespace tardigradeBalanceEquations{
              * \param &dUDotdU_end: The stopping iterator of the derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
              * \param &mass_change_rate_begin: The starting iterator of the rate of change of the mass \f$ c \f$
              * \param &mass_change_rate_end: The stopping iterator of the rate of change of the mass \f$ c \f$
-             * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$.
+             *     The derivatives are stored as the derivative of each phase w.r.t. the phase's density in that order.
              * \param &dCdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             *     The derivatives are stored as the derivative of each phase w.r.t. the phase's density in that order.
              * \param &dCdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
+             *     The derivatives are stored as the derivative of each phase w.r.t. the phase's displacement in that order
              * \param &dCdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
+             *     The derivatives are stored as the derivative of each phase w.r.t. the phase's displacement in that order
              * \param &dCdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
+             *     The derivatives are stored as the derivative of each phase w.r.t. the mesh displacement in that order
              * \param &dCdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
+             *     The derivatives are stored as the derivative of each phase w.r.t. the mesh displacement in that order
              */
 
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must be the same length" );
