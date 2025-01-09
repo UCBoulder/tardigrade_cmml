@@ -101,6 +101,8 @@ namespace tardigradeBalanceEquations{
             typename volume_fraction_type,
             typename internal_heat_generation_type,
             typename result_type,
+            typename dRdRho_type, typename dRdRhoDot_type, typename dRdE_type, typename dRdEDot_type,
+            typename dRdPhi_type, typename dRdr_type,
             class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out
         >
         void computeBalanceOfEnergyNonDivergence(
@@ -115,12 +117,12 @@ namespace tardigradeBalanceEquations{
             const internal_heat_generation_type &internal_heat_generation,
             const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
             result_type &result,
-            floatType &dRdRho, floatType &dRdRhoDot, floatVector_iter_out dRdGradRho_begin, floatVector_iter_out dRdGradRho_end,
-            floatType &dRdE, floatType &dRdEDot, floatVector_iter_out dRdGradE_begin, floatVector_iter_out dRdGradE_end,
+            dRdRho_type &dRdRho, dRdRhoDot_type &dRdRhoDot, floatVector_iter_out dRdGradRho_begin, floatVector_iter_out dRdGradRho_end,
+            dRdE_type &dRdE, dRdEDot_type &dRdEDot, floatVector_iter_out dRdGradE_begin, floatVector_iter_out dRdGradE_end,
             floatVector_iter_out dRdV_begin, floatVector_iter_out dRdV_end,
             secondOrderTensor_iter_out dRdGradV_begin, secondOrderTensor_iter_out dRdGradV_end,
             secondOrderTensor_iter_out dRdCauchy_begin, secondOrderTensor_iter_out dRdCauchy_end,
-            floatType &dRdPhi, floatType &dRdr,
+            dRdPhi_type &dRdPhi, dRdr_type &dRdr,
             floatVector_iter_out dRdpi_begin, floatVector_iter_out dRdpi_end
         ){
             /*!
