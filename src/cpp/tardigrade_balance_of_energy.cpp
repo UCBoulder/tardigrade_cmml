@@ -19,6 +19,8 @@ namespace tardigradeBalanceEquations{
         template<
             int dim, typename density_type, typename density_dot_type,
             typename internal_energy_type, typename internal_energy_dot_type,
+            typename volume_fraction_type,
+            typename internal_heat_generation_type,
             class floatVector_iter, class secondOrderTensor_iter
         >
         void computeBalanceOfEnergyNonDivergence(
@@ -29,8 +31,8 @@ namespace tardigradeBalanceEquations{
             const floatVector_iter &velocity_begin, const floatVector_iter &velocity_end,
             const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
             const secondOrderTensor_iter &cauchy_stress_begin, const secondOrderTensor_iter &cauchy_stress_end,
-            const floatType &volume_fraction,
-            const floatType &internal_heat_generation,
+            const volume_fraction_type &volume_fraction,
+            const internal_heat_generation_type &internal_heat_generation,
             const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
             floatType &result
         ){
@@ -95,6 +97,8 @@ namespace tardigradeBalanceEquations{
         template<
             int dim, typename density_type, typename density_dot_type,
             typename internal_energy_type, typename internal_energy_dot_type,
+            typename volume_fraction_type,
+            typename internal_heat_generation_type,
             class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out
         >
         void computeBalanceOfEnergyNonDivergence(
@@ -105,8 +109,8 @@ namespace tardigradeBalanceEquations{
             const floatVector_iter &velocity_begin, const floatVector_iter &velocity_end,
             const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
             const secondOrderTensor_iter &cauchy_stress_begin, const secondOrderTensor_iter &cauchy_stress_end,
-            const floatType &volume_fraction,
-            const floatType &internal_heat_generation,
+            const volume_fraction_type &volume_fraction,
+            const internal_heat_generation_type &internal_heat_generation,
             const floatVector_iter &net_interphase_force_begin, const floatVector_iter &net_interphase_force_end,
             floatType &result,
             floatType &dRdRho, floatType &dRdRhoDot, floatVector_iter_out dRdGradRho_begin, floatVector_iter_out dRdGradRho_end,
