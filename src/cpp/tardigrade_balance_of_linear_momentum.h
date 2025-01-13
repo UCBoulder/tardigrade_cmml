@@ -18,16 +18,6 @@ namespace tardigradeBalanceEquations{
 
     namespace balanceOfLinearMomentum{
 
-        constexpr unsigned int global_dim = 3; //!< Set the dimension as 3D by default
-
-        constexpr unsigned int global_sot_dim = global_dim * global_dim; //!< Set the dimensions of a standard second order tensor
-
-        typedef double floatType; //!< Define the float type as a double
-
-        typedef std::array< floatType, global_dim > floatVector; //!< Define a standard vector
-
-        typedef std::array< floatType, global_sot_dim > secondOrderTensor; //!< Define a standard second-order tensor
-
         template<
             int dim,
             typename density_type, typename density_dot_type, class density_gradient_iter,
