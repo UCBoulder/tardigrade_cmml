@@ -45,11 +45,11 @@ struct cerr_redirect{
         std::streambuf * old;
 };
 
-typedef tardigradeBalanceEquations::balanceOfLinearMomentum::floatType floatType; //!< Define the float type to be the same as in the balance of linear momentum
+typedef double floatType; //!< Define the float type to be the same as in the balance of linear momentum
 
-typedef tardigradeBalanceEquations::balanceOfLinearMomentum::floatVector floatVector; //!< Define the float vector type to be the same as in the balance of linear momentum
+typedef std::array< floatType, 3 > floatVector; //!< Define the float vector type to be the same as in the balance of linear momentum
 
-typedef tardigradeBalanceEquations::balanceOfLinearMomentum::secondOrderTensor secondOrderTensor; //!< Define the second order tensor type to be the same as in the balance of linear momentum
+typedef std::array< floatType, 9 > secondOrderTensor; //!< Define the second order tensor type to be the same as in the balance of linear momentum
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentumNonDivergence, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
 
