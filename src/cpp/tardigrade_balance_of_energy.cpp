@@ -464,6 +464,201 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
+            int dim,
+            class density_iter, class density_dot_iter,
+            class density_gradient_iter,
+            class internal_energy_iter, class internal_energy_dot_iter,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class cauchy_stress_iter,
+            class volume_fraction_iter,
+            class internal_heat_generation_iter,
+            class net_interphase_force_iter,
+            class heat_flux_iter,
+            typename test_function_type, class test_function_gradient_iter,
+            typename interpolation_function_type, class interpolation_function_gradient_iter,
+            typename dRhoDotdRho_type, typename dEDotdE_type, typename dUDotdU_type,
+            class result_iter,
+            class dRdRho_iter, class dRdE_iter,
+            class dRdU_iter,
+            class dRdCauchy_iter, class dRdVolumeFraction_iter,
+            class dRdr_iter, class dRdpi_iter, class dRdq_iter,
+            class dRdUMesh_iter
+        >
+        void computeBalanceOfEnergy(
+            const density_iter &density_begin,                                   const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,                           const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin,                 const density_gradient_iter &density_gradient_end,
+            const internal_energy_iter &internal_energy_begin,                   const internal_energy_iter &internal_energy_end,
+            const internal_energy_dot_iter &internal_energy_dot_begin,           const internal_energy_dot_iter &internal_energy_dot_end,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin,                                 const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin,               const velocity_gradient_iter &velocity_gradient_end,
+            const cauchy_stress_iter &cauchy_stress_begin,                       const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_iter &volume_fraction_begin,                   const volume_fraction_iter &volume_fraction_end,
+            const internal_heat_generation_iter &internal_heat_generation_begin, const internal_heat_generation_iter &internal_heat_generation_end,
+            const net_interphase_force_iter &net_interphase_force_begin,         const net_interphase_force_iter &net_interphase_force_end,
+            const heat_flux_iter &heat_flux_begin,                               const heat_flux_iter &heat_flux_end,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin, const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const dRhoDotdRho_type dRhoDotdRho, const dEDotdE_type dEDotdE, const dUDotdU_type dUDotdU,
+            result_iter result_begin,                       result_iter result_end,
+            dRdRho_iter dRdRho_begin,                       dRdRho_iter dRdRho_end,
+            dRdE_iter dRdE_begin,                           dRdE_iter dRdE_end,
+            dRdU_iter dRdU_begin,                           dRdU_iter dRdU_end,
+            dRdCauchy_iter dRdCauchy_begin,                 dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin, dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdr_iter dRdr_begin,                           dRdr_iter dRdr_end,
+            dRdpi_iter dRdpi_begin,                         dRdpi_iter dRdpi_end,
+            dRdq_iter dRdq_begin,                           dRdq_iter dRdq_end,
+            dRdUMesh_iter dRdUMesh_begin,                   dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the non-divergence parts of the multiphase balance of energy i.e.
+             * 
+             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The stopping iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \bar{\bf{\sigma}} \f$ where \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &internal_heat_generation_begin: The starting iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &internal_heat_generation_end: The stopping iterator of the internal heat generation per unit mass of phase \f$ \alpha \f$ \f$\left( r^{\alpha} \right)\f$
+             * \param &net_interphase_force_begin: The starting iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &net_interphase_force_end: The stopping iterator of the net interphase force acting on phase \f$ \alpha \f$ \f$\left( \sum_{\beta} \phi^{\alpha \beta}_i \right) \f$
+             * \param &heat_flux_begin: The starting iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &heat_flux_end: The stopping iterator of the heat flux vector \f$ \left( q_i \right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the interpolation function
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function
+             * \param &dRhoDotdRho: The derivative of the time rate of change of the density w.r.t. the density
+             * \param &dEDotdE: The derivative of the time rate of change of the internal energy w.r.t. the internal energy
+             * \param &dUDotdU: The derivative of the time rate of change of the displacement degree of freedom w.r.t. the displacement degree of freedom
+             * \param &result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param &result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             * \param &dRdRho_begin: The starting iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdE_begin: The starting iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdU_begin: The starting iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdU_end: The stopping iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdCauchy_begin: The starting iterator of the derivative of the residual w.r.t. the Cauchy stress
+             * \param &dRdCauchy_end: The stopping iterator of the derivative of the residual w.r.t. the Cauchy stress
+             * \param &dRdVolumeFraction_begin: The starting iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdr_begin: The starting iterator of the derivative of the residual w.r.t. the internal heat generation
+             * \param &dRdr_end: The stopping iterator of the derivative of the residual w.r.t. the internal heat generation
+             * \param &dRdpi_begin: The starting iterator of the derivative of the residual w.r.t. the net interphase force
+             * \param &dRdpi_end: The stopping iterator of the derivative of the residual w.r.t. the net interphase force
+             * \param &dRdq_begin: The starting iterator of the derivative of the residual w.r.t. the heat flux
+             * \param &dRdq_end: The stopping iterator of the derivative of the residual w.r.t. the heat flux
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the residual w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the residual w.r.t. the mesh displacement
+             */
+
+            TARDIGRADE_ERROR_TOOLS_EVAL( unsigned int nphases = ( unsigned int )( density_end - density_begin ); )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density_dot must be the same size" )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases * dim == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient terms are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( internal_energy_end - internal_energy_begin ), "The internal energy and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( internal_energy_dot_end - internal_energy_dot_begin ), "The internal energy dot and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases * dim == ( unsigned int )( internal_energy_gradient_end - internal_energy_gradient_begin ), "The density and internal energy gradient terms are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases * dim == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity terms are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases * dim * dim == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient terms are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases * dim * dim == ( unsigned int )( cauchy_stress_end - cauchy_stress_begin ), "The density and Cauchy stress terms are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The volume fraction and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( internal_heat_generation_end - internal_heat_generation_begin ), "The internal heat generation and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( net_interphase_force_end - net_interphase_force_begin ), "The net interphase force and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( heat_flux_end - heat_flux_begin ), "The heat flux and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( result_end - result_begin ), "The result and density must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The result and dRdRho must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The result and dRdE must be the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( dRdU_end - dRdU_begin ), "The result and dRdU are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * nphases == ( unsigned int )( dRdCauchy_end - dRdCauchy_begin ), "The result and dRdCauchy are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( dRdVolumeFraction_end - dRdVolumeFraction_begin ), "The result and dRdVolumeFraction are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( dRdr_end - dRdr_begin ), "The result and dRdr are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( 3 * nphases == ( unsigned int )( dRdpi_end - dRdpi_begin ), "The result and dRdpi are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( 3 * nphases == ( unsigned int )( dRdq_end - dRdq_begin ), "The result and dRdq are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( 3 * nphases == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ), "The result and dRdUMesh are of inconsistent sizes" );
+
+            for ( auto rho = std::pair< unsigned int, density_iter >( 0, density_begin ); rho.second != density_end; ++rho.first, ++rho.second ){
+
+                computeBalanceOfEnergy<dim>(
+                    *rho.second,                                      *( density_dot_begin + rho.first ),
+                    density_gradient_begin + dim * rho.first,         density_gradient_begin + dim * ( rho.first + 1 ),
+                    *( internal_energy_begin + rho.first ),           *( internal_energy_dot_begin + rho.first ),
+                    internal_energy_gradient_begin + dim * rho.first, internal_energy_gradient_begin + dim * ( rho.first + 1 ),
+                    velocity_begin + dim * rho.first,                 velocity_begin + dim * ( rho.first + 1 ),
+                    velocity_gradient_begin + dim * dim * rho.first,  velocity_gradient_begin + dim * dim * ( rho.first + 1 ),
+                    cauchy_stress_begin + dim * dim * rho.first,      cauchy_stress_begin + dim * dim * ( rho.first + 1 ),
+                    *( volume_fraction_begin + rho.first ),
+                    *( internal_heat_generation_begin + rho.first ),
+                    net_interphase_force_begin + dim * rho.first,     net_interphase_force_begin + dim * ( rho.first + 1 ),
+                    heat_flux_begin + dim * rho.first,                heat_flux_begin + dim * ( rho.first + 1 ),
+                    test_function,
+                    test_function_gradient_begin,                     test_function_gradient_end,
+                    interpolation_function,
+                    interpolation_function_gradient_begin,            interpolation_function_gradient_end,
+                    dRhoDotdRho, dEDotdE, dUDotdU,
+                    *( result_begin + rho.first ),
+                    *( dRdRho_begin + rho.first ),
+                    *( dRdE_begin + rho.first ),
+                    dRdU_begin + dim * rho.first,                     dRdU_begin + dim * ( rho.first + 1 ),
+                    dRdCauchy_begin + dim * dim * rho.first,          dRdCauchy_begin + dim * dim * ( rho.first + 1 ),
+                    *( dRdVolumeFraction_begin + rho.first ),
+                    *( dRdr_begin + rho.first ),
+                    dRdpi_begin + dim * rho.first,                    dRdpi_begin + dim * ( rho.first + 1 ),
+                    dRdq_begin + dim * rho.first,                     dRdq_begin + dim * ( rho.first + 1 ),
+                    dRdUMesh_begin + dim * rho.first,                 dRdUMesh_begin + dim * ( rho.first + 1 )
+                );
+
+            }
+
+        }
+
+        template<
             int dim, typename density_type, typename density_dot_type,
             class density_gradient_iter,
             typename internal_energy_type, typename internal_energy_dot_type,

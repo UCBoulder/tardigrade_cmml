@@ -2206,19 +2206,24 @@ void evaluate_at_nodes(
 
         for ( unsigned int i = 0; i < node_count; ++i ){
 
-//            tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentum<dim>(
-//                std::cbegin( density_tp1_p ),     std::cend( density_tp1_p ),
-//                std::cbegin( density_dot_tp1_p ), std::cend( density_dot_tp1_p ),
-//                std::cbegin( grad_density_tp1 ),  std::cend( grad_density_tp1 ),
-//                std::cbegin( u_dot_tp1_p ),       std::cend( u_dot_tp1_p ),
-//                std::cbegin( u_ddot_tp1_p ),      std::cend( u_ddot_tp1_p ),
-//                std::cbegin( grad_u_dot_tp1 ),    std::cend( grad_u_dot_tp1 ),
-//                body_force_begin, body_force_end,
-//                cauchy_stress_begin, cauchy_stress_end,
-//                volume_fraction_begin, volume_fraction_end,
-//                Ns[ i ], std::begin( dNdx ) + dim * i, std::end( dNdx ) + dim * ( i + 1 ),
-//                value_begin + dim * nphases * i, value_begin + dim * nphases * ( i + 1 )
-//            );
+            tardigradeBalanceEquations::balanceOfEnergy::computeBalanceOfEnergy<dim>(
+                std::cbegin( density_tp1_p ),     std::cend( density_tp1_p ),
+                std::cbegin( density_dot_tp1_p ), std::cend( density_dot_tp1_p ),
+                std::cbegin( grad_density_tp1 ),  std::cend( grad_density_tp1 ),
+                std::cbegin( e_tp1_p ),           std::cend( e_tp1_p ),
+                std::cbegin( e_dot_tp1_p ),       std::cend( e_dot_tp1_p ),
+                std::cbegin( grad_e_tp1 ),        std::cend( grad_e_tp1 ),
+                std::cbegin( u_dot_tp1_p ),       std::cend( u_dot_tp1_p ),
+                std::cbegin( grad_u_dot_tp1 ),    std::cend( grad_u_dot_tp1 ),
+                cauchy_stress_begin,              cauchy_stress_end,
+                volume_fraction_begin,            volume_fraction_end,
+                internal_heat_generation_begin,   internal_heat_generation_end,
+                net_interphase_force_begin,       net_interphase_force_end,
+                heat_flux_begin,                  heat_flux_end,
+                Ns[ i ],
+                std::begin( dNdx ) + dim * i, std::begin( dNdx ) + dim * ( i + 1 ),
+                value_begin + nphases * i, value_begin + nphases * ( i + 1 )
+            );
 
             std::transform(
                 value_begin + nphases * i, value_begin + nphases * ( i + 1 ), value_begin + nphases * i,
@@ -2235,27 +2240,36 @@ void evaluate_at_nodes(
 
             for ( unsigned int j = 0; j < node_count; ++j ){ // Loop over interpolation functions
 
-//                tardigradeBalanceEquations::balanceOfLinearMomentum::computeBalanceOfLinearMomentum<dim>(
-//                    std::cbegin( density_tp1_p ),     std::cend( density_tp1_p ),
-//                    std::cbegin( density_dot_tp1_p ), std::cend( density_dot_tp1_p ),
-//                    std::cbegin( grad_density_tp1 ),  std::cend( grad_density_tp1 ),
-//                    std::cbegin( u_dot_tp1_p ),       std::cend( u_dot_tp1_p ),
-//                    std::cbegin( u_ddot_tp1_p ),      std::cend( u_ddot_tp1_p ),
-//                    std::cbegin( grad_u_dot_tp1 ),    std::cend( grad_u_dot_tp1 ),
-//                    body_force_begin,                 body_force_end,
-//                    cauchy_stress_begin,              cauchy_stress_end,
-//                    volume_fraction_begin,            volume_fraction_end,
-//                    Ns[ i ], std::begin( dNdx ) + dim * i, std::end( dNdx ) + dim * ( i + 1 ),
-//                    Ns[ j ], std::begin( dNdx ) + dim * j, std::end( dNdx ) + dim * ( j + 1 ),
-//                    dRhoDotdRho, dUDotdU, dUDDotdU,
-//                    std::begin( value_p ) + dim * nphases * i, std::end( value_p ) + dim * nphases * ( i + 1 ),
-//                    std::begin( dRdRho_p ),                    std::end( dRdRho_p ),
-//                    std::begin( dRdU_p ),                      std::end( dRdU_p ),
-//                    std::begin( dRdB_p ),                      std::end( dRdB_p ),
-//                    std::begin( dRdCauchy_p ),                 std::end( dRdCauchy_p ),
-//                    std::begin( dRdVolumeFraction_p ),         std::end( dRdVolumeFraction_p ),
-//                    std::begin( dRdUMesh_p ),                  std::end( dRdUMesh_p )
-//                );
+                tardigradeBalanceEquations::balanceOfEnergy::computeBalanceOfEnergy<dim>(
+                    std::cbegin( density_tp1_p ),     std::cend( density_tp1_p ),
+                    std::cbegin( density_dot_tp1_p ), std::cend( density_dot_tp1_p ),
+                    std::cbegin( grad_density_tp1 ),  std::cend( grad_density_tp1 ),
+                    std::cbegin( e_tp1_p ),           std::cend( e_tp1_p ),
+                    std::cbegin( e_dot_tp1_p ),       std::cend( e_dot_tp1_p ),
+                    std::cbegin( grad_e_tp1 ),        std::cend( grad_e_tp1 ),
+                    std::cbegin( u_dot_tp1_p ),       std::cend( u_dot_tp1_p ),
+                    std::cbegin( grad_u_dot_tp1 ),    std::cend( grad_u_dot_tp1 ),
+                    cauchy_stress_begin,              cauchy_stress_end,
+                    volume_fraction_begin,            volume_fraction_end,
+                    internal_heat_generation_begin,   internal_heat_generation_end,
+                    net_interphase_force_begin,       net_interphase_force_end,
+                    heat_flux_begin,                  heat_flux_end,
+                    Ns[ i ],
+                    std::begin( dNdx ) + dim * i, std::begin( dNdx ) + dim * ( i + 1 ),
+                    Ns[ j ],
+                    std::begin( dNdx ) + dim * j, std::begin( dNdx ) + dim * ( j + 1 ),
+                    dRhoDotdRho, dEDotdE, dUDotdU,
+                    std::begin( value_p ),             std::end( value_p ),
+                    std::begin( dRdRho_p ),            std::end( dRdRho_p ),
+                    std::begin( dRdE_p ),              std::end( dRdE_p ),
+                    std::begin( dRdU_p ),              std::end( dRdU_p ),
+                    std::begin( dRdCauchy_p ),         std::end( dRdCauchy_p ),
+                    std::begin( dRdVolumeFraction_p ), std::end( dRdVolumeFraction_p ),
+                    std::begin( dRdr_p ),              std::end( dRdr_p ),
+                    std::begin( dRdpi_p ),             std::end( dRdpi_p ),
+                    std::begin( dRdq_p ),              std::end( dRdq_p ),
+                    std::begin( dRdUMesh_p ),          std::end( dRdUMesh_p )
+                );
 
                 std::transform(
                     std::begin( value_p ) + nphases * i, std::begin( value_p ) + nphases * ( i + 1 ), std::begin( value_p ) + nphases * i,
@@ -2265,62 +2279,6 @@ void evaluate_at_nodes(
                         J
                     )
                 );
-
-//                for ( unsigned int k = 0; k < dim * nphases; ++k ){
-//
-//                    BOOST_TEST( ( *( value_begin + dim * nphases * i + k ) ) == value_p[ dim * nphases * i + k ] );
-//
-//                    unsigned int col_phase = k / dim;
-//                    unsigned int col_dim   = k - dim * col_phase;
-//
-//                    for ( unsigned int l = 0; l < 1; ++l ){
-//
-//                        *( dRdRho_begin + dim * nphases * node_count * nphases * i + dim * node_count * nphases * col_phase + node_count * nphases * col_dim + nphases * j + col_phase )
-//                            = dRdRho_p[ dim * col_phase + col_dim ] * J;
-//
-//                    }
-//
-//                    for ( unsigned int l = 0; l < dim; ++l ){
-//
-//                        *( dRdU_begin + dim * nphases * node_count * dim * nphases * i + dim * node_count * dim * nphases * col_phase + node_count * dim * nphases * col_dim + dim * nphases * j + dim * col_phase + l )
-//                            = dRdU_p[ dim * dim * col_phase + dim * col_dim + l ] * J;
-//
-//                    }
-//
-//                    for ( unsigned int l = 0; l < dim; ++l ){
-//
-//                        *( dRdUMesh_begin + dim * nphases * node_count * dim * i + dim * node_count * dim * col_phase + node_count * dim * col_dim + dim * j + l )
-//                            = dRdUMesh_p[ dim * dim * col_phase + dim * col_dim + l ] * J;
-//
-//                    }
-//
-//                }
-
-            }
-
-            // The volume fraction, body force, and Cauchy stress aren't a function of the nodal quantities (i.e., no interpolation function)
-            for ( unsigned int j = 0; j < dim * nphases; ++j ){
-
-//                unsigned int row_phase = j / dim;
-//                unsigned int row_dim   = j - dim * row_phase;
-//
-//                for ( unsigned int k = 0; k < 1; ++k ){
-//
-//                    *( dRdVolumeFraction_begin + nphases * dim * 1 * nphases * i + dim * 1 * nphases * row_phase + 1 * nphases * row_dim + 1 * row_phase + k )
-//                        = dRdVolumeFraction_p[ dim * 1 * row_phase + 1 * row_dim + k ] * J;
-//
-//                }
-//                for ( unsigned int k = 0; k < dim; ++k ){
-//
-//                    *( dRdB_begin + nphases * dim * dim * nphases * i + dim * dim * nphases * row_phase + dim * nphases * row_dim + dim * row_phase + k )
-//                        = dRdB_p[ dim * dim * row_phase + dim * row_dim + k ] * J;
-//
-//                }
-//                for ( unsigned int k = 0; k < dim * dim; ++k ){
-//                    *( dRdCauchy_begin + nphases * dim * dim * dim * nphases * i + dim * dim * dim * nphases * row_phase + dim * dim * nphases * row_dim + dim * dim * row_phase + k )
-//                        = dRdCauchy_p[ dim * dim * dim * row_phase + dim * dim * row_dim + k ] * J;
-//
-//                }
 
             }
 
