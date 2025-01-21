@@ -9,19 +9,29 @@
 
 #include "tardigrade_balance_of_linear_momentum.h"
 #include<numeric>
+#include<algorithm>
+#include<functional>
 
 namespace tardigradeBalanceEquations{
 
     namespace balanceOfLinearMomentum{
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const floatType &density, const floatType &density_dot,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end ){
+        template<
+            int dim,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            result_iter result_begin,                              result_iter result_end
+        ){
             /*!
              * Compute the non-divergence part of the balance of linear momentum where the full equation is
              *
@@ -52,24 +62,29 @@ namespace tardigradeBalanceEquations{
              */
 
             // Compute the inner product of the velocity and the density gradient
-            floatType grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
+            using density_gradient_type  = typename std::iterator_traits<density_gradient_iter>::value_type;
+            using velocity_type          = typename std::iterator_traits<velocity_iter>::value_type;
+            using grad_rho_dot_type      = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
+            using velocity_gradient_type = typename std::iterator_traits<velocity_gradient_iter>::value_type;
+
+            grad_rho_dot_type grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
 
             // Compute the trace of the velocity gradient
-            floatType trace_velocity_gradient = 0;
+            velocity_gradient_type trace_velocity_gradient = 0;
 
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
                 trace_velocity_gradient += *( velocity_gradient_begin + dim * i + i );
 
             }
 
             // Compute the balance of linear momentum
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
                 *( result_begin + i ) = density * ( ( *( body_force_begin + i) ) - ( *( velocity_dot_begin + i ) ) - trace_velocity_gradient * ( *( velocity_begin + i ) ) ) - grad_rho_dot_v * ( *( velocity_begin + i ) )
                                       - density_dot * ( *( velocity_begin + i ) );
 
-                for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int j = 0; j < dim; ++j ){
 
                     *( result_begin + i ) -= density * ( *( velocity_gradient_begin + dim * i + j ) ) * ( *( velocity_begin + j ) );
 
@@ -79,21 +94,557 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const floatType &density, const floatType &density_dot,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end, 
-                                                          floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
-                                                          floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
-                                                          secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
-                                                          secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
-                                                          secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
-                                                          thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
-                                                          secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end ){
+        template<
+            int dim,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class cauchy_stress_iter, typename volume_fraction_type,
+            typename testFunction_type, class testFunctionGradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const cauchy_stress_iter &cauchy_stress_begin,         const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_type &volume_fraction,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            result_iter result_begin,                              result_iter result_end
+        ){
+            /*!
+             * Compute the balance of linear momentum
+             * 
+             * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &volume_fraction: The volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             */
+
+            using result_type = typename std::iterator_traits<result_iter>::value_type;
+            using final_type  = decltype( std::declval<result_type&>( ) * std::declval<testFunction_type&>( ) );
+
+            std::array< result_type, dim > non_divergence_result;
+
+            std::array< result_type, dim > divergence_result;
+
+            // Compute the non-divergence part of the balance of linear momentum
+            computeBalanceOfLinearMomentumNonDivergence<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
+                velocity_gradient_begin, velocity_gradient_end,
+                body_force_begin, body_force_end,
+                std::begin( non_divergence_result ), std::end( non_divergence_result )
+            );
+
+            std::transform(
+                std::cbegin( non_divergence_result ), std::cend( non_divergence_result ), std::begin( non_divergence_result ),
+                std::bind(
+                    std::multiplies< final_type >( ),
+                    std::placeholders::_1,
+                    test_function
+                )
+            );
+
+            // Compute the divergence part of the balance of linear momentum
+            computeBalanceOfLinearMomentumDivergence<dim>(
+                test_function_gradient_begin, test_function_gradient_end,
+                cauchy_stress_begin, cauchy_stress_end,
+                volume_fraction,
+                std::begin( divergence_result ), std::end( divergence_result )
+            );
+
+            // Assemble the full balance equation
+            std::transform(
+                std::cbegin( non_divergence_result ), std::cend( non_divergence_result ),
+                std::cbegin( divergence_result ),
+                result_begin,
+                std::plus< final_type >( )
+            );
+
+        }
+
+        template<
+            int dim,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class cauchy_stress_iter, typename volume_fraction_type,
+            typename testFunction_type, class testFunctionGradient_iter,
+            typename interpolationFunction_type, class interpolationFunctionGradient_iter,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdB_iter, class dRdCauchy_iter,
+            class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            typename dRhoDotdRho_type, typename dUDotdU_type, typename dUDDotdU_type
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const cauchy_stress_iter &cauchy_stress_begin,         const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_type &volume_fraction,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const dRhoDotdRho_type dRhoDotdRho,
+            const dUDotdU_type dUDotdU, const dUDDotdU_type dUDDotdU,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                                  dRdU_iter dRdU_end,
+            dRdB_iter dRdB_begin,                                  dRdB_iter dRdB_end,
+            dRdCauchy_iter dRdCauchy_begin,                        dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,        dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                          dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the balance of linear momentum
+             * 
+             * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &volume_fraction: The volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the inerpolation function \f$ \left( \phi \right) \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &dRhoDotdRho: The Jacobian of the time derivative of the density w.r.t. the density
+             * \param &dUDotdU: The Jacobian of the time derivative of the displacement degree of freedom w.r.t. the displacement degree of freedom
+             * \param &dUDDotdU: The Jacobian of the second time derivative of the displacement degree of freedom w.r.t. the displacement degree of freedom density
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting iterator of the Jacobian of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the Jacobian of the result w.r.t. the density
+             * \param &dRdU_begin: The starting iterator of the Jacobian of the result w.r.t. the displacement degree of freedom
+             * \param &dRdU_end: The stopping iterator of the Jacobian of the result w.r.t. the displacement degree of freedom
+             * \param &dRdB_begin: The starting iterator of the Jacobian of the result w.r.t. the body force
+             * \param &dRdB_end: The stopping iterator of the Jacobian of the result w.r.t. the body force
+             * \param &dRdCauchy_begin: The starting iterator of the Jacobian of the result w.r.t. the Cauchy stress
+             * \param &dRdCauchy_end: The stopping iterator of the Jacobian of the result w.r.t. the Cauchy stress
+             * \param &dRdVolumeFraction_begin: The starting iterator of the Jacobian of the result w.r.t. the volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the Jacobian of the result w.r.t. the volume fraction
+             * \param &dRdUMesh_begin: The starting iterator of the Jacobian of the result w.r.t. the mesh displacement (includes the terms due to the volume change)
+             * \param &dRdUMesh_end: The stopping iterator of the Jacobian of the result w.r.t. the mesh displacement (includes the terms due to the volume change)
+             */
+
+            using dRdRhoDot_type  = typename std::iterator_traits<dRdRho_iter>::value_type;
+            using dRdGradRho_type = typename std::iterator_traits<dRdRho_iter>::value_type;
+
+            using dRdVDot_type  = typename std::iterator_traits<dRdU_iter>::value_type;
+            using dRdGradV_type = typename std::iterator_traits<dRdU_iter>::value_type;
+
+            using dRdUMesh_type = typename std::iterator_traits<dRdUMesh_iter>::value_type;
+
+            using result_type = typename std::iterator_traits<result_iter>::value_type;
+            using final_type  = decltype( std::declval<result_type&>( ) * std::declval<testFunction_type&>( ) );
+
+            std::array< result_type, dim > non_divergence_result;
+
+            std::array< result_type, dim > divergence_result;
+
+            std::array< dRdRhoDot_type, dim >        dNonDivRdRhoDot;
+            std::array< dRdGradRho_type, dim * dim > dNonDivRdGradRho;
+
+            std::array< dRdVDot_type, dim * dim >        dNonDivRdVDot;
+            std::array< dRdGradV_type, dim * dim * dim > dNonDivRdGradV;
+
+            std::array< dRdUMesh_type, dim * dim >       dDivRdTestFunctionGradient;
+
+            // Compute the non-divergence part of the balance of linear momentum
+            computeBalanceOfLinearMomentumNonDivergence<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
+                velocity_gradient_begin, velocity_gradient_end,
+                body_force_begin, body_force_end,
+                std::begin( non_divergence_result ),                   std::end( non_divergence_result ),
+                dRdRho_begin,                                          dRdRho_end,
+                std::begin( dNonDivRdRhoDot ),                         std::end( dNonDivRdRhoDot ),
+                std::begin( dNonDivRdGradRho ),                        std::end( dNonDivRdGradRho ),
+                dRdU_begin,                                            dRdU_end,
+                std::begin( dNonDivRdVDot ),                           std::end( dNonDivRdVDot ),
+                std::begin( dNonDivRdGradV ),                          std::end( dNonDivRdGradV ),
+                dRdB_begin,                                            dRdB_end
+            );
+
+            std::transform(
+                std::cbegin( non_divergence_result ), std::cend( non_divergence_result ), std::begin( non_divergence_result ),
+                std::bind(
+                    std::multiplies< final_type >( ),
+                    std::placeholders::_1,
+                    test_function
+                )
+            );
+
+            // Compute the divergence part of the balance of linear momentum
+            computeBalanceOfLinearMomentumDivergence<dim>(
+                test_function_gradient_begin, test_function_gradient_end,
+                cauchy_stress_begin, cauchy_stress_end,
+                volume_fraction,
+                std::begin( divergence_result ), std::end( divergence_result ),
+                std::begin( dDivRdTestFunctionGradient ), std::end( dDivRdTestFunctionGradient ),
+                dRdCauchy_begin,         dRdCauchy_end,
+                dRdVolumeFraction_begin, dRdVolumeFraction_end
+            );
+
+            // Assemble the full balance equation
+            std::transform(
+                std::cbegin( non_divergence_result ), std::cend( non_divergence_result ),
+                std::cbegin( divergence_result ),
+                result_begin,
+                std::plus< final_type >( )
+            );
+
+            // Assemble the Jacobians
+            std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
+            for ( unsigned int i = 0; i < dim; ++i ){
+
+                *( dRdRho_begin + i ) = test_function * ( ( *( dRdRho_begin + i ) ) + dNonDivRdRhoDot[ i ] * dRhoDotdRho ) * interpolation_function;
+
+                for ( unsigned int j = 0; j < dim; ++j ){
+
+                    *( dRdRho_begin + i ) += test_function * dNonDivRdGradRho[ dim * i + j ] * ( *( interpolation_function_gradient_begin + j ) );
+
+                    *( dRdU_begin + dim * i + j ) = test_function * ( ( *( dRdU_begin + dim * i + j ) ) * dUDotdU + dNonDivRdVDot[ dim * i + j ] * dUDDotdU ) * interpolation_function;
+
+                    *( dRdB_begin + dim * i + j ) = test_function * ( *( dRdB_begin + dim * i + j ) );
+
+                    *( dRdUMesh_begin + dim * i + j ) += ( *( result_begin + i ) ) * ( *( interpolation_function_gradient_begin + j ) );
+
+                    for ( unsigned int k = 0; k < dim; ++k ){
+
+                        *( dRdU_begin + dim * i + j ) += test_function * dNonDivRdGradV[ dim * dim * i + dim * j + k ] * dUDotdU * ( *( interpolation_function_gradient_begin + k  ) );
+
+                        *( dRdUMesh_begin + dim * i + k )
+                            -= (
+                                    test_function * dNonDivRdGradRho[ dim * i + j ] * ( *( density_gradient_begin + k ) ) + dDivRdTestFunctionGradient[ dim * i + j ] * ( *( test_function_gradient_begin + k ) )
+                               ) * ( *( interpolation_function_gradient_begin + j ) );
+
+                        for ( unsigned int a = 0; a < dim; ++ a ){
+
+                            *( dRdUMesh_begin + dim * i + a ) -= test_function * dNonDivRdGradV[ dim * dim * i + dim * j + k ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+
+            }
+
+        }
+
+        template<
+            int dim,
+            class density_iter, class density_dot_iter, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class cauchy_stress_iter, class volume_fraction_iter,
+            typename testFunction_type, class testFunctionGradient_iter,
+            typename interpolationFunction_type, class interpolationFunctionGradient_iter,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdB_iter, class dRdCauchy_iter,
+            class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            typename dRhoDotdRho_type, typename dUDotdU_type, typename dUDDotdU_type
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const cauchy_stress_iter &cauchy_stress_begin,         const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_iter &volume_fraction_begin,     const volume_fraction_iter &volume_fraction_end,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const dRhoDotdRho_type dRhoDotdRho,
+            const dUDotdU_type dUDotdU, const dUDDotdU_type dUDDotdU,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                                  dRdU_iter dRdU_end,
+            dRdB_iter dRdB_begin,                                  dRdB_iter dRdB_end,
+            dRdCauchy_iter dRdCauchy_begin,                        dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,        dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                          dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the balance of linear momentum for the multiphase continuum
+             * 
+             * \param &density_begin: The starting iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density
+             *     is assumed to be the apparent density i.e., the mass of the phase per unit volume.
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density
+             *     is assumed to be the apparent density i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the inerpolation function \f$ \left( \phi \right) \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &dRhoDotdRho: The Jacobian of the time derivative of the density w.r.t. the density
+             * \param &dUDotdU: The Jacobian of the time derivative of the displacement degree of freedom w.r.t. the displacement degree of freedom
+             * \param &dUDDotdU: The Jacobian of the second time derivative of the displacement degree of freedom w.r.t. the displacement degree of freedom density
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting iterator of the Jacobian of the result w.r.t. the density
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's density
+             * \param &dRdRho_end: The stopping iterator of the Jacobian of the result w.r.t. the density
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's density
+             * \param &dRdU_begin: The starting iterator of the Jacobian of the result w.r.t. the displacement degree of freedom
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's displacement
+             * \param &dRdU_end: The stopping iterator of the Jacobian of the result w.r.t. the displacement degree of freedom
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's displacement
+             * \param &dRdB_begin: The starting iterator of the Jacobian of the result w.r.t. the body force
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's body force
+             * \param &dRdB_end: The stopping iterator of the Jacobian of the result w.r.t. the body force
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's body force
+             * \param &dRdCauchy_begin: The starting iterator of the Jacobian of the result w.r.t. the Cauchy stress
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's Cauchy stress
+             * \param &dRdCauchy_end: The stopping iterator of the Jacobian of the result w.r.t. the Cauchy stress
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's Cauchy stress
+             * \param &dRdVolumeFraction_begin: The starting iterator of the Jacobian of the result w.r.t. the volume fraction
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the Jacobian of the result w.r.t. the volume fraction
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the phase's volume fraction
+             * \param &dRdUMesh_begin: The starting iterator of the Jacobian of the result w.r.t. the mesh displacement (includes the terms due to the volume change)
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the Jacobian of the result w.r.t. the mesh displacement (includes the terms due to the volume change)
+             *     The derivatives are stored as the derivative of each phase's residual w.r.t. the mesh displacement
+             */
+
+            TARDIGRADE_ERROR_TOOLS_EVAL( const unsigned int nphases = ( unsigned int )( density_end - density_begin ) )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and the time derivative of the density must have the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and the spatial gradient of the density must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( velocity_end - velocity_begin ), "The density and the velocity must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and the time derivative of the velocity must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * nphases == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and the velocity gradient must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( body_force_end - body_force_begin ), "The density and the body force must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * nphases == ( unsigned int )( cauchy_stress_end - cauchy_stress_begin ), "The density and the Cauchy stress must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The density and the volume fraction must have the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases * dim == ( unsigned int )( dRdU_end - dRdU_begin ), "The density and dRdU must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases * dim == ( unsigned int )( dRdB_end - dRdB_begin ), "The density and dRdB must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases * dim * dim == ( unsigned int )( dRdCauchy_end - dRdCauchy_begin ), "The density and dRdCauchy must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases == ( unsigned int )( dRdVolumeFraction_end - dRdVolumeFraction_begin ), "The density and dRdVolumeFraction must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * nphases * dim == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ), "The density and dRdUMesh must have consistent sizes" );
+
+            for ( auto rho = std::pair< unsigned int, density_iter >( 0, density_begin ); rho.second != density_end; ++rho.first, ++rho.second ){
+
+                computeBalanceOfLinearMomentum<dim>(
+                    *rho.second, *( density_dot_begin + rho.first ),
+                    density_gradient_begin + dim * rho.first,        density_gradient_begin + dim * ( rho.first + 1 ),
+                    velocity_begin + dim * rho.first,                velocity_begin + dim * ( rho.first + 1 ),
+                    velocity_dot_begin + dim * rho.first,            velocity_dot_begin + dim * ( rho.first + 1 ),
+                    velocity_gradient_begin + dim * dim * rho.first, velocity_gradient_begin + dim * dim * ( rho.first + 1 ),
+                    body_force_begin + dim * rho.first,              body_force_begin + dim * ( rho.first + 1 ),
+                    cauchy_stress_begin + dim * dim * rho.first,     cauchy_stress_begin + dim * dim * ( rho.first + 1 ),
+                    *( volume_fraction_begin + rho.first ),
+                    test_function, test_function_gradient_begin, test_function_gradient_end,
+                    interpolation_function, interpolation_function_gradient_begin, interpolation_function_gradient_end,
+                    dRhoDotdRho, dUDotdU, dUDDotdU,
+                    result_begin + dim * rho.first,                  result_begin + dim * ( rho.first + 1 ),
+                    dRdRho_begin + dim * rho.first,                  dRdRho_begin + dim * ( rho.first + 1 ),
+                    dRdU_begin + dim * dim * rho.first,              dRdU_begin + dim * dim * ( rho.first + 1 ),
+                    dRdB_begin + dim * dim * rho.first,              dRdB_begin + dim * dim * ( rho.first + 1 ),
+                    dRdCauchy_begin + dim * dim * dim * rho.first,   dRdCauchy_begin + dim * dim * dim * ( rho.first + 1 ),
+                    dRdVolumeFraction_begin + dim * rho.first,       dRdVolumeFraction_begin + dim * ( rho.first + 1 ),
+                    dRdUMesh_begin + dim * dim * rho.first,          dRdUMesh_begin + dim * dim * ( rho.first + 1 )
+                );
+
+            }
+
+        }
+
+        template<
+            int dim,
+            class density_iter, class density_dot_iter, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class cauchy_stress_iter, class volume_fraction_iter,
+            typename testFunction_type, class testFunctionGradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            const cauchy_stress_iter &cauchy_stress_begin,         const cauchy_stress_iter &cauchy_stress_end,
+            const volume_fraction_iter &volume_fraction_begin,     const volume_fraction_iter &volume_fraction_end,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            result_iter result_begin,                              result_iter result_end
+        ){
+            /*!
+             * Compute the balance of linear momentum for a multiphase material
+             * 
+             * \param &density_begin: The starting iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &body_force_begin: The starting iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &body_force_end: The stopping iterator of the body force per unit mass \f$ \left( b_i \right) \f$
+             * \param &cauchy_stress_begin: The starting iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &cauchy_stress_end: The stopping iterator of the cauchy stress \f$ \left( \sigma_{ij} \right) \f$
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             */
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and the time derivative of the density must have the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and the spatial gradient of the density must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and the velocity must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and the time derivative of the velocity must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and the velocity gradient must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( body_force_end - body_force_begin ), "The density and the body force must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( cauchy_stress_end - cauchy_stress_begin ), "The density and the Cauchy stress must have consistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( ( unsigned int )( density_end - density_begin ) == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The density and the volume fraction must have the same size" );
+
+            for ( auto rho = std::pair< unsigned int, density_iter >( 0, density_begin ); rho.second != density_end; ++rho.first, ++rho.second ){
+
+                computeBalanceOfLinearMomentum<dim>(
+                    *rho.second, *( density_dot_begin + rho.first ),
+                    density_gradient_begin + dim * rho.first,        density_gradient_begin + dim * ( rho.first + 1 ),
+                    velocity_begin + dim * rho.first,                velocity_begin + dim * ( rho.first + 1 ),
+                    velocity_dot_begin + dim * rho.first,            velocity_dot_begin + dim * ( rho.first + 1 ),
+                    velocity_gradient_begin + dim * dim * rho.first, velocity_gradient_begin + dim * dim * ( rho.first + 1 ),
+                    body_force_begin + dim * rho.first,              body_force_begin + dim * ( rho.first + 1 ),
+                    cauchy_stress_begin + dim * dim * rho.first,     cauchy_stress_begin + dim * dim * ( rho.first + 1 ),
+                    *( volume_fraction_begin + rho.first ),
+                    test_function, test_function_gradient_begin, test_function_gradient_end,
+                    result_begin + dim * rho.first,                  result_begin + dim * ( rho.first + 1 )
+                );
+
+            }
+
+        }
+
+        template<
+            int dim,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class result_iter,
+            class dRdRho_iter, class dRdRhoDot_iter, class dRdGradRho_iter,
+            class dRdV_iter, class dRdVDot_iter, class dRdGradV_iter,
+            class dRdB_iter
+        >
+        void computeBalanceOfLinearMomentumNonDivergence(
+            const density_type &density,                           const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdRhoDot_iter dRdRhoDot_begin,                        dRdRhoDot_iter dRdRhoDot_end,
+            dRdGradRho_iter dRdGradRho_begin,                      dRdGradRho_iter dRdGradRho_end,
+            dRdV_iter dRdV_begin,                                  dRdV_iter dRdV_end,
+            dRdVDot_iter dRdVDot_begin,                            dRdVDot_iter dRdVDot_end,
+            dRdGradV_iter dRdGradV_begin,                          dRdGradV_iter dRdGradV_end,
+            dRdB_iter dRdB_begin,                                  dRdB_iter dRdB_end
+        ){
             /*!
              * Compute the non-divergence part of the balance of linear momentum where the full equation is
              *
@@ -138,12 +689,17 @@ namespace tardigradeBalanceEquations{
              */
 
             // Compute the inner product of the velocity and the density gradient
-            floatType grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
+            using density_gradient_type  = typename std::iterator_traits<density_gradient_iter>::value_type;
+            using velocity_type          = typename std::iterator_traits<velocity_iter>::value_type;
+            using grad_rho_dot_type      = decltype( std::declval<density_gradient_type&>( ) * std::declval<velocity_type>( ) );
+            using velocity_gradient_type = typename std::iterator_traits<velocity_gradient_iter>::value_type;
+
+            grad_rho_dot_type grad_rho_dot_v = std::inner_product( density_gradient_begin, density_gradient_end, velocity_begin, 0. );
 
             // Compute the trace of the velocity gradient
-            floatType trace_velocity_gradient = 0;
+            velocity_gradient_type trace_velocity_gradient = 0;
 
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
                 trace_velocity_gradient += *( velocity_gradient_begin + dim * i + i );
 
@@ -158,7 +714,7 @@ namespace tardigradeBalanceEquations{
 
             // Compute the balance of linear momentum
 
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
                 *( result_begin + i ) = density * ( ( *( body_force_begin + i) ) - ( *( velocity_dot_begin + i ) ) - trace_velocity_gradient * ( *( velocity_begin + i ) ) ) - grad_rho_dot_v * ( *( velocity_begin + i ) )
                                       - density_dot * ( *( velocity_begin + i ) );
@@ -173,7 +729,7 @@ namespace tardigradeBalanceEquations{
 
                 *( dRdB_begin + dim * i + i ) = density;
 
-                for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int j = 0; j < dim; ++j ){
 
                     *( result_begin + i ) -= density * ( *( velocity_gradient_begin + dim * i + j ) ) * ( *( velocity_begin + j ) );
 
@@ -193,15 +749,21 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
-                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end ){
+        template<
+            int dim,
+            class density_iter, class density_dot_iter, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentumNonDivergence( const density_iter &density_begin,                     const density_iter &density_end,
+                                                          const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+                                                          const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+                                                          const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+                                                          const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+                                                          const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+                                                          const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+                                                          result_iter result_begin,                              result_iter result_end ){
             /*!
              * Compute the non-divergence part of the multiphase balance of linear momentum where the full equation is
              *
@@ -233,39 +795,64 @@ namespace tardigradeBalanceEquations{
              * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
              */
 
-            for ( auto rho = density_begin; rho != density_end; rho++ ){
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors are not the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and velocity dot vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( body_force_end - body_force_begin ), "The density and body force vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( result_end - result_begin ), "The density and result vectors are of inconsistent sizes" );
+
+            for ( auto rho = density_begin; rho != density_end; ++rho ){
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
-                                                             *( density_dot_begin + phase ),
-                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
-                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
-                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
-                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
-                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumNonDivergence<dim>(
+                    *( density_begin + phase ),
+                    *( density_dot_begin + phase ),
+                    density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                    velocity_dot_begin + dim * phase,            velocity_dot_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    body_force_begin + dim * phase,              body_force_begin + dim * dim * ( phase + 1 ),
+                    result_begin + dim * phase,                  result_begin + dim * ( phase + 1 )
+                );
 
             }
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumNonDivergence( const scalarArray_iter &density_begin,                 const scalarArray_iter &density_end,
-                                                          const scalarArray_iter &density_dot_begin,             const scalarArray_iter &density_dot_end,
-                                                          const floatVector_iter &density_gradient_begin,        const floatVector_iter &density_gradient_end,
-                                                          const floatVector_iter &velocity_begin,                const floatVector_iter &velocity_end,
-                                                          const floatVector_iter &velocity_dot_begin,            const floatVector_iter &velocity_dot_end,
-                                                          const secondOrderTensor_iter &velocity_gradient_begin, const secondOrderTensor_iter &velocity_gradient_end,
-                                                          const floatVector_iter &body_force_begin,              const floatVector_iter &body_force_end,
-                                                          floatVector_iter_out result_begin,                     floatVector_iter_out result_end, 
-                                                          floatVector_iter_out dRdRho_begin,                     floatVector_iter_out dRdRho_end,
-                                                          floatVector_iter_out dRdRhoDot_begin,                  floatVector_iter_out dRdRhoDot_end,
-                                                          secondOrderTensor_iter_out dRdGradRho_begin,           secondOrderTensor_iter_out dRdGradRho_end,
-                                                          secondOrderTensor_iter_out dRdV_begin,                 secondOrderTensor_iter_out dRdV_end,
-                                                          secondOrderTensor_iter_out dRdVDot_begin,              secondOrderTensor_iter_out dRdVDot_end,
-                                                          thirdOrderTensor_iter_out dRdGradV_begin,              thirdOrderTensor_iter_out dRdGradV_end,
-                                                          secondOrderTensor_iter_out dRdB_begin,                 secondOrderTensor_iter_out dRdB_end ){
+        template<
+            int dim,
+            class density_iter, class density_dot_iter, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class body_force_iter,
+            class result_iter,
+            class dRdRho_iter, class dRdRhoDot_iter, class dRdGradRho_iter,
+            class dRdV_iter, class dRdVDot_iter, class dRdGradV_iter,
+            class dRdB_iter
+        >
+        void computeBalanceOfLinearMomentumNonDivergence( const density_iter &density_begin,                     const density_iter &density_end,
+                                                          const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+                                                          const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+                                                          const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+                                                          const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+                                                          const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+                                                          const body_force_iter &body_force_begin,               const body_force_iter &body_force_end,
+                                                          result_iter result_begin,                              result_iter result_end, 
+                                                          dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+                                                          dRdRhoDot_iter dRdRhoDot_begin,                        dRdRhoDot_iter dRdRhoDot_end,
+                                                          dRdGradRho_iter dRdGradRho_begin,                      dRdGradRho_iter dRdGradRho_end,
+                                                          dRdV_iter dRdV_begin,                                  dRdV_iter dRdV_end,
+                                                          dRdVDot_iter dRdVDot_begin,                            dRdVDot_iter dRdVDot_end,
+                                                          dRdGradV_iter dRdGradV_begin,                          dRdGradV_iter dRdGradV_end,
+                                                          dRdB_iter dRdB_begin,                                  dRdB_iter dRdB_end ){
             /*!
              * Compute the non-divergence part of the balance of linear momentum where the full equation is
              *
@@ -311,35 +898,69 @@ namespace tardigradeBalanceEquations{
              * \param &dRdB_end: The stopping iterator of the derivative of the result w.r.t. the body force
              */
 
-            for ( auto rho = density_begin; rho != density_end; rho++ ){
+            TARDIGRADE_ERROR_TOOLS_CHECK(                   ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors are not the same size" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_dot_end - velocity_dot_begin ), "The density and velocity dot vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( body_force_end - body_force_begin ), "The density and body force vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( result_end - result_begin ), "The density and result vectors are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(             dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRhoDot_end - dRdRhoDot_begin ), "The density and dRdRhoDot are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradRho_end - dRdGradRho_begin ), "The density and dRdGradRho are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdV_end - dRdV_begin ), "The density and dRdV are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradV_end - dRdGradV_begin ), "The density and dRdGradV are of inconsistent sizes" );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdB_end - dRdB_begin ), "The density and dRdB are of inconsistent sizes" );
+
+            for ( auto rho = density_begin; rho != density_end; ++rho ){
 
                 unsigned int phase = ( unsigned int )( rho - density_begin );
 
-                computeBalanceOfLinearMomentumNonDivergence( *( density_begin + phase ),
-                                                             *( density_dot_begin + phase ),
-                                                             density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
-                                                             velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
-                                                             velocity_dot_begin + dim * phase,          velocity_dot_begin + dim * ( phase + 1 ),
-                                                             velocity_gradient_begin + sot_dim * phase, velocity_gradient_begin + sot_dim * ( phase + 1 ),
-                                                             body_force_begin + dim * phase,            body_force_begin + sot_dim * ( phase + 1 ),
-                                                             result_begin + dim * phase,                result_begin + dim * ( phase + 1 ),
-                                                             dRdRho_begin + dim * phase,                dRdRho_begin + dim * ( phase + 1 ),
-                                                             dRdRhoDot_begin + dim * phase,             dRdRhoDot_begin + dim * ( phase + 1 ),
-                                                             dRdGradRho_begin + sot_dim * phase,        dRdGradRho_begin + sot_dim * ( phase + 1 ),
-                                                             dRdV_begin + sot_dim * phase,              dRdV_begin + sot_dim * ( phase + 1 ),
-                                                             dRdVDot_begin + sot_dim * phase,           dRdVDot_begin + sot_dim * ( phase + 1 ),
-                                                             dRdGradV_begin + dim * dim * dim * phase,  dRdGradV_begin + dim * dim * dim * ( phase + 1 ),
-                                                             dRdB_begin + sot_dim * phase,              dRdB_begin + sot_dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumNonDivergence<dim>(
+                    *( density_begin + phase ),
+                    *( density_dot_begin + phase ),
+                    density_gradient_begin + dim * phase,        density_gradient_begin + dim * ( phase + 1 ),
+                    velocity_begin + dim * phase,                velocity_begin + dim * ( phase + 1 ),
+                    velocity_dot_begin + dim * phase,            velocity_dot_begin + dim * ( phase + 1 ),
+                    velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
+                    body_force_begin + dim * phase,              body_force_begin + dim * dim * ( phase + 1 ),
+                    result_begin + dim * phase,                  result_begin + dim * ( phase + 1 ),
+                    dRdRho_begin + dim * phase,                  dRdRho_begin + dim * ( phase + 1 ),
+                    dRdRhoDot_begin + dim * phase,               dRdRhoDot_begin + dim * ( phase + 1 ),
+                    dRdGradRho_begin + dim * dim * phase,        dRdGradRho_begin + dim * dim * ( phase + 1 ),
+                    dRdV_begin + dim * dim * phase,              dRdV_begin + dim * dim * ( phase + 1 ),
+                    dRdVDot_begin + dim * dim * phase,           dRdVDot_begin + dim * dim * ( phase + 1 ),
+                    dRdGradV_begin + dim * dim * dim * phase,    dRdGradV_begin + dim * dim * dim * ( phase + 1 ),
+                    dRdB_begin + dim * dim * phase,              dRdB_begin + dim * dim * ( phase + 1 ) );
 
             }
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
-                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
-                                                       const floatType &volume_fraction,
-                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end ){
+        template<
+            int dim,
+            class testFunctionGradient_iter, class cauchyStress_iter, typename volumeFraction_type,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentumDivergence(
+            const testFunctionGradient_iter &grad_test_function_begin,
+            const testFunctionGradient_iter &grad_test_function_end,
+            const cauchyStress_iter &cauchy_stress_begin,    const cauchyStress_iter &cauchy_stress_end,
+            const volumeFraction_type &volume_fraction,
+            result_iter result_begin,                        result_iter result_end
+        ){
             /*!
              * Compute the divergence part of the balance of linear momentum where the full equation is
              *
@@ -360,8 +981,8 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
              * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
@@ -371,11 +992,11 @@ namespace tardigradeBalanceEquations{
 
             std::fill( result_begin, result_end, 0. );
 
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
-                for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int j = 0; j < dim; ++j ){
 
-                    *( result_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
+                    *( result_begin + i ) -= ( *( grad_test_function_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
 
                 }
 
@@ -383,14 +1004,22 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
-                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
-                                                       const floatType &volume_fraction,
-                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end,
-                                                       secondOrderTensor_iter_out dRdGradPsi_begin,          secondOrderTensor_iter_out dRdGradPsi_end,
-                                                       thirdOrderTensor_iter_out dRdCauchy_begin,            thirdOrderTensor_iter_out dRdCauchy_end,
-                                                       floatVector_iter_out dRdPhi_begin,                    floatVector_iter_out dRdPhi_end ){
+        template<
+            int dim,
+            class testFunctionGradient_iter, class cauchyStress_iter, typename volumeFraction_type,
+            class result_iter,
+            class dRdGradPsi_iter, class dRdCauchy_iter, class dRdVolumeFraction_iter
+        >
+        void computeBalanceOfLinearMomentumDivergence(
+            const testFunctionGradient_iter &grad_test_function_begin,
+            const testFunctionGradient_iter &grad_test_function_end,
+            const cauchyStress_iter &cauchy_stress_begin,    const cauchyStress_iter &cauchy_stress_end,
+            const volumeFraction_type &volume_fraction,
+            result_iter result_begin,                        result_iter result_end,
+            dRdGradPsi_iter dRdGradPsi_begin,                dRdGradPsi_iter dRdGradPsi_end,
+            dRdCauchy_iter dRdCauchy_begin,                  dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,  dRdVolumeFraction_iter dRdVolumeFraction_end
+        ){
             /*!
              * Compute the divergence part of the balance of linear momentum and its Jacobians where the full equation is
              *
@@ -411,8 +1040,8 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
              * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction: The volume fraction of the current phase \f$ \left( \phi \right) \f$
@@ -422,26 +1051,26 @@ namespace tardigradeBalanceEquations{
              * \param &dRdGradPsi_end: The stopping iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
              * \param &dRdCauchy_begin: The starting iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
              * \param &dRdCauchy_end: The stopping iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdPhi_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
-             * \param &dRdPhi_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdVolumeFraction_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdVolumeFraction_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
              */
 
             std::fill( result_begin, result_end, 0. );
             std::fill( dRdGradPsi_begin, dRdGradPsi_end, 0. );
             std::fill( dRdCauchy_begin, dRdCauchy_end, 0. );
-            std::fill( dRdPhi_begin, dRdPhi_end, 0. );
+            std::fill( dRdVolumeFraction_begin, dRdVolumeFraction_end, 0. );
 
-            for ( unsigned int i = 0; i < dim; i++ ){
+            for ( unsigned int i = 0; i < dim; ++i ){
 
-                for ( unsigned int j = 0; j < dim; j++ ){
+                for ( unsigned int j = 0; j < dim; ++j ){
 
-                    *( result_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
+                    *( result_begin + i ) -= ( *( grad_test_function_begin + j ) ) * volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
 
                     *( dRdGradPsi_begin + dim * i + j ) -= volume_fraction * ( *( cauchy_stress_begin + dim * j + i ) );
 
-                    *( dRdCauchy_begin + dim * dim * i + dim * j + i ) -= ( *( test_function_gradient_begin + j ) ) * volume_fraction;
+                    *( dRdCauchy_begin + dim * dim * i + dim * j + i ) -= ( *( grad_test_function_begin + j ) ) * volume_fraction;
 
-                    *( dRdPhi_begin + i ) -= ( *( test_function_gradient_begin + j ) ) * ( *( cauchy_stress_begin + dim * j + i ) );
+                    *( dRdVolumeFraction_begin + i ) -= ( *( grad_test_function_begin + j ) ) * ( *( cauchy_stress_begin + dim * j + i ) );
 
                 }
 
@@ -449,11 +1078,18 @@ namespace tardigradeBalanceEquations{
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
-                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
-                                                       const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
-                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end ){
+        template<
+            int dim,
+            class testFunctionGradient_iter, class cauchyStress_iter, class volumeFraction_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentumDivergence(
+            const testFunctionGradient_iter &grad_test_function_begin,
+            const testFunctionGradient_iter &grad_test_function_end,
+            const cauchyStress_iter &cauchy_stress_begin,     const cauchyStress_iter &cauchy_stress_end,
+            const volumeFraction_iter &volume_fraction_begin, const volumeFraction_iter &volume_fraction_end,
+            result_iter result_begin,                         result_iter result_end
+        ){
             /*!
              * Compute the divergence part of the balance of linear momentum where the full equation is
              *
@@ -474,8 +1110,8 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
              * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction_begin: The starting iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
@@ -484,27 +1120,37 @@ namespace tardigradeBalanceEquations{
              * \param &result_end: The stopping iterator of the divergence part of the balance of linear momentum
              */
 
-            for ( auto phi = volume_fraction_begin; phi != volume_fraction_end; phi++ ){
+            for ( auto volume_fraction = volume_fraction_begin; volume_fraction != volume_fraction_end; ++volume_fraction ){
 
-                unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
+                unsigned int phase = ( unsigned int )( volume_fraction - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,          test_function_gradient_end,
-                                                           cauchy_stress_begin + sot_dim * phase, cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                          *phi,
-                                                           result_begin + dim * phase,            result_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumDivergence<dim>(
+                    grad_test_function_begin,                grad_test_function_end,
+                    cauchy_stress_begin + dim * dim * phase, cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *volume_fraction,
+                    result_begin + dim * phase,              result_begin + dim * ( phase + 1 )
+                );
 
             }
 
         }
 
-        template<class scalarArray_iter, class floatVector_iter, class secondOrderTensor_iter, class floatVector_iter_out, class secondOrderTensor_iter_out, class thirdOrderTensor_iter_out>
-        void computeBalanceOfLinearMomentumDivergence( const floatVector_iter &test_function_gradient_begin, const floatVector_iter &test_function_gradient_end,
-                                                       const secondOrderTensor_iter &cauchy_stress_begin,    const secondOrderTensor_iter &cauchy_stress_end,
-                                                       const scalarArray_iter &volume_fraction_begin,        const scalarArray_iter &volume_fraction_end,
-                                                       floatVector_iter_out result_begin,                    floatVector_iter_out result_end,
-                                                       secondOrderTensor_iter_out dRdGradPsi_begin,          secondOrderTensor_iter_out dRdGradPsi_end,
-                                                       thirdOrderTensor_iter_out dRdCauchy_begin,            thirdOrderTensor_iter_out dRdCauchy_end,
-                                                       floatVector_iter_out dRdPhi_begin,                    floatVector_iter_out dRdPhi_end ){
+        template<
+            int dim,
+            class testFunctionGradient_iter, class cauchyStress_iter, class volumeFraction_iter,
+            class result_iter,
+            class dRdGradPsi_iter, class dRdCauchy_iter, class dRdVolumeFraction_iter
+        >
+        void computeBalanceOfLinearMomentumDivergence(
+            const testFunctionGradient_iter &grad_test_function_begin,
+            const testFunctionGradient_iter &grad_test_function_end,
+            const cauchyStress_iter &cauchy_stress_begin,     const cauchyStress_iter &cauchy_stress_end,
+            const volumeFraction_iter &volume_fraction_begin, const volumeFraction_iter &volume_fraction_end,
+            result_iter result_begin,                         result_iter result_end,
+            dRdGradPsi_iter dRdGradPsi_begin,                 dRdGradPsi_iter dRdGradPsi_end,
+            dRdCauchy_iter dRdCauchy_begin,                   dRdCauchy_iter dRdCauchy_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,   dRdVolumeFraction_iter dRdVolumeFraction_end
+        ){
             /*!
              * Compute the divergence part of the balance of linear momentum and its Jacobians where the full equation is
              *
@@ -525,8 +1171,8 @@ namespace tardigradeBalanceEquations{
              * where we made the definition that the effective Cauchy stress \f$ \bf{\sigma} = \phi \bar{\bf{\sigma}} \f$ where \f$\bar{\bf{\sigma}} \f$ is the true
              * Cauchy stress of the phase.
              * 
-             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
-             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &grad_test_function_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
              * \param &cauchy_stress_begin: The starting iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &cauchy_stress_end: The stopping iterator of the true Cauchy stress \f$ \left( \bar{\bf{\sigma}} \right) \f$
              * \param &volume_fraction_begin: The starting iterator of the volume fraction of the current phase \f$ \left( \phi \right) \f$
@@ -537,21 +1183,23 @@ namespace tardigradeBalanceEquations{
              * \param &dRdGradPsi_end: The stopping iterator of the derivative of the result w.r.t. the test function spatial gradient \f$ \left( \psi_{,i} \right) \f$
              * \param &dRdCauchy_begin: The starting iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
              * \param &dRdCauchy_end: The stopping iterator of the derivative of the result w.r.t. the Cauchy stress \f$ \left( \bf{\sigma} \right) \f$
-             * \param &dRdPhi_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
-             * \param &dRdPhi_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdVolumeFraction_begin: The starting iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
+             * \param &dRdVolumeFraction_end: The stopping iterator of the derivative of the result w.r.t. the volume fraction \f$ \left( \bf{\phi} \right) \f$
              */
 
-            for ( auto phi = volume_fraction_begin; phi != volume_fraction_end; phi++ ){
+            for ( auto volume_fraction = volume_fraction_begin; volume_fraction != volume_fraction_end; ++volume_fraction ){
 
-                unsigned int phase = ( unsigned int )( phi - volume_fraction_begin );
+                unsigned int phase = ( unsigned int )( volume_fraction - volume_fraction_begin );
 
-                computeBalanceOfLinearMomentumDivergence(  test_function_gradient_begin,            test_function_gradient_end,
-                                                           cauchy_stress_begin + sot_dim * phase,   cauchy_stress_begin + sot_dim * ( phase + 1 ),
-                                                          *phi,
-                                                           result_begin + dim * phase,              result_begin + dim * ( phase + 1 ),
-                                                           dRdGradPsi_begin + dim * dim * phase,    dRdGradPsi_begin + dim * dim * ( phase + 1 ),
-                                                           dRdCauchy_begin + dim * sot_dim * phase, dRdCauchy_begin + dim * sot_dim * ( phase + 1 ),
-                                                           dRdPhi_begin + dim * phase,              dRdPhi_begin + dim * ( phase + 1 ) );
+                computeBalanceOfLinearMomentumDivergence<dim>(
+                    grad_test_function_begin,                  grad_test_function_end,
+                    cauchy_stress_begin + dim * dim * phase,   cauchy_stress_begin + dim * dim * ( phase + 1 ),
+                    *volume_fraction,
+                    result_begin + dim * phase,                result_begin + dim * ( phase + 1 ),
+                    dRdGradPsi_begin + dim * dim * phase,      dRdGradPsi_begin + dim * dim * ( phase + 1 ),
+                    dRdCauchy_begin + dim * dim * dim * phase, dRdCauchy_begin + dim * dim * dim * ( phase + 1 ),
+                    dRdVolumeFraction_begin + dim * phase,     dRdVolumeFraction_begin + dim * ( phase + 1 )
+                );
 
             }
 
