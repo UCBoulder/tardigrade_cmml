@@ -17,6 +17,9 @@ New Features
 - Added the calculation of the divergence part of the balance of linear momentum (:pull:`11`). By `Nathan Miller`_.
 - Added the multiphase balance of linear momentum (:pull:`12`). By `Nathan Miller`_.
 - Added the calculation of the balance of energy for single and multiphase reacting continuum (:pull:`13`). By `Nathan Miller`_.
+- Added a hexahedral finite element to test the balance equations in a FEA context (:pull:`15`). By `Nathan Miller`_.
+- Added the FEA Jacobians for the balance of mass, linear momentum, and energy (:pull:`16`). By `Nathan Miller`_.
+- Added the balance of volume fraction (:pull:`17`). By `Nathan Miller`_.
 
 Internal Changes
 ================
