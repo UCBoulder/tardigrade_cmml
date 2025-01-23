@@ -45,11 +45,11 @@ struct cerr_redirect{
         std::streambuf * old;
 };
 
-typedef double floatType; //!< Define the float type to be the same as in the balance of linear momentum
+typedef double floatType; //!< Define the float type
 
-typedef std::array< floatType, 3 > floatVector; //!< Define the float vector type to be the same as in the balance of linear momentum
+typedef std::array< floatType, 3 > floatVector; //!< Define the float vector type
 
-typedef std::array< floatType, 9 > secondOrderTensor; //!< Define the second order tensor type to be the same as in the balance of linear momentum
+typedef std::array< floatType, 9 > secondOrderTensor; //!< Define the second order tensor type
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfEnergyNonDivergence, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
 
