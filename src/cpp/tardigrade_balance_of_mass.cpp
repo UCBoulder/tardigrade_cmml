@@ -644,6 +644,67 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<
+            int dim, typename density_type, typename densityDot_type, typename result_type,
+            typename testFunction_type,
+            class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
+            class material_response_iter
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin, const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,  const velocityGradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const testFunction_type &psi,
+            result_type &result
+        ){
+
+            /*!
+             * A balance of mass function for a general material response problem where the change in mass may be
+             * a function of many different variables.
+             * 
+             * The mass rate of change value \f$ c \f$ is assumed to be located after the stress measure
+             * which has dimensions of dim * dim and the model-calculated internal energy which has a dimension of 1
+             * 
+             * The material response vector is assumed to be organized as
+             * 
+             * \f$ \sigma, e, c, b, \pi, q, r, \Pi \f$
+             *
+             * where \f$ \sigma \f$ is the Cauchy stress, \f$ e \f$ is the predicted internal energy per unit mass,
+             * \f$ c \f$ is the mass change rate per unit volume, \f$ b \f$ is the body force vector, \f$ \pi \f$ is
+             * the net inter-phase force, \f$ q \f$ is the heat flux vector, \f$ r \f$ is the volumetric heat generation
+             * per unit mass, and \f$ \Pi \f$ is the net interphase heat transfer. We note that additional outputs can be
+             * added to the material response vector, but they must be done after the above quantities.
+             * 
+             * 
+             * \param &density: The value of the density \f$ \rho \f$
+             * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &material_response_begin: The starting iterator of the material response
+             * \param &material_response_end: The stopping iterator of the material response
+             * \param &test_function: The value of the test function \f$ \psi \f$
+             * \param &result: The net mass change per unit volume \f$ c \f$
+             */
+
+            // Compute the non-mass change parts of the balance of mass
+            computeBalanceOfMass<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_gradient_begin, velocity_gradient_end,
+                psi,
+                result
+            );
+
+            // Add in the contributions from the change in mass
+            result -= psi * ( *( material_response_begin + dim * dim + 1 ) );
+
+        }
+
     }
 
 }

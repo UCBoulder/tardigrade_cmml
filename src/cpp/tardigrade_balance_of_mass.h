@@ -68,6 +68,22 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim, typename density_type, typename densityDot_type, typename result_type,
+            typename testFunction_type,
+            class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
+            class material_response_iter
+        >
+        void computeBalanceOfMass(
+            const density_type &density,  const densityDot_type &density_dot,
+            const densityGradient_iter &density_gradient_begin, const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin,      const material_response_iter &material_response_end,
+            const testFunction_type &psi,
+            result_type &result
+        );
+
+        template<
+            int dim, typename density_type, typename densityDot_type, typename result_type,
             typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter,
             class dCdGradRho_iter_out, class dCdV_iter_out, class dCdGradV_iter_out
