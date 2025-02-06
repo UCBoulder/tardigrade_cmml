@@ -75,16 +75,16 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
     BOOST_TEST( answer == result );
 
-    floatType dCdRho, dCdRhoDot;
+    floatType dRdRho, dRdRhoDot;
 
-    floatVector dCdGradRho, dCdV;
+    floatVector dRdGradRho, dRdV;
 
-    secondOrderTensor dCdGradV;
+    secondOrderTensor dRdGradV;
 
     result = 0.;
 
     tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, velocity_gradient, result,
-                                                                     dCdRho,  dCdRhoDot,   dCdGradRho      , dCdV,     dCdGradV );
+                                                                     dRdRho,  dRdRhoDot,   dRdGradRho      , dRdV,     dRdGradV );
 
     BOOST_TEST( answer == result );
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
         tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( xm, density_dot, density_gradient, velocity, velocity_gradient, vm );
 
-        BOOST_TEST( dCdRho == ( vp - vm ) / ( 2 * delta ) );
+        BOOST_TEST( dRdRho == ( vp - vm ) / ( 2 * delta ) );
 
     }
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
         tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, xm, density_gradient, velocity, velocity_gradient, vm );
 
-        BOOST_TEST( dCdRhoDot == ( vp - vm ) / ( 2 * delta ) );
+        BOOST_TEST( dRdRhoDot == ( vp - vm ) / ( 2 * delta ) );
 
     }
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
         tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, xm, velocity, velocity_gradient, vm );
 
-        BOOST_TEST( dCdGradRho[ i ] == ( vp - vm ) / ( 2 * delta ) );
+        BOOST_TEST( dRdGradRho[ i ] == ( vp - vm ) / ( 2 * delta ) );
 
     }
 
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
         tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, xm, velocity_gradient, vm );
 
-        BOOST_TEST( dCdV[ i ] == ( vp - vm ) / ( 2 * delta ) );
+        BOOST_TEST( dRdV[ i ] == ( vp - vm ) / ( 2 * delta ) );
 
     }
 
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass, * boost::unit_test::tolerance( 
 
         tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass( density, density_dot, density_gradient, velocity, xm, vm );
 
-        BOOST_TEST( dCdGradV[ i ] == ( vp - vm ) / ( 2 * delta ) );
+        BOOST_TEST( dRdGradV[ i ] == ( vp - vm ) / ( 2 * delta ) );
 
     }
 
@@ -399,7 +399,7 @@ template<
     class u_t_in, class u_tp1_in, class umesh_t_in, class umesh_tp1_in,
     class density_dot_t_in, class v_t_in,
     class X_in, typename alpha_type, class value_out,
-    class dCdRho_iter_out, class dCdU_iter_out, class dCdUMesh_iter_out
+    class dRdRho_iter_out, class dRdU_iter_out, class dRdUMesh_iter_out
 >
 void evaluate_at_nodes(
     const xi_in &xi_begin, const xi_in &xi_end, dt_type dt, const density_t_in &density_t_begin,
@@ -412,9 +412,9 @@ void evaluate_at_nodes(
     const density_dot_t_in &density_dot_t_begin, const density_dot_t_in &density_dot_t_end,
     const v_t_in &v_t_begin, const v_t_in &v_t_end, const X_in &X_begin, const X_in &X_end,
     const alpha_type &alpha, value_out value_begin, value_out value_end,
-    dCdRho_iter_out dCdRho_begin,     dCdRho_iter_out dCdRho_end,
-    dCdU_iter_out dCdU_begin,         dCdU_iter_out dCdU_end,
-    dCdUMesh_iter_out dCdUMesh_begin, dCdUMesh_iter_out dCdUMesh_end
+    dRdRho_iter_out dRdRho_begin,     dRdRho_iter_out dRdRho_end,
+    dRdU_iter_out dRdU_begin,         dRdU_iter_out dRdU_end,
+    dRdUMesh_iter_out dRdUMesh_begin, dRdUMesh_iter_out dRdUMesh_end
 ){
 
     // Update the mesh nodes
@@ -521,17 +521,17 @@ void evaluate_at_nodes(
     std::array< floatType, dim * node_count> dNdxs;
     e.GetGlobalShapeFunctionGradients( xi_begin, xi_end, std::begin( x_tp1 ), std::end( x_tp1 ), std::begin( dNdxs ), std::end( dNdxs ) );
 
-    std::fill( dCdRho_begin,   dCdRho_end,   0 );
-    std::fill( dCdU_begin,     dCdU_end,     0 );
-    std::fill( dCdUMesh_begin, dCdUMesh_end, 0 );
+    std::fill( dRdRho_begin,   dRdRho_end,   0 );
+    std::fill( dRdU_begin,     dRdU_end,     0 );
+    std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
 
     if ( nphases == 1 ){
 
         typename std::iterator_traits<value_out>::value_type balance_of_mass;
 
-        typename std::iterator_traits<dCdRho_iter_out>::value_type dCdRho_p;
-        std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim > dCdU_p;
-        std::array< typename std::iterator_traits<dCdUMesh_iter_out>::value_type, dim > dCdUMesh_p;
+        typename std::iterator_traits<dRdRho_iter_out>::value_type dRdRho_p;
+        std::array< typename std::iterator_traits<dRdU_iter_out>::value_type, dim > dRdU_p;
+        std::array< typename std::iterator_traits<dRdUMesh_iter_out>::value_type, dim > dRdUMesh_p;
     
         for ( unsigned int i = 0; i < node_count; ++i ){
     
@@ -560,27 +560,27 @@ void evaluate_at_nodes(
                     std::cbegin( dNdxs ) + dim * j, std::cbegin( dNdxs ) + dim * ( j + 1 ),
                     dDensityDotdDensity, dUDotdU,
                     balance_of_mass,
-                    dCdRho_p,
-                    std::begin( dCdU_p ), std::end( dCdU_p ),
-                    std::begin( dCdUMesh_p ), std::end( dCdUMesh_p )
+                    dRdRho_p,
+                    std::begin( dRdU_p ), std::end( dRdU_p ),
+                    std::begin( dRdUMesh_p ), std::end( dRdUMesh_p )
                 );
     
                 BOOST_TEST( balance_of_mass * J == ( *( value_begin + i ) ) );
     
-                *( dCdRho_begin + node_count * i + j ) = dCdRho_p * J;
+                *( dRdRho_begin + node_count * i + j ) = dRdRho_p * J;
     
                 std::transform(
-                    std::begin( dCdU_p ), std::end( dCdU_p ), dCdU_begin + node_count * dim * i + dim * j,
+                    std::begin( dRdU_p ), std::end( dRdU_p ), dRdU_begin + node_count * dim * i + dim * j,
                     std::bind(
-                        std::multiplies< typename std::iterator_traits< dCdU_iter_out >::value_type >( ),
+                        std::multiplies< typename std::iterator_traits< dRdU_iter_out >::value_type >( ),
                         std::placeholders::_1, J
                     )
                 );
     
                 std::transform(
-                    std::begin( dCdUMesh_p ), std::end( dCdUMesh_p ), dCdUMesh_begin + node_count * dim * i + dim * j,
+                    std::begin( dRdUMesh_p ), std::end( dRdUMesh_p ), dRdUMesh_begin + node_count * dim * i + dim * j,
                     std::bind(
-                        std::multiplies< typename std::iterator_traits< dCdUMesh_iter_out >::value_type >( ),
+                        std::multiplies< typename std::iterator_traits< dRdUMesh_iter_out >::value_type >( ),
                         std::placeholders::_1, J
                     )
                 );
@@ -594,9 +594,9 @@ void evaluate_at_nodes(
 
         std::array< typename std::iterator_traits<value_out>::value_type, nphases > balance_of_mass;
 
-        std::array< typename std::iterator_traits<dCdRho_iter_out>::value_type, nphases > dCdRho_p;
-        std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim * nphases > dCdU_p;
-        std::array< typename std::iterator_traits<dCdUMesh_iter_out>::value_type, dim * nphases > dCdUMesh_p;
+        std::array< typename std::iterator_traits<dRdRho_iter_out>::value_type, nphases > dRdRho_p;
+        std::array< typename std::iterator_traits<dRdU_iter_out>::value_type, dim * nphases > dRdU_p;
+        std::array< typename std::iterator_traits<dRdUMesh_iter_out>::value_type, dim * nphases > dRdUMesh_p;
 
         std::array< dt_type, nphases > dDensityDotdDensity_array;
         std::array< dt_type, nphases > dUDotdU_array;
@@ -648,25 +648,25 @@ void evaluate_at_nodes(
                     std::cbegin( dDensityDotdDensity_array ), std::cend( dDensityDotdDensity_array ),
                     std::cbegin( dUDotdU_array ),             std::cend( dUDotdU_array ),
                     std::begin( balance_of_mass ),            std::end( balance_of_mass ),
-                    std::begin( dCdRho_p ),                   std::end( dCdRho_p ),
-                    std::begin( dCdU_p ),                     std::end( dCdU_p ),
-                    std::begin( dCdUMesh_p ),                 std::end( dCdUMesh_p )
+                    std::begin( dRdRho_p ),                   std::end( dRdRho_p ),
+                    std::begin( dRdU_p ),                     std::end( dRdU_p ),
+                    std::begin( dRdUMesh_p ),                 std::end( dRdUMesh_p )
                 );
 
                 for ( unsigned int k = 0; k < nphases; ++k ){
     
                     BOOST_TEST( balance_of_mass[ k ] * J == ( *( value_begin + nphases * i + k ) ) );
 
-                    *( dCdRho_begin + nphases * node_count * nphases * i + node_count * nphases * k + nphases * j + k )
-                        = dCdRho_p[ k ] * J;
+                    *( dRdRho_begin + nphases * node_count * nphases * i + node_count * nphases * k + nphases * j + k )
+                        = dRdRho_p[ k ] * J;
 
                     for ( unsigned int l = 0; l < dim; ++l ){
 
-                        *( dCdU_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * k + nphases * dim * j + dim * k + l )
-                            = dCdU_p[ dim * k + l ] * J;
+                        *( dRdU_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * k + nphases * dim * j + dim * k + l )
+                            = dRdU_p[ dim * k + l ] * J;
 
-                        *( dCdUMesh_begin + nphases * node_count * dim * i + node_count * dim * k + dim * j + l )
-                            = dCdUMesh_p[ dim * k + l ] * J;
+                        *( dRdUMesh_begin + nphases * node_count * dim * i + node_count * dim * k + dim * j + l )
+                            = dRdUMesh_p[ dim * k + l ] * J;
 
                     }
 
@@ -779,9 +779,9 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
 
     std::fill( std::begin( result ), std::end( result ), 0 );
 
-    std::array< floatType, 8 * 1 * 8 > dCdRho;
+    std::array< floatType, 8 * 1 * 8 > dRdRho;
 
-    std::array< floatType, 8 * 3 * 8 > dCdU, dCdUMesh;
+    std::array< floatType, 8 * 3 * 8 > dRdU, dRdUMesh;
 
     evaluate_at_nodes<3, 8, 1>(
         std::cbegin( local_point ), std::cend( local_point ), dt,
@@ -796,9 +796,9 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
         std::cbegin( X ), std::cend( X ),
         alpha,
         std::begin( result ), std::end( result ),
-        std::begin( dCdRho ), std::end( dCdRho ),
-        std::begin( dCdU ), std::end( dCdU ),
-        std::begin( dCdUMesh ), std::end( dCdUMesh )
+        std::begin( dRdRho ), std::end( dRdRho ),
+        std::begin( dRdU ), std::end( dRdU ),
+        std::begin( dRdUMesh ), std::end( dRdUMesh )
     );
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
@@ -855,7 +855,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdRho[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdRho[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -913,7 +913,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -971,7 +971,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_fea, * boost::unit_test::toleran
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -1147,11 +1147,11 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
 
     std::fill( std::begin( result ), std::end( result ), 0 );
 
-    std::array< floatType, 8 * 1 * nphases * 8 * 1 * nphases > dCdRho;
+    std::array< floatType, 8 * 1 * nphases * 8 * 1 * nphases > dRdRho;
 
-    std::array< floatType, 8 * 1 * nphases * 8 * 3 * nphases > dCdU;
+    std::array< floatType, 8 * 1 * nphases * 8 * 3 * nphases > dRdU;
 
-    std::array< floatType, 8 * 1 * nphases * 8 * 3 > dCdUMesh;
+    std::array< floatType, 8 * 1 * nphases * 8 * 3 > dRdUMesh;
 
     evaluate_at_nodes<3, 8, nphases>(
         std::cbegin( local_point ), std::cend( local_point ), dt,
@@ -1166,9 +1166,9 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
         std::cbegin( X ), std::cend( X ),
         alpha,
         std::begin( result ), std::end( result ),
-        std::begin( dCdRho ), std::end( dCdRho ),
-        std::begin( dCdU ), std::end( dCdU ),
-        std::begin( dCdUMesh ), std::end( dCdUMesh )
+        std::begin( dRdRho ), std::end( dRdRho ),
+        std::begin( dRdU ), std::end( dRdU ),
+        std::begin( dRdUMesh ), std::end( dRdUMesh )
     );
 
     BOOST_TEST( result == answer, CHECK_PER_ELEMENT );
@@ -1225,7 +1225,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdRho[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdRho[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -1283,7 +1283,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdU[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -1341,7 +1341,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_multiphase_fea, * boost::unit_te
 
             for ( unsigned int j = 0; j < outdim; ++j ){
 
-                BOOST_TEST( dCdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+                BOOST_TEST( dRdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
             }
 
@@ -1392,20 +1392,20 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
-    std::array<floatType,nphases> dCdRho, dCdRhoDot;
+    std::array<floatType,nphases> dRdRho, dRdRhoDot;
 
-    std::array<floatType,nphases*dim> dCdGradRho, dCdV;
+    std::array<floatType,nphases*dim> dRdGradRho, dRdV;
 
-    std::array<floatType,nphases*dim*dim> dCdGradV;
+    std::array<floatType,nphases*dim*dim> dRdGradV;
 
     tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim>( std::begin( density ), std::end( density ), std::begin( density_dot ), std::end( density_dot ),
                                                                           std::begin( density_gradient ), std::end( density_gradient ), std::begin( velocity ), std::end( velocity ),
                                                                           std::begin( velocity_gradient ), std::end( velocity_gradient ), std::begin( result ), std::end( result ),
-                                                                          std::begin( dCdRho ),     std::end( dCdRho ),
-                                                                          std::begin( dCdRhoDot ),  std::end( dCdRhoDot ),
-                                                                          std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                                                                          std::begin( dCdV ),       std::end( dCdV ),
-                                                                          std::begin( dCdGradV ),   std::end( dCdGradV ) );
+                                                                          std::begin( dRdRho ),     std::end( dRdRho ),
+                                                                          std::begin( dRdRhoDot ),  std::end( dRdRhoDot ),
+                                                                          std::begin( dRdGradRho ), std::end( dRdGradRho ),
+                                                                          std::begin( dRdV ),       std::end( dRdV ),
+                                                                          std::begin( dRdGradV ),   std::end( dRdGradV ) );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
@@ -1438,7 +1438,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
             floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
 
             if ( j == i ){
-                BOOST_TEST( dCdRho[ i ] == grad );
+                BOOST_TEST( dRdRho[ i ] == grad );
             }
             else{
                 BOOST_TEST( grad == 0 );
@@ -1475,7 +1475,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
             floatType grad = ( vp[ j ] - vm[ j ] ) / ( 2 * delta );
 
             if ( j == i ){
-                BOOST_TEST( dCdRhoDot[ i ] == grad );
+                BOOST_TEST( dRdRhoDot[ i ] == grad );
             }
             else{
                 BOOST_TEST( grad == 0 );
@@ -1513,7 +1513,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
             if ( ( unsigned int )( i / dim ) == j ){
 
-                BOOST_TEST( dCdGradRho[ i ] == grad );
+                BOOST_TEST( dRdGradRho[ i ] == grad );
 
             }
             else{
@@ -1554,7 +1554,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
             if ( ( unsigned int )( i / dim ) == j ){
 
-                BOOST_TEST( dCdV[ i ] == grad );
+                BOOST_TEST( dRdV[ i ] == grad );
 
             }
             else{
@@ -1595,7 +1595,7 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
             if ( ( unsigned int )( i / ( dim * dim ) ) == j ){
 
-                BOOST_TEST( dCdGradV[ i ] == grad );
+                BOOST_TEST( dRdGradV[ i ] == grad );
 
             }
             else{

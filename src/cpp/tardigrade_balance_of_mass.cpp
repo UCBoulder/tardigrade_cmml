@@ -45,8 +45,8 @@ namespace tardigradeBalanceEquations{
         void computeBalanceOfMass(
             const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
             const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &result, 
-            floatType   &dCdRho, floatType         &dCdRhoDot, floatVector &dCdGradRho,
-            floatVector &dCdV,   secondOrderTensor &dCdGradV
+            floatType   &dRdRho, floatType         &dRdRhoDot, floatVector &dRdGradRho,
+            floatVector &dRdV,   secondOrderTensor &dRdGradV
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate including the Jacobians
@@ -59,11 +59,11 @@ namespace tardigradeBalanceEquations{
              * \param &velocity: The value of the velocity \f$ v_i \f$
              * \param &velocity_gradient: The value of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &result: The net mass change per unit volume \f$ c \f$
-             * \param &dCdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho: The derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV: The derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV: The derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dRdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dRdGradRho: The derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dRdV: The derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dRdGradV: The derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
             computeBalanceOfMass<global_dim>(
@@ -71,10 +71,10 @@ namespace tardigradeBalanceEquations{
                 std::begin( density_gradient ),  std::end( density_gradient ),
                 std::begin( velocity ),          std::end( velocity ),
                 std::begin( velocity_gradient ), std::end( velocity_gradient ),
-                result, dCdRho, dCdRhoDot,
-                std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                std::begin( dCdV ),       std::end( dCdV ),
-                std::begin( dCdGradV ),   std::end( dCdGradV )
+                result, dRdRho, dRdRhoDot,
+                std::begin( dRdGradRho ), std::end( dRdGradRho ),
+                std::begin( dRdV ),       std::end( dRdV ),
+                std::begin( dRdGradV ),   std::end( dRdGradV )
             );
         }
 
@@ -162,9 +162,9 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim, typename density_type, typename densityDot_type, typename result_type,
-            typename dCdRho_type, typename dCdRhoDot_type, class densityGradient_iter,
-            class velocity_iter, class velocityGradient_iter, class dCdGradRho_iter_out,
-            class dCdV_iter_out, class dCdGradV_iter_out
+            typename dRdRho_type, typename dRdRhoDot_type, class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter, class dRdGradRho_iter_out,
+            class dRdV_iter_out, class dRdGradV_iter_out
         >
         void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
@@ -172,10 +172,10 @@ namespace tardigradeBalanceEquations{
             const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
             result_type &result,
-            dCdRho_type &dCdRho,                  dCdRhoDot_type &dCdRhoDot,
-            dCdGradRho_iter_out dCdGradRho_begin, dCdGradRho_iter_out dCdGradRho_end,
-            dCdV_iter_out dCdV_begin,             dCdV_iter_out dCdV_end,
-            dCdGradV_iter_out dCdGradV_begin,     dCdGradV_iter_out dCdGradV_end
+            dRdRho_type &dRdRho,                  dRdRhoDot_type &dRdRhoDot,
+            dRdGradRho_iter_out dRdGradRho_begin, dRdGradRho_iter_out dRdGradRho_end,
+            dRdV_iter_out dRdV_begin,             dRdV_iter_out dRdV_end,
+            dRdGradV_iter_out dRdGradV_begin,     dRdGradV_iter_out dRdGradV_end
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
@@ -191,14 +191,14 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &result: The net mass change per unit volume \f$ c \f$
-             * \param &dCdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dRdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRhoDot: The derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dRdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dRdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dRdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dRdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dRdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dRdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
             computeBalanceOfMass<dim>(
@@ -208,21 +208,21 @@ namespace tardigradeBalanceEquations{
                 velocity_gradient_begin, velocity_gradient_end, result
             );
 
-            dCdRho = 0;
+            dRdRho = 0;
 
-            dCdRhoDot = 1;
+            dRdRhoDot = 1;
 
-            std::copy( velocity_begin, velocity_end, dCdGradRho_begin );
+            std::copy( velocity_begin, velocity_end, dRdGradRho_begin );
 
-            std::copy( density_gradient_begin, density_gradient_end, dCdV_begin );
+            std::copy( density_gradient_begin, density_gradient_end, dRdV_begin );
 
-            std::fill( dCdGradV_begin, dCdGradV_end, 0 );
+            std::fill( dRdGradV_begin, dRdGradV_end, 0 );
 
             for ( unsigned int i = 0; i < dim; ++i ){
 
-                dCdRho += ( *( velocity_gradient_begin + dim * i + i ) );
+                dRdRho += ( *( velocity_gradient_begin + dim * i + i ) );
 
-                ( *( dCdGradV_begin + dim * i + i ) ) = density;
+                ( *( dRdGradV_begin + dim * i + i ) ) = density;
 
             }
 
@@ -231,9 +231,9 @@ namespace tardigradeBalanceEquations{
         template<
             int dim, typename density_type, typename densityDot_type, typename result_type,
             typename testFunction_type, typename interpolationFunction_type,
-            typename dCdRho_type, class densityGradient_iter,
+            typename dRdRho_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
-            class dCdU_iter_out, class dCdUMesh_iter_out,
+            class dRdU_iter_out, class dRdUMesh_iter_out,
             typename dDensityDotdDensity_type, typename dUDotdU_type
         >
         void computeBalanceOfMass(
@@ -246,9 +246,9 @@ namespace tardigradeBalanceEquations{
             const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
             const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
             result_type &result,
-            dCdRho_type &dCdRho,
-            dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end,
-            dCdUMesh_iter_out dCdUMesh_begin,     dCdUMesh_iter_out dCdUMesh_end
+            dRdRho_type &dRdRho,
+            dRdU_iter_out dRdU_begin,             dRdU_iter_out dRdU_end,
+            dRdUMesh_iter_out dRdUMesh_begin,     dRdUMesh_iter_out dRdUMesh_end
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
@@ -258,7 +258,7 @@ namespace tardigradeBalanceEquations{
              * 
              * \f$ \frac{\partial \rho}{\partial t} + \left( \rho v_i \right)_{,i} = c \f$
              * 
-             * We note that dCdUMesh also includes the term associated with the volumetric change ( \f$ c \phi_{,i} \f$ )
+             * We note that dRdUMesh also includes the term associated with the volumetric change ( \f$ c \phi_{,i} \f$ )
              * where \f$ \phi_{,i} \f$ is the interpolation function
              *
              * \param &density: The value of the density \f$ \rho \f$
@@ -276,18 +276,18 @@ namespace tardigradeBalanceEquations{
              * \param &dDensityDotdDensity: The derivative of the time-derivative of the density w.r.t. the density (based on timestep and integration scheme)
              * \param &dUDotdU: The derivative of the time-derivative of the displacement w.r.t. the displacement (may not be mesh displacement)
              * \param &result: The net mass change per unit volume \f$ c \f$
-             * \param &dCdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
-             * \param &dCdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
-             * \param &dCdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement
-             * \param &dCdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement
+             * \param &dRdRho: The derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dRdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement
              */
 
-            density_type dCdRhoDot;
+            density_type dRdRhoDot;
 
-            std::array< density_type, dim > dCdGradRho;
-            std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim > dCdV;
-            std::array< typename std::iterator_traits<dCdU_iter_out>::value_type, dim * dim > dCdGradV;
+            std::array< density_type, dim > dRdGradRho;
+            std::array< typename std::iterator_traits<dRdU_iter_out>::value_type, dim > dRdV;
+            std::array< typename std::iterator_traits<dRdU_iter_out>::value_type, dim * dim > dRdGradV;
 
             computeBalanceOfMass<dim>(
                 density, density_dot,
@@ -295,40 +295,40 @@ namespace tardigradeBalanceEquations{
                 velocity_begin,           velocity_end,
                 velocity_gradient_begin,  velocity_gradient_end,
                 result,
-                dCdRho,                   dCdRhoDot,
-                std::begin( dCdGradRho ), std::end( dCdGradRho ),
-                std::begin( dCdV ),       std::end( dCdV ),
-                std::begin( dCdGradV ),   std::end( dCdGradV )
+                dRdRho,                   dRdRhoDot,
+                std::begin( dRdGradRho ), std::end( dRdGradRho ),
+                std::begin( dRdV ),       std::end( dRdV ),
+                std::begin( dRdGradV ),   std::end( dRdGradV )
             );
 
             // Set the mass change rate
             result *= test_function;
 
             // Assemble the derivatives w.r.t. the density
-            dCdRho += dCdRhoDot * dDensityDotdDensity;
-            dCdRho *= test_function * interpolation_function;
+            dRdRho += dRdRhoDot * dDensityDotdDensity;
+            dRdRho *= test_function * interpolation_function;
 
-            dCdRho += test_function * std::inner_product( std::begin( dCdGradRho ), std::end( dCdGradRho ), interpolation_function_gradient_begin, dCdRho_type( ) );
+            dRdRho += test_function * std::inner_product( std::begin( dRdGradRho ), std::end( dRdGradRho ), interpolation_function_gradient_begin, dRdRho_type( ) );
 
             // Assemble the derivatives w.r.t. the mesh displacement
-            std::fill( dCdU_begin, dCdU_end, 0 );
-            std::fill( dCdUMesh_begin, dCdUMesh_end, 0 );
+            std::fill( dRdU_begin, dRdU_end, 0 );
+            std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
 
             for ( unsigned int a = 0; a < dim; ++a ){
 
-                *( dCdU_begin + a ) += test_function * dCdV[ a ] * dUDotdU * interpolation_function;
+                *( dRdU_begin + a ) += test_function * dRdV[ a ] * dUDotdU * interpolation_function;
 
-                *( dCdUMesh_begin + a ) += result * ( *( interpolation_function_gradient_begin + a ) );
+                *( dRdUMesh_begin + a ) += result * ( *( interpolation_function_gradient_begin + a ) );
 
                 for ( unsigned int i = 0; i < dim; ++i ){
 
-                    *( dCdU_begin + a ) += test_function * dCdGradV[ dim * a + i ] * ( *( interpolation_function_gradient_begin + i ) ) * dUDotdU;
+                    *( dRdU_begin + a ) += test_function * dRdGradV[ dim * a + i ] * ( *( interpolation_function_gradient_begin + i ) ) * dUDotdU;
 
-                    *( dCdUMesh_begin + a ) -= test_function * dCdGradRho[ i ] * ( *( density_gradient_begin + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
+                    *( dRdUMesh_begin + a ) -= test_function * dRdGradRho[ i ] * ( *( density_gradient_begin + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
 
                     for ( unsigned int j = 0; j < dim; ++j ){
 
-                        *( dCdUMesh_begin + a ) -= test_function * dCdGradV[ dim * j + i ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
+                        *( dRdUMesh_begin + a ) -= test_function * dRdGradV[ dim * j + i ] * ( *( velocity_gradient_begin + dim * j + a ) ) * ( *( interpolation_function_gradient_begin + i ) );
 
                     }
 
@@ -453,8 +453,8 @@ namespace tardigradeBalanceEquations{
         template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class result_iter_out,
-            class dCdRho_iter_out, class dCdRhoDot_iter_out, class dCdGradRho_iter_out,
-            class dCdV_iter_out, class dCdGradV_iter_out
+            class dRdRho_iter_out, class dRdRhoDot_iter_out, class dRdGradRho_iter_out,
+            class dRdV_iter_out, class dRdGradV_iter_out
         >
         void computeBalanceOfMass(
             const density_iter &density_begin,                    const density_iter &density_end,
@@ -463,11 +463,11 @@ namespace tardigradeBalanceEquations{
             const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
             result_iter_out result_begin,                         result_iter_out result_end,
-            dCdRho_iter_out dCdRho_begin,                         dCdRho_iter_out dCdRho_end,
-            dCdRhoDot_iter_out dCdRhoDot_begin,                   dCdRhoDot_iter_out dCdRhoDot_end,
-            dCdGradRho_iter_out dCdGradRho_begin,                 dCdGradRho_iter_out dCdGradRho_end,
-            dCdV_iter_out dCdV_begin,                             dCdV_iter_out dCdV_end,
-            dCdGradV_iter_out dCdGradV_begin,                     dCdGradV_iter_out dCdGradV_end
+            dRdRho_iter_out dRdRho_begin,                         dRdRho_iter_out dRdRho_end,
+            dRdRhoDot_iter_out dRdRhoDot_begin,                   dRdRhoDot_iter_out dRdRhoDot_end,
+            dRdGradRho_iter_out dRdGradRho_begin,                 dRdGradRho_iter_out dRdGradRho_end,
+            dRdV_iter_out dRdV_begin,                             dRdV_iter_out dRdV_end,
+            dRdGradV_iter_out dRdGradV_begin,                     dRdGradV_iter_out dRdGradV_end
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
@@ -486,16 +486,16 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &result_begin: The starting iterator of the net mass change per unit volume \f$ c \f$
              * \param &result_end: The stopping iterator of the net mass change per unit volume \f$ c \f$
-             * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
-             * \param &dCdRhoDot_begin: The starting iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdRhoDot_end: The stopping iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
-             * \param &dCdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
-             * \param &dCdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
-             * \param &dCdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &dCdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dRdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRhoDot_begin: The starting iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dRdRhoDot_end: The stopping iterator of the derivative of the mass change rate w.r.t. partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &dRdGradRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dRdGradRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &dRdV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dRdV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the velocity \f$ v_{i} \f$
+             * \param &dRdGradV_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &dRdGradV_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial gradient of the velocity \f$ v_{i,j} \f$
              */
 
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must be the same length" );
@@ -508,15 +508,15 @@ namespace tardigradeBalanceEquations{
 
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( result_end - result_begin ), "The density and result arrays must be the same length" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRho_end - dCdRho_begin ), "The density and dCdRho arrays must be the same length" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho arrays must be the same length" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRhoDot_end - dCdRhoDot_begin ), "The density and dCdRhoDot arrays must be the same length" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRhoDot_end - dRdRhoDot_begin ), "The density and dRdRhoDot arrays must be the same length" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdGradRho_end - dCdGradRho_begin ), "The density and dCdGradRho arrays must have consistent lengths" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradRho_end - dRdGradRho_begin ), "The density and dRdGradRho arrays must have consistent lengths" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdV_end - dCdV_begin ), "The density and dCdV arrays must have consistent lengths" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdV_end - dRdV_begin ), "The density and dRdV arrays must have consistent lengths" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdGradV_end - dCdGradV_begin ), "The density and dCdGradV arrays must have consistent lengths" );
+            TARDIGRADE_ERROR_TOOLS_CHECK( dim * dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdGradV_end - dRdGradV_begin ), "The density and dRdGradV arrays must have consistent lengths" );
 
             unsigned int phase;
 
@@ -528,10 +528,10 @@ namespace tardigradeBalanceEquations{
                                            density_gradient_begin + dim * phase,      density_gradient_begin + dim * ( phase + 1 ),
                                            velocity_begin + dim * phase,              velocity_begin + dim * ( phase + 1 ),
                                            velocity_gradient_begin + dim * dim * phase, velocity_gradient_begin + dim * dim * ( phase + 1 ),
-                                           *( result_begin + phase ),       *( dCdRho_begin + phase ), *( dCdRhoDot_begin + phase ),
-                                           dCdGradRho_begin + dim * phase,            dCdGradRho_begin + dim * ( phase + 1 ),
-                                           dCdV_begin + dim * phase,                  dCdV_begin + dim * ( phase + 1 ),
-                                           dCdGradV_begin + dim * dim * phase,         dCdGradV_begin + dim * dim * ( phase + 1 ) );
+                                           *( result_begin + phase ),       *( dRdRho_begin + phase ), *( dRdRhoDot_begin + phase ),
+                                           dRdGradRho_begin + dim * phase,            dRdGradRho_begin + dim * ( phase + 1 ),
+                                           dRdV_begin + dim * phase,                  dRdV_begin + dim * ( phase + 1 ),
+                                           dRdGradV_begin + dim * dim * phase,         dRdGradV_begin + dim * dim * ( phase + 1 ) );
 
             }
 
@@ -542,7 +542,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type, typename interpolationFunction_type,
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
             class result_iter_out,
-            class dCdRho_iter_out, class dCdU_iter_out, class dCdUMesh_iter_out,
+            class dRdRho_iter_out, class dRdU_iter_out, class dRdUMesh_iter_out,
             class dDensityDotdDensity_iter, class dUDotdU_iter
         >
         void computeBalanceOfMass(
@@ -557,9 +557,9 @@ namespace tardigradeBalanceEquations{
             const dDensityDotdDensity_iter &dDensityDotdDensity_begin,    const dDensityDotdDensity_iter &dDensityDotdDensity_end,      
             const dUDotdU_iter &dUDotdU_begin,                            const dUDotdU_iter &dUDotdU_end,
             result_iter_out result_begin,                                 result_iter_out result_end,
-            dCdRho_iter_out dCdRho_begin,         dCdRho_iter_out dCdRho_end,
-            dCdU_iter_out dCdU_begin,             dCdU_iter_out dCdU_end,
-            dCdUMesh_iter_out dCdUMesh_begin,     dCdUMesh_iter_out dCdUMesh_end
+            dRdRho_iter_out dRdRho_begin,         dRdRho_iter_out dRdRho_end,
+            dRdU_iter_out dRdU_begin,             dRdU_iter_out dRdU_end,
+            dRdUMesh_iter_out dRdUMesh_begin,     dRdUMesh_iter_out dRdUMesh_end
         ){
             /*!
              * Compute the value of the balance of mass returning the value of the mass change rate
@@ -586,17 +586,17 @@ namespace tardigradeBalanceEquations{
              * \param &dUDotdU_end: The stopping iterator of the derivative of the time rate of change of the phase DOF w.r.t. the phase DOF
              * \param &result_begin: The starting iterator of the net mass change per unit volume \f$ c \f$
              * \param &result_end: The stopping iterator of the net mass change per unit volume \f$ c \f$
-             * \param &dCdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$.
+             * \param &dRdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$.
              *     The derivatives are stored as the derivative of each phase w.r.t. the phase's density in that order.
-             * \param &dCdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
              *     The derivatives are stored as the derivative of each phase w.r.t. the phase's density in that order.
-             * \param &dCdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
+             * \param &dRdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
              *     The derivatives are stored as the derivative of each phase w.r.t. the phase's displacement in that order
-             * \param &dCdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
+             * \param &dRdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the phase displacement \f$ u_{i} \f$
              *     The derivatives are stored as the derivative of each phase w.r.t. the phase's displacement in that order
-             * \param &dCdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
              *     The derivatives are stored as the derivative of each phase w.r.t. the mesh displacement in that order
-             * \param &dCdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement \f$ u_{i} \f$
              *     The derivatives are stored as the derivative of each phase w.r.t. the mesh displacement in that order
              */
 
@@ -614,11 +614,11 @@ namespace tardigradeBalanceEquations{
 
             TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dUDotdU_end - dUDotdU_begin ), "The density and the derivative of the dof time derivative w.r.t. the dof must be the same length" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdRho_end - dCdRho_begin ), "The density and dCdRho arrays must be the same length" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(             ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho arrays must be the same length" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdU_end - dCdU_begin ), "The density and dCdU arrays must have consistent lengths" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdU_end - dRdU_begin ), "The density and dRdU arrays must have consistent lengths" );
 
-            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dCdUMesh_end - dCdUMesh_begin ), "The density and dCdUMesh arrays must have consistent lengths" );
+            TARDIGRADE_ERROR_TOOLS_CHECK(       dim * ( unsigned int )( density_end - density_begin ) == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ), "The density and dRdUMesh arrays must have consistent lengths" );
 
             unsigned int phase;
 
@@ -635,9 +635,9 @@ namespace tardigradeBalanceEquations{
                     interpolation_function_gradient_begin,       interpolation_function_gradient_end,
                     *( dDensityDotdDensity_begin + phase ),      *( dUDotdU_begin + phase ),
                     *( result_begin + phase ),
-                    *( dCdRho_begin + phase ),
-                    dCdU_begin + dim * phase,                    dCdU_begin + dim * ( phase + 1 ),
-                    dCdUMesh_begin + dim * phase,                dCdUMesh_begin + dim * ( phase + 1 )
+                    *( dRdRho_begin + phase ),
+                    dRdU_begin + dim * phase,                    dRdU_begin + dim * ( phase + 1 ),
+                    dRdUMesh_begin + dim * phase,                dRdUMesh_begin + dim * ( phase + 1 )
                 );
 
             }
