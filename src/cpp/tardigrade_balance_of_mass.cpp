@@ -645,7 +645,7 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
-            int dim, typename density_type, typename densityDot_type, typename result_type,
+            int dim, int matresponse_dim, typename density_type, typename densityDot_type, typename result_type,
             typename testFunction_type,
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
             class material_response_iter
@@ -656,7 +656,7 @@ namespace tardigradeBalanceEquations{
             const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,  const velocityGradient_iter &velocity_gradient_end,
             const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
-            const testFunction_type &psi,
+            const testFunction_type &test_function,
             result_type &result
         ){
 
@@ -696,12 +696,108 @@ namespace tardigradeBalanceEquations{
             computeBalanceOfMass<dim>(
                 density, density_dot, density_gradient_begin, density_gradient_end,
                 velocity_begin, velocity_end, velocity_gradient_begin, velocity_gradient_end,
-                psi,
+                test_function,
                 result
             );
 
             // Add in the contributions from the change in mass
-            result -= psi * ( *( material_response_begin + dim * dim + 1 ) );
+            result -= test_function * ( *( material_response_begin + matresponse_dim * matresponse_dim + 1 ) );
+
+        }
+
+        template<
+            int dim, int matresponse_dim, int matresponse_values, class density_iter, class densityDot_iter, class result_iter,
+            typename testFunction_type,
+            class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
+            class material_response_iter
+        >
+        void computeBalanceOfMass(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const densityDot_iter &density_dot_begin,              const densityDot_iter &density_dot_end,
+            const densityGradient_iter &density_gradient_begin,    const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,  const velocityGradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const testFunction_type &test_function,
+            result_iter result_begin, result_iter result_end
+        ){
+
+            /*!
+             * A balance of mass function for a general material response problem where the change in mass may be
+             * a function of many different variables. Evaluates for all phases.
+             * 
+             * The mass rate of change value \f$ c \f$ is assumed to be located after the stress measure
+             * which has dimensions of dim * dim and the model-calculated internal energy which has a dimension of 1
+             * 
+             * The material response vector is assumed to be organized as
+             * 
+             * \f$ \sigma, e, c, b, \pi, q, r, \Pi \f$
+             *
+             * where \f$ \sigma \f$ is the Cauchy stress, \f$ e \f$ is the predicted internal energy per unit mass,
+             * \f$ c \f$ is the mass change rate per unit volume, \f$ b \f$ is the body force vector, \f$ \pi \f$ is
+             * the net inter-phase force, \f$ q \f$ is the heat flux vector, \f$ r \f$ is the volumetric heat generation
+             * per unit mass, and \f$ \Pi \f$ is the net interphase heat transfer. We note that additional outputs can be
+             * added to the material response vector, but they must be done after the above quantities.
+             * 
+             * 
+             * \param &density_begin: The starting iterator of the value of the density \f$ \rho \f$
+             * \param &density_end: The stopping iterator of the value of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting iterator of the value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping iterator of the value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &material_response_begin: The starting iterator of the material response the spatial dimension is matresponse_dim
+             *     and the number of values defined for each phase is matresponse_values
+             * \param &material_response_end: The stopping iterator of the material response the spatial dimension is matresponse_dim
+             *     and the number of values defined for each phase is matresponse_values
+             * \param &test_function: The value of the test function \f$ \psi \f$
+             * \param &result_begin: The starting iterator of the net mass change per unit volume \f$ c \f$
+             * \param &result_end: The stopping iterator of the net mass change per unit volume \f$ c \f$
+             */
+
+            TARDIGRADE_ERROR_TOOLS_EVAL(
+                const unsigned int num_phases = ( unsigned int )( density_end - density_begin );
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                num_phases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must have the same length"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim * num_phases == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient arrays must have consistent lengths"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim * num_phases == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity arrays must have consistent lengths"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim * dim * num_phases == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient arrays must have consistent lengths"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                matresponse_values * num_phases == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response arrays must have consistent lengths"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                num_phases == ( unsigned int )( result_end - result_begin ), "The density and result arrays must have the same length"
+            )
+
+            for ( auto v = std::pair< unsigned int, density_iter >( 0, density_begin ); v.second != density_end; ++v.first, ++v.second ){
+
+                computeBalanceOfMass<dim, matresponse_dim>(
+                    *v.second, *( density_dot_begin + v.first ), density_gradient_begin + dim * v.first, density_gradient_begin + dim * ( v.first + 1 ),
+                    velocity_begin + dim * v.first, velocity_begin + dim * ( v.first + 1 ), velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
+                    material_response_begin + matresponse_values * v.first, material_response_begin + matresponse_values * ( v.first + 1 ),
+                    test_function,
+                    *( result_begin + v.first )
+                );
+
+            }
 
         }
 
