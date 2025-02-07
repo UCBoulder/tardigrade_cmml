@@ -160,6 +160,31 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
         add_subdirectory(${DOXYGEN_SRC_PATH})
         add_subdirectory(${SPHINX_SRC_PATH})
     endif()
+    # Add test-only external projects
+    set(test_upstream_packages "tardigrade_constitutive_tools" "tardigrade_hydra")
+
+    foreach(package ${test_upstream_packages})
+        string(TOUPPER "${package}" package_upper)
+        set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_BALANCE_EQUATIONS_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
+        find_package(${package} ${upstream_required} CONFIG)
+        if(${package}_FOUND)
+            message(STATUS "Found ${package}: ${${package}_DIR}")
+        else()
+            # Find related, but external, projects using FetchContent and building locally
+            message(WARNING "Did not find an installed ${package} package. Attempting local build with FetchContent.")
+            if(NOT DEFINED ${package_upper}_FETCHCONTENT_VERSION)
+                set(${package_upper}_FETCHCONTENT_VERSION "origin/dev")
+            endif()
+            message("${package_upper} is being built with version ${${package_upper}_FETCHCONTENT_VERSION}")
+            FetchContent_Declare(
+                ${package}
+                GIT_REPOSITORY https://github.com/UCBoulder/${package}.git
+                GIT_TAG        ${${package_upper}_FETCHCONTENT_VERSION}
+            )
+            FetchContent_MakeAvailable(${package})
+            set(LOCAL_BUILD_INCLUDE_DIRECTORIES ${LOCAL_BUILD_INCLUDE_DIRECTORIES} ${${package}_SOURCE_DIR}/${CPP_SRC_PATH})
+        endif()
+    endforeach(package)
 endif()
 
 #==================================================================================== SETUP INSTALLATION CMAKE FILES ===
