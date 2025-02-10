@@ -724,7 +724,7 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
              * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
-             * \param &material_response_begin: The starting iterator of the material response the spatial dimension is matertial_response_dim
+             * \param &material_response_begin: The starting iterator of the material response the spatial dimension is material_response_dim
              *     and the number of values defined for each phase is material_response_size
              * \param &material_response_end: The stopping iterator of the material response the spatial dimension is material_response_dim
              *     and the number of values defined for each phase is material_response_size
@@ -734,7 +734,7 @@ namespace tardigradeBalanceEquations{
              */
 
             const unsigned int num_phases = ( unsigned int )( density_end - density_begin );
-            const unsigned int matertial_response_size = ( unsigned int )( material_response_end - material_response_begin ) / num_phases;
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / num_phases;
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
                 num_phases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot arrays must have the same length"
@@ -753,7 +753,7 @@ namespace tardigradeBalanceEquations{
             )
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
-                matertial_response_size * num_phases == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response arrays must have consistent lengths"
+                material_response_size * num_phases == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response arrays must have consistent lengths"
             )
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
@@ -765,7 +765,7 @@ namespace tardigradeBalanceEquations{
                 computeBalanceOfMass<dim, mass_change_index>(
                     *v.second, *( density_dot_begin + v.first ), density_gradient_begin + dim * v.first, density_gradient_begin + dim * ( v.first + 1 ),
                     velocity_begin + dim * v.first, velocity_begin + dim * ( v.first + 1 ), velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
-                    material_response_begin + matertial_response_size * v.first, material_response_begin + matertial_response_size * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first, material_response_begin + material_response_size * ( v.first + 1 ),
                     test_function,
                     *( result_begin + v.first )
                 );
@@ -939,32 +939,32 @@ namespace tardigradeBalanceEquations{
 
             *( dRdRho_begin + phase + density_index ) += phase_dRdRho;
 
-            // Add the material response contributions to the displacement Jacobian
-
-            // Add the material response contributions to the mesh displacement Jacobian
-            for ( unsigned int j = 0; j < material_response_num_dof; ++j ){
-
-                for ( unsigned int a = 0; a < material_response_dim; ++a ){
-
-                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
-
-                        *( dRdUMesh_begin + a ) += 
-                            test_function
-                            * ( *( material_response_jacobian_begin + material_response_num_dof * material_response_dim * mass_change_index + material_response_dim * j + k + material_response_num_dof ) )
-                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * j + a ) )
-                            * ( *( interpolation_function_gradient_begin + k ) );
-
-                    }
-
-                }
-
-            }
-
-            for ( unsigned int a = 0; a < dim; ++a ){
-
-                *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + mass_change_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
-
-            }
+//            // Add the material response contributions to the displacement Jacobian
+//
+//            // Add the material response contributions to the mesh displacement Jacobian
+//            for ( unsigned int j = 0; j < material_response_num_dof; ++j ){
+//
+//                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+//
+//                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+//
+//                        *( dRdUMesh_begin + a ) += 
+//                            test_function
+//                            * ( *( material_response_jacobian_begin + material_response_num_dof * material_response_dim * mass_change_index + material_response_dim * j + k + material_response_num_dof ) )
+//                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * j + a ) )
+//                            * ( *( interpolation_function_gradient_begin + k ) );
+//
+//                    }
+//
+//                }
+//
+//            }
+//
+//            for ( unsigned int a = 0; a < dim; ++a ){
+//
+//                *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + mass_change_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
+//
+//            }
 
         }
 

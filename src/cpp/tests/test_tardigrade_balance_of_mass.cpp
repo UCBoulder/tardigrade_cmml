@@ -1614,17 +1614,17 @@ BOOST_AUTO_TEST_CASE( test_multiphase_computeBalanceOfMass, * boost::unit_test::
 
 std::vector< floatType > linear_test_params =
 {
-    0.51, 0.32, 0.68, 0.03, 0.60, 0.36, 0.48, 0.75, 0.04, 0.22, 0.51, 0.62, 0.19, 0.20, 0.62, 0.72, 0.45, 0.45, 0.40, 0.25, 0.99,
-    0.63, 0.36, 0.26, 0.25, 0.32, 0.55, 0.58, 0.66, 0.02, 0.58, 0.58, 0.92, 0.23, 0.04, 0.95, 0.56, 0.10, 0.33, 0.39, 0.77, 0.26,
-    0.95, 0.57, 0.10, 0.51, 0.58, 0.96, 0.91, 0.94, 0.65, 0.64, 0.68, 0.05, 0.26, 0.25, 0.78, 0.17, 0.74, 0.42, 0.27, 0.90, 0.30,
-    0.77, 0.76, 0.38, 0.33, 0.00, 0.46, 0.18, 0.01, 0.62, 0.13, 0.31, 0.71, 0.75, 0.95, 0.91, 0.52, 0.95, 0.34, 0.55, 0.54, 0.02,
-    0.04, 0.24, 0.93, 0.90, 0.64, 0.07, 0.95, 0.07, 0.51, 0.62, 0.71, 0.93, 0.34, 0.37, 0.54, 0.25, 0.55, 0.35, 0.93, 0.31, 0.63,
-    0.39, 0.99, 0.89, 0.32, 0.01, 0.30, 0.49, 0.34, 0.66, 0.33, 0.33, 0.90, 0.29, 0.59, 0.52, 0.26, 0.15, 0.35, 0.32, 0.36, 0.81,
-    0.53, 0.97, 0.30, 0.25, 0.04, 0.86, 0.48, 0.30, 0.03, 0.62, 0.30, 0.65, 0.11, 0.52, 0.14, 0.65, 0.74, 0.80, 0.79, 0.88, 0.86,
-    0.81, 0.25, 0.88, 0.49, 0.14, 0.81, 0.81, 0.44, 0.71, 0.11, 0.12, 0.40, 0.24, 0.87, 0.86, 0.14, 0.31, 0.45, 0.12, 0.12, 0.47,
-    0.61, 0.17, 0.15, 0.70, 0.92, 0.00, 0.77, 0.01, 0.94, 0.35, 0.77, 0.52, 0.37, 0.39, 0.69, 0.88, 0.81, 0.34, 0.76, 0.17, 0.00,
-    0.69, 0.08, 0.40, 0.82, 0.38, 0.05, 0.02, 0.91, 0.82, 0.65, 0.01, 0.76, 0.43, 0.08, 0.76, 0.69, 0.21, 0.32, 0.96, 0.12, 0.82,
-    0.65, 0.22, 0.57, 0.58, 0.05, 0.69, 0.05, 0.56, 0.04, 0.79, 0.20, 0.97, 0.06, 0.49, 0.22, 0.29, 0.83, 0.37, 0.08, 0.20, 0.86,
+    0.07, 0.60, 0.06, 0.97, 0.20, 0.99, 0.32, 0.93, 0.64, 0.10, 0.26, 0.39, 0.42, 0.56, 0.59, 0.31, 0.09, 0.69, 0.46, 0.68, 0.57,
+    0.01, 0.80, 0.77, 0.40, 0.78, 0.02, 0.43, 0.42, 0.20, 0.22, 0.05, 0.66, 0.96, 0.93, 0.20, 0.54, 0.79, 0.33, 0.18, 0.02, 0.74,
+    0.27, 0.19, 0.90, 0.83, 0.79, 0.06, 0.93, 0.45, 0.26, 0.73, 0.04, 0.15, 0.42, 0.97, 0.03, 0.06, 0.12, 0.30, 0.26, 0.17, 0.70,
+    0.73, 0.39, 0.54, 0.58, 0.82, 0.42, 0.90, 0.81, 0.54, 0.29, 0.73, 0.70, 0.15, 0.90, 0.19, 0.06, 0.00, 0.77, 0.00, 0.25, 0.97,
+    0.10, 0.59, 0.06, 0.46, 0.62, 0.53, 0.67, 0.15, 0.70, 0.03, 0.30, 0.93, 0.18, 0.15, 0.41, 0.43, 0.28, 0.19, 0.23, 0.68, 0.11,
+    0.12, 0.16, 0.91, 0.85, 0.95, 0.94, 0.06, 0.81, 0.35, 0.81, 0.95, 0.71, 0.85, 0.56, 0.52, 0.95, 0.43, 0.10, 0.22, 0.68, 0.41,
+    0.77, 0.53, 0.13, 0.66, 0.95, 0.51, 0.88, 0.97, 0.28, 0.53, 0.02, 0.52, 0.21, 0.41, 0.06, 0.78, 0.57, 0.64, 0.39, 0.10, 0.37,
+    0.61, 0.56, 0.75, 0.35, 0.94, 0.68, 0.54, 0.06, 0.57, 0.82, 0.34, 0.81, 0.87, 0.76, 0.40, 0.08, 0.57, 0.41, 0.37, 0.14, 0.67,
+    0.44, 0.36, 0.94, 0.39, 0.17, 0.06, 0.99, 0.38, 0.84, 0.08, 0.50, 0.40, 0.27, 0.74, 0.65, 0.07, 0.29, 0.27, 0.91, 0.23, 0.51,
+    0.96, 0.99, 0.51, 0.37, 0.45, 0.22, 0.99, 0.32, 0.16, 0.12, 0.87, 0.25, 0.32, 0.30, 0.75, 0.88, 0.26, 0.14, 0.72, 0.47, 0.09,
+    0.42, 0.07, 0.98, 0.91, 0.95, 0.86, 0.02, 0.13, 0.67, 0.14, 0.20, 0.97, 0.06, 0.49, 0.22, 0.29, 0.83, 0.37, 0.08, 0.20, 0.86,
     0.98, 0.27, 0.68, 0.08, 0.72, 0.42, 0.92, 0.31, 0.94, 0.50, 0.35, 0.65, 0.25, 0.23, 0.20, 0.96, 0.49, 0.75, 0.47, 0.59, 0.58,
     0.98, 0.67, 0.24, 0.02, 0.22, 0.46, 0.39, 0.81, 0.79, 0.09, 0.95, 0.53, 0.60, 0.41, 0.65, 0.87, 0.67, 0.97, 0.70, 0.82, 0.05,
     0.67, 0.65, 0.10, 0.84, 0.61, 0.10, 0.59, 0.48, 0.23, 0.02, 0.37, 0.62, 0.33, 0.31, 0.75, 0.76, 0.72, 0.10, 0.52, 0.56, 0.74,
@@ -1755,7 +1755,48 @@ std::vector< floatType > linear_test_params =
     0.14, 0.09, 0.10, 0.52, 0.00, 0.78, 0.57, 0.72, 0.48, 0.91, 0.82, 0.50, 0.24, 0.13, 0.84, 0.68, 0.27, 0.73, 0.31, 0.25, 0.74,
     0.74, 0.82, 0.85, 0.55, 0.26, 0.61, 0.30, 0.79, 0.12, 0.33, 0.04, 0.45, 0.14, 0.97, 0.36, 0.79, 0.83, 0.09, 0.67, 0.34, 0.30,
     0.75, 0.25, 0.31, 0.76, 0.35, 0.39, 0.74, 0.14, 0.69, 0.32, 0.84, 0.62, 0.01, 0.13, 0.75, 0.22, 0.02, 0.74, 0.67, 0.22, 0.63,
-    0.63, 0.94, 0.10, 0.17, 0.30, 0.77, 0.47, 0.37, 0.38
+    0.63, 0.94, 0.10, 0.17, 0.30, 0.77, 0.47, 0.37, 0.38, 0.51, 0.32, 0.68, 0.03, 0.60, 0.36, 0.48, 0.75, 0.04, 0.22, 0.51, 0.62,
+    0.19, 0.20, 0.62, 0.72, 0.45, 0.45, 0.40, 0.25, 0.99, 0.63, 0.36, 0.26, 0.25, 0.32, 0.55, 0.58, 0.66, 0.02, 0.58, 0.58, 0.92,
+    0.23, 0.04, 0.95, 0.56, 0.10, 0.33, 0.39, 0.77, 0.26, 0.95, 0.57, 0.10, 0.51, 0.58, 0.96, 0.91, 0.94, 0.65, 0.64, 0.68, 0.05,
+    0.26, 0.25, 0.78, 0.17, 0.74, 0.42, 0.27, 0.90, 0.30, 0.77, 0.76, 0.38, 0.33, 0.00, 0.46, 0.18, 0.01, 0.62, 0.13, 0.31, 0.71,
+    0.75, 0.95, 0.91, 0.52, 0.95, 0.34, 0.55, 0.54, 0.02, 0.04, 0.24, 0.93, 0.90, 0.64, 0.07, 0.95, 0.07, 0.51, 0.62, 0.71, 0.93,
+    0.34, 0.37, 0.54, 0.25, 0.55, 0.35, 0.93, 0.31, 0.63, 0.39, 0.99, 0.89, 0.32, 0.01, 0.30, 0.49, 0.34, 0.66, 0.33, 0.33, 0.90,
+    0.29, 0.59, 0.52, 0.26, 0.15, 0.35, 0.32, 0.36, 0.81, 0.53, 0.97, 0.30, 0.25, 0.04, 0.86, 0.48, 0.30, 0.03, 0.62, 0.30, 0.65,
+    0.11, 0.52, 0.14, 0.65, 0.74, 0.80, 0.79, 0.88, 0.86, 0.81, 0.25, 0.88, 0.49, 0.14, 0.81, 0.81, 0.44, 0.71, 0.11, 0.12, 0.40,
+    0.24, 0.87, 0.86, 0.14, 0.31, 0.45, 0.12, 0.12, 0.47, 0.61, 0.17, 0.15, 0.70, 0.92, 0.00, 0.77, 0.01, 0.94, 0.35, 0.77, 0.52,
+    0.37, 0.39, 0.69, 0.88, 0.81, 0.34, 0.76, 0.17, 0.00, 0.69, 0.08, 0.40, 0.82, 0.38, 0.05, 0.02, 0.91, 0.82, 0.65, 0.01, 0.76,
+    0.43, 0.08, 0.76, 0.69, 0.21, 0.32, 0.96, 0.12, 0.82, 0.65, 0.22, 0.57, 0.58, 0.05, 0.69, 0.05, 0.56, 0.04, 0.79, 0.97, 0.07,
+    0.88, 0.78, 0.41, 0.17, 0.74, 0.73, 0.66, 0.31, 0.45, 0.01, 0.34, 0.49, 0.26, 0.56, 0.27, 0.65, 0.58, 0.86, 0.19, 0.76, 0.87,
+    0.04, 0.42, 0.35, 0.02, 0.77, 0.88, 0.77, 0.72, 0.35, 0.24, 0.50, 0.10, 0.64, 0.61, 0.90, 0.91, 0.97, 0.07, 0.72, 0.31, 0.73,
+    0.56, 0.98, 0.47, 0.12, 0.63, 0.44, 0.33, 0.60, 0.85, 0.24, 0.67, 0.74, 0.96, 0.22, 0.51, 0.70, 0.05, 0.87, 0.34, 0.68, 0.40,
+    0.90, 0.81, 0.47, 0.95, 0.77, 0.43, 0.89, 0.53, 0.56, 0.11, 0.89, 0.39, 0.48, 0.99, 0.83, 0.12, 0.77, 0.24, 0.17, 0.82, 0.54,
+    0.47, 0.11, 0.09, 0.40, 0.94, 0.22, 0.72, 0.54, 0.55, 0.95, 0.86, 0.85, 0.05, 0.99, 0.94, 0.11, 0.55, 0.03, 0.11, 0.87, 0.04,
+    0.26, 0.49, 0.26, 0.93, 0.32, 0.71, 0.77, 0.05, 0.38, 0.20, 0.26, 0.41, 0.06, 0.61, 0.19, 0.08, 0.45, 0.34, 0.97, 0.80, 0.27,
+    0.59, 0.53, 0.18, 0.76, 0.70, 0.13, 0.72, 0.63, 0.01, 0.05, 0.55, 0.09, 0.61, 0.17, 0.69, 0.37, 0.74, 0.19, 0.65, 0.97, 0.49,
+    0.28, 0.31, 0.19, 0.57, 0.51, 0.55, 0.68, 0.02, 0.13, 0.21, 0.01, 0.19, 0.85, 0.65, 0.16, 0.04, 0.25, 0.71, 0.45, 0.54, 0.54,
+    0.24, 0.17, 0.16, 0.96, 0.94, 0.75, 0.65, 0.22, 0.12, 0.93, 0.28, 0.19, 0.92, 0.16, 0.30, 0.18, 0.01, 0.18, 0.45, 0.53, 0.17,
+    0.72, 0.54, 0.60, 0.32, 0.20, 0.80, 0.35, 0.52, 0.74, 0.88, 0.45, 0.97, 0.53, 0.79, 0.08, 0.09, 0.61, 0.39, 0.76, 0.57, 0.62,
+    0.17, 0.55, 0.54, 0.74, 0.70, 0.62, 0.16, 0.97, 0.61, 0.16, 0.80, 0.14, 0.27, 0.56, 0.15, 0.09, 0.68, 0.04, 0.35, 0.25, 0.94,
+    0.58, 0.07, 0.41, 0.37, 0.15, 0.73, 0.19, 0.85, 0.94, 0.09, 0.66, 0.63, 0.51, 0.64, 0.90, 0.76, 0.65, 0.43, 0.24, 0.20, 0.22,
+    0.86, 0.12, 0.12, 0.02, 0.73, 0.01, 0.92, 0.97, 0.23, 0.04, 0.96, 0.21, 0.54, 0.65, 0.59, 0.85, 0.48, 0.52, 1.00, 0.56, 0.20,
+    0.17, 0.87, 0.36, 0.95, 0.81, 0.94, 0.56, 0.04, 0.85, 0.58, 0.87, 0.28, 0.86, 0.20, 0.28, 0.14, 0.14, 0.10, 0.54, 0.68, 0.21,
+    0.91, 0.10, 0.11, 0.88, 0.69, 0.18, 0.99, 0.03, 0.11, 0.28, 0.73, 0.71, 0.80, 0.55, 0.60, 0.35, 0.38, 0.10, 0.12, 0.70, 0.02,
+    0.45, 0.66, 0.48, 0.07, 0.77, 0.48, 0.29, 0.17, 0.61, 0.92, 0.26, 0.87, 0.66, 0.02, 0.85, 0.40, 0.84, 0.20, 0.52, 0.21, 0.49,
+    0.92, 0.51, 0.99, 0.27, 0.60, 0.97, 0.75, 0.69, 0.74, 0.33, 0.29, 0.14, 0.60, 0.92, 0.76, 0.99, 0.99, 0.43, 0.52, 0.82, 0.77,
+    0.77, 0.56, 0.59, 0.84, 0.94, 0.78, 0.77, 0.16, 0.86, 0.95, 0.27, 0.19, 0.16, 0.02, 0.41, 0.18, 0.13, 0.73, 0.76, 0.70, 0.67,
+    0.52, 0.06, 0.98, 0.99, 0.88, 0.76, 0.77, 0.60, 0.11, 0.82, 0.68, 0.08, 0.61, 0.19, 0.56, 0.25, 0.64, 0.78, 0.05, 0.07, 1.00,
+    0.68, 0.31, 0.24, 0.42, 0.95, 0.69, 0.99, 0.55, 0.42, 0.21, 0.54, 0.64, 0.52, 0.13, 0.17, 0.79, 0.21, 0.11, 0.16, 0.90, 0.62,
+    0.77, 0.23, 0.63, 0.19, 0.52, 0.07, 0.52, 0.23, 0.22, 0.50, 0.57, 0.70, 0.30, 0.29, 0.08, 0.32, 0.35, 0.49, 0.42, 0.70, 0.45,
+    0.84, 0.53, 0.59, 0.70, 0.68, 0.93, 0.74, 0.96, 0.34, 0.97, 0.60, 0.31, 0.14, 0.52, 0.96, 0.84, 0.75, 0.05, 0.77, 0.69, 0.84,
+    0.10, 0.39, 0.34, 0.77, 0.76, 0.50, 0.36, 0.10, 0.15, 0.01, 0.77, 0.92, 0.03, 0.80, 0.28, 0.51, 0.69, 0.34, 0.98, 0.99, 0.67,
+    0.98, 0.12, 0.01, 0.85, 0.69, 0.31, 0.52, 0.40, 0.45, 0.57, 0.52, 0.61, 0.33, 0.56, 0.86, 0.36, 0.28, 0.49, 0.32, 0.90, 0.61,
+    0.74, 0.03, 0.10, 0.40, 0.42, 0.07, 0.79, 0.56, 0.50, 0.68, 0.69, 0.33, 0.48, 0.58, 0.00, 0.14, 0.39, 0.04, 0.05, 0.51, 0.61,
+    0.24, 0.90, 0.81, 0.86, 0.46, 0.82, 0.67, 0.09, 0.01, 0.94, 0.54, 0.73, 0.16, 0.70, 0.65, 0.90, 0.30, 0.36, 0.61, 0.88, 0.27,
+    0.10, 0.33, 0.64, 1.00, 0.17, 0.81, 0.22, 0.51, 0.75, 0.11, 0.80, 0.08, 0.32, 0.03, 0.84, 0.60, 0.17, 0.12, 0.48, 0.01, 0.79,
+    0.97, 0.04, 0.59, 0.61, 0.01, 0.77, 0.26, 0.65, 0.21, 0.09, 0.25, 0.88, 0.76, 0.49, 0.12, 0.21, 0.96, 0.14, 0.29, 0.55, 0.37,
+    0.27, 0.68, 0.16, 0.47, 0.12, 0.29, 0.36, 0.64, 0.46, 0.28, 0.68, 0.47, 0.72, 0.39, 0.73, 0.57, 0.25, 0.54, 0.14, 0.01, 0.69,
+    0.18, 0.59, 0.47, 0.44, 0.31, 0.52, 0.97, 0.77, 0.41, 0.87, 0.53, 0.99, 0.97, 0.03, 0.17, 0.84, 0.36, 0.25, 0.54, 0.67, 0.32,
+    0.86, 0.50, 0.23, 0.67, 0.47, 0.15
 };
 
 class hydraLinearTest : public tardigradeHydra::hydraBase{
@@ -1820,6 +1861,370 @@ void evaluate_at_nodes(
     const density_dot_t_in &density_dot_t_begin, const density_dot_t_in &density_dot_t_end,
     const v_t_in &v_t_begin, const v_t_in &v_t_end, const X_in &X_begin, const X_in &X_end,
     const alpha_type &alpha, value_out value_begin, value_out value_end,
+    const int active_phase = -1
+){
+
+    // Update the mesh nodes
+    std::array< typename std::iterator_traits<umesh_t_in  >::value_type, dim * node_count > x_t;
+    std::array< typename std::iterator_traits<umesh_tp1_in>::value_type, dim * node_count > x_tp1;
+
+    std::transform( X_begin, X_end,   umesh_t_begin,   std::begin( x_t ), std::plus<typename std::iterator_traits<umesh_t_in  >::value_type>( ) );
+    std::transform( X_begin, X_end, umesh_tp1_begin, std::begin( x_tp1 ), std::plus<typename std::iterator_traits<umesh_tp1_in>::value_type>( ) );
+
+    // Calculate the current rates of change
+    std::array< typename std::iterator_traits<density_tp1_in>::value_type, node_count * nphases > density_dot_tp1;
+    std::array< typename std::iterator_traits<u_tp1_in>::value_type, dim * node_count * nphases > v_tp1;
+
+    compute_current_rate_of_change(
+        dt, density_t_begin, density_t_end, density_tp1_begin, density_tp1_end,
+        density_dot_t_begin, density_dot_t_end, alpha,
+        std::begin( density_dot_tp1 ), std::end( density_dot_tp1 )
+    );
+
+    compute_current_rate_of_change(
+        dt, u_t_begin, u_t_end, u_tp1_begin, u_tp1_end,
+        v_t_begin, v_t_end, alpha,
+        std::begin( v_tp1 ), std::end( v_tp1 )
+    );
+
+    // Instantiate the element
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<
+        floatType, typename std::array< floatType, 24 >::const_iterator,
+        typename std::array< floatType, 3>::const_iterator,
+        typename std::array< floatType, 8>::iterator,
+        typename std::array< floatType, 24>::iterator
+    > e(
+        std::cbegin( x_tp1 ), std::cend( x_tp1 ), X_begin, X_end
+    );
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, nphases
+    > density_tp1_p, density_dot_tp1_p, theta_tp1_p, e_tp1_p;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim * nphases
+    > v_tp1_p, w_tp1_p;
+
+    std::array<
+         typename std::iterator_traits<z_tp1_in>::value_type, num_additional_dof
+    > z_tp1_p;
+
+    // Interpolate quantities to the local point
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( density_tp1_p ), std::end( density_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( density_dot_tp1 ), std::cend( density_dot_tp1 ),
+        std::begin( density_dot_tp1_p ), std::end( density_dot_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( v_tp1_p ), std::end( v_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, w_tp1_begin, w_tp1_end,
+        std::begin( w_tp1_p ), std::end( w_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, theta_tp1_begin, theta_tp1_end,
+        std::begin( theta_tp1_p ), std::end( theta_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, e_tp1_begin, e_tp1_end,
+        std::begin( e_tp1_p ), std::end( e_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, z_tp1_begin, z_tp1_end,
+        std::begin( z_tp1_p ), std::end( z_tp1_p )
+    );
+
+    // Compute the gradients at the local point
+
+    std::array<
+        typename std::iterator_traits<density_tp1_in>::value_type, dim * nphases
+    > grad_density_tp1, grad_theta_tp1, grad_e_tp1;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type, dim * dim * nphases
+    > grad_velocity_tp1, grad_w_tp1;
+
+    std::array<
+        typename std::iterator_traits<u_tp1_in>::value_type,dim * num_additional_dof
+    > grad_z_tp1;
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, density_tp1_begin, density_tp1_end,
+        std::begin( grad_density_tp1 ), std::end( grad_density_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( v_tp1 ), std::cend( v_tp1 ),
+        std::begin( grad_velocity_tp1 ), std::end( grad_velocity_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, w_tp1_begin, w_tp1_end,
+        std::begin( grad_w_tp1 ), std::end( grad_w_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, theta_tp1_begin, theta_tp1_end,
+        std::begin( grad_theta_tp1 ), std::end( grad_theta_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, e_tp1_begin, e_tp1_end,
+        std::begin( grad_e_tp1 ), std::end( grad_e_tp1 )
+    );
+
+    e.GetGlobalQuantityGradient(
+        xi_begin, xi_end, z_tp1_begin, z_tp1_end,
+        std::begin( grad_z_tp1 ), std::end( grad_z_tp1 )
+    );
+
+    // Get the Jacobian of transformation
+    std::array< floatType, dim * dim > dxdxi;
+    e.GetLocalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( x_tp1 ), std::cend( x_tp1 ),
+        std::begin( dxdxi ), std::end( dxdxi )
+    );
+
+    floatType J = tardigradeVectorTools::determinant
+    <
+        typename std::array< floatType, dim * dim >::const_iterator,
+        floatType, 3, 3
+    >(
+        std::cbegin( dxdxi ), std::cend( dxdxi ),
+        3, 3
+    );
+
+    std::vector< floatType > dof_vector( nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 + 3 + 3 ) + num_additional_dof + 3 * num_additional_dof, 0 );
+
+    std::copy(
+        std::begin( density_tp1_p ),
+        std::end(   density_tp1_p ),
+        std::begin( dof_vector ) + nphases * 0
+    );
+
+    std::copy(
+        std::begin( w_tp1_p ),
+        std::end(   w_tp1_p ),
+        std::begin( dof_vector ) + nphases * 1
+    );
+
+    std::copy(
+        std::begin( v_tp1_p ),
+        std::end(   v_tp1_p ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 )
+    );
+
+    std::copy(
+        std::begin( theta_tp1_p ),
+        std::end(   theta_tp1_p ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 )
+    );
+
+    std::copy(
+        std::begin( e_tp1_p ),
+        std::end(   e_tp1_p ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 )
+    );
+
+    std::copy(
+        std::begin( z_tp1_p ),
+        std::end(   z_tp1_p ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 )
+    );
+
+    std::copy(
+        std::begin( grad_density_tp1 ),
+        std::end(   grad_density_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 ) + num_additional_dof
+    );
+
+    std::copy(
+        std::begin( grad_w_tp1 ),
+        std::end(   grad_w_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 ) + num_additional_dof
+    );
+
+    std::copy(
+        std::begin( grad_velocity_tp1 ),
+        std::end(   grad_velocity_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 ) + num_additional_dof
+    );
+
+    std::copy(
+        std::begin( grad_theta_tp1 ),
+        std::end(   grad_theta_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 ) + num_additional_dof
+    );
+
+    std::copy(
+        std::begin( grad_e_tp1 ),
+        std::end(   grad_e_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 + 3 ) + num_additional_dof
+    );
+
+    std::copy(
+        std::begin( grad_z_tp1 ),
+        std::end(   grad_z_tp1 ),
+        std::begin( dof_vector ) + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 + 3 + 3 ) + num_additional_dof
+    );
+
+    std::array< floatType, node_count> Ns;
+    e.GetShapeFunctions( xi_begin, xi_end, std::begin( Ns ), std::end( Ns ) );
+
+    unsigned int low_bound  = 0;
+    unsigned int high_bound = nphases;
+
+    if ( active_phase >= 0 ){
+
+        low_bound  = active_phase;
+        high_bound = active_phase + 1;
+
+    }
+
+    // Assemble the material response
+    std::array< floatType, nphases * num_unknowns > material_response;
+    std::fill( std::begin( material_response ), std::end( material_response ), 0 );
+
+    for ( unsigned int j = low_bound; j < high_bound; ++j ){
+
+        std::vector< floatType > grad_u( 9 );
+
+        std::copy(
+            std::begin( grad_w_tp1 ) + 9 * j,
+            std::begin( grad_w_tp1 ) + 9 * ( j + 1 ),
+            std::begin( grad_u )
+        );
+
+        std::vector< floatType > F(  9, 0 );
+
+        std::vector< floatType > Fp( 9, 0 );
+
+        std::vector< floatType > previous_dof_vector( dof_vector.size( ), 0 );
+
+        std::vector< floatType > previous_state_variables( 13, 0 );
+
+        tardigradeConstitutiveTools::computeDeformationGradient( grad_u, F, true );
+
+        hydraLinearTest linearTest(
+            0, dt, theta_tp1_p[ j ], 0., F, Fp,
+            dof_vector, previous_dof_vector,
+            previous_state_variables,
+            linear_test_params,
+            1, 13
+        );
+
+        linearTest.evaluate( );
+
+        std::copy(
+            std::begin( *linearTest.getUnknownVector( ) ),
+            std::end(   *linearTest.getUnknownVector( ) ),
+            std::begin( material_response ) + num_unknowns * j
+        );
+
+    }
+
+    std::fill( value_begin, value_end, 0 );
+
+    for ( unsigned int i = 0; i < node_count; ++i ){
+
+        if ( active_phase >= 0 ){
+
+            unsigned int j = active_phase;
+
+            // Single phase evaluation
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,10>(
+                density_tp1_p[ j ],                                  density_dot_tp1_p[ j ],
+                std::cbegin( grad_density_tp1 )  + 3 * j,            std::cbegin( grad_density_tp1 )  + 3 * ( j + 1 ),
+                std::cbegin( v_tp1_p )           + 3 * j,            std::cbegin( v_tp1_p )           + 3 * ( j + 1 ),
+                std::cbegin( grad_velocity_tp1 ) + 9 * j,            std::cbegin( grad_velocity_tp1 ) + 9 * ( j + 1 ),
+                std::cbegin( material_response ) + num_unknowns * j, std::cend( material_response ) + num_unknowns * ( j + 1 ),
+                Ns[ i ], *( value_begin + nphases * i + j )
+            );
+    
+            *( value_begin + nphases * i + j ) *= J;
+
+        }
+        else{
+
+            // Multiphase evaluation
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,10>(
+                std::cbegin( density_tp1_p ),                        std::cend( density_tp1_p ),
+                std::cbegin( density_dot_tp1_p ),                    std::cend( density_dot_tp1_p ),
+                std::cbegin( grad_density_tp1 ),                     std::cend( grad_density_tp1 ),
+                std::cbegin( v_tp1_p ),                              std::cend( v_tp1_p ),
+                std::cbegin( grad_velocity_tp1 ),                    std::cend( grad_velocity_tp1 ),
+                std::cbegin( material_response ),                    std::cend( material_response ),
+                Ns[ i ],
+                value_begin + nphases * i,                           value_begin + nphases * ( i + 1 )
+            );
+
+            std::transform(
+                value_begin + nphases * i, value_begin + nphases * ( i + 1 ), value_begin + nphases * i,
+                std::bind(
+                    std::multiplies< typename std::iterator_traits< value_out >::value_type >( ),
+                    std::placeholders::_1,
+                    J
+                )
+            );
+
+        }
+
+    }
+
+}
+
+template<
+    int dim, int node_count, int nphases, int num_additional_dof,
+    class xi_in, typename dt_type,
+    class density_t_in, class density_tp1_in,
+    class u_t_in,       class u_tp1_in,
+    class w_t_in,       class w_tp1_in,
+    class theta_t_in,   class theta_tp1_in,
+    class e_t_in,       class e_tp1_in,
+    class z_t_in,       class z_tp1_in,
+    class umesh_t_in, class umesh_tp1_in, class density_dot_t_in, class v_t_in,
+    class X_in, typename alpha_type, class value_out,
+    class dRdRho_iter,   class dRdU_iter, class dRdW_iter,
+    class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
+    int material_response_size = 22
+>
+void evaluate_at_nodes(
+    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt,
+    const density_t_in &density_t_begin,     const density_t_in &density_t_end,
+    const density_tp1_in &density_tp1_begin, const density_tp1_in &density_tp1_end,
+    const u_t_in       &u_t_begin,           const u_t_in       &u_t_end,
+    const u_tp1_in     &u_tp1_begin,         const u_tp1_in     &u_tp1_end,
+    const w_t_in       &w_t_begin,           const w_t_in       &w_t_end,
+    const w_tp1_in     &w_tp1_begin,         const w_tp1_in     &w_tp1_end,
+    const theta_t_in   &theta_t_begin,       const theta_t_in   &theta_t_end,
+    const theta_tp1_in &theta_tp1_begin,     const theta_tp1_in &theta_tp1_end,
+    const e_t_in       &e_t_begin,           const e_t_in       &e_t_end,
+    const e_tp1_in     &e_tp1_begin,         const e_tp1_in     &e_tp1_end,
+    const z_t_in       &z_t_begin,           const z_t_in       &z_t_end,
+    const z_tp1_in     &z_tp1_begin,         const z_tp1_in     &z_tp1_end,
+    const umesh_t_in &umesh_t_begin, const umesh_t_in &umesh_t_end,
+    const umesh_tp1_in &umesh_tp1_begin, const umesh_tp1_in &umesh_tp1_end,
+    const density_dot_t_in &density_dot_t_begin, const density_dot_t_in &density_dot_t_end,
+    const v_t_in &v_t_begin, const v_t_in &v_t_end, const X_in &X_begin, const X_in &X_end,
+    const alpha_type &alpha, value_out value_begin, value_out value_end,
+    dRdRho_iter   dRdRho_begin,   dRdRho_iter   dRdRho_end,
+    dRdU_iter     dRdU_begin,     dRdU_iter     dRdU_end,
+    dRdW_iter     dRdW_begin,     dRdW_iter     dRdW_end,
+    dRdTheta_iter dRdTheta_begin, dRdTheta_iter dRdTheta_end,
+    dRdE_iter     dRdE_begin,     dRdE_iter     dRdE_end,
+    dRdZ_iter     dRdZ_begin,     dRdZ_iter     dRdZ_end,
     const int active_phase = -1
 ){
 
@@ -2021,7 +2426,7 @@ void evaluate_at_nodes(
     }
 
     // Assemble the material response
-    std::array< floatType, nphases * num_unknowns > material_response;
+    std::array< floatType, nphases * material_response_size > material_response;
     std::fill( std::begin( material_response ), std::end( material_response ), 0 );
 
     for ( unsigned int j = low_bound; j < high_bound; ++j ){
@@ -2057,7 +2462,7 @@ void evaluate_at_nodes(
         std::copy(
             std::begin( *linearTest.getUnknownVector( ) ),
             std::end(   *linearTest.getUnknownVector( ) ),
-            std::begin( material_response ) + num_unknowns * j
+            std::begin( material_response ) + material_response_size * j
         );
 
     }
@@ -2072,11 +2477,11 @@ void evaluate_at_nodes(
 
             // Single phase evaluation
             tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,10>(
-                density_tp1_p[ j ],                                  density_dot_tp1_p[ j ],
-                std::cbegin( grad_density_tp1 )  + 3 * j,            std::cbegin( grad_density_tp1 )  + 3 * ( j + 1 ),
-                std::cbegin( v_tp1_p )           + 3 * j,            std::cbegin( v_tp1_p )           + 3 * ( j + 1 ),
-                std::cbegin( grad_velocity_tp1 ) + 9 * j,            std::cbegin( grad_velocity_tp1 ) + 9 * ( j + 1 ),
-                std::cbegin( material_response ) + num_unknowns * j, std::cend( material_response ) + num_unknowns * ( j + 1 ),
+                density_tp1_p[ j ],                                            density_dot_tp1_p[ j ],
+                std::cbegin( grad_density_tp1 )  + 3 * j,                      std::cbegin( grad_density_tp1 )  + 3 * ( j + 1 ),
+                std::cbegin( v_tp1_p )           + 3 * j,                      std::cbegin( v_tp1_p )           + 3 * ( j + 1 ),
+                std::cbegin( grad_velocity_tp1 ) + 9 * j,                      std::cbegin( grad_velocity_tp1 ) + 9 * ( j + 1 ),
+                std::cbegin( material_response ) + material_response_size * j, std::cend( material_response ) + material_response_size * ( j + 1 ),
                 Ns[ i ], *( value_begin + nphases * i + j )
             );
     
@@ -2352,14 +2757,14 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::un
     };
 
     std::array< floatType, 8 * nphases > answer = {
-       -4.89172345e+00, -2.69913075e-02, -3.11295095e-02, -4.96826867e-02,
-       -2.31596724e+00, -1.27789284e-02, -1.47381439e-02, -2.35220727e-02,
-       -1.26773141e+01, -6.99502509e-02, -8.06747507e-02, -1.28756875e-01,
-       -2.67766804e+01, -1.47747031e-01, -1.70399029e-01, -2.71956794e-01,
-       -1.12444431e+00, -6.20440267e-03, -7.15563750e-03, -1.14203951e-02,
-       -5.32363738e-01, -2.93745006e-03, -3.38780845e-03, -5.40694115e-03,
-       -2.91409231e+00, -1.60792331e-02, -1.85444384e-02, -2.95969175e-02,
-       -6.15506706e+00, -3.39621218e-02, -3.91690619e-02, -6.25138097e-02
+       -5.02804220e+00, -5.94037211e-02, -1.35245307e-01, -6.89201774e-02,
+       -2.38050682e+00, -2.81244583e-02, -6.40313591e-02, -3.26299871e-02,
+       -1.30305956e+01, -1.53949756e-01, -3.50499626e-01, -1.78612455e-01,
+       -2.75228722e+01, -3.25168516e-01, -7.40315843e-01, -3.77260404e-01,
+       -1.15577945e+00, -1.36549371e-02, -3.10883919e-02, -1.58424535e-02,
+       -5.47199237e-01, -6.46487631e-03, -1.47186770e-02, -7.50054733e-03,
+       -2.99529997e+00, -3.53879218e-02, -8.05681911e-02, -4.10570550e-02,
+       -6.32659169e+00, -7.47454126e-02, -1.70173957e-01, -8.67196026e-02
     };
 
     std::array< floatType, 8 * nphases > result;
@@ -2751,14 +3156,14 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_multiphase_fea, 
     };
 
     std::array< floatType, 8 * nphases > answer = {
-       -4.89172345e+00, -2.69913075e-02, -3.11295095e-02, -4.96826867e-02,
-       -2.31596724e+00, -1.27789284e-02, -1.47381439e-02, -2.35220727e-02,
-       -1.26773141e+01, -6.99502509e-02, -8.06747507e-02, -1.28756875e-01,
-       -2.67766804e+01, -1.47747031e-01, -1.70399029e-01, -2.71956794e-01,
-       -1.12444431e+00, -6.20440267e-03, -7.15563750e-03, -1.14203951e-02,
-       -5.32363738e-01, -2.93745006e-03, -3.38780845e-03, -5.40694115e-03,
-       -2.91409231e+00, -1.60792331e-02, -1.85444384e-02, -2.95969175e-02,
-       -6.15506706e+00, -3.39621218e-02, -3.91690619e-02, -6.25138097e-02
+       -5.02804220e+00, -5.94037211e-02, -1.35245307e-01, -6.89201774e-02,
+       -2.38050682e+00, -2.81244583e-02, -6.40313591e-02, -3.26299871e-02,
+       -1.30305956e+01, -1.53949756e-01, -3.50499626e-01, -1.78612455e-01,
+       -2.75228722e+01, -3.25168516e-01, -7.40315843e-01, -3.77260404e-01,
+       -1.15577945e+00, -1.36549371e-02, -3.10883919e-02, -1.58424535e-02,
+       -5.47199237e-01, -6.46487631e-03, -1.47186770e-02, -7.50054733e-03,
+       -2.99529997e+00, -3.53879218e-02, -8.05681911e-02, -4.10570550e-02,
+       -6.32659169e+00, -7.47454126e-02, -1.70173957e-01, -8.67196026e-02
     };
 
     std::array< floatType, 8 * nphases > result;
