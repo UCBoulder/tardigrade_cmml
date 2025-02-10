@@ -83,7 +83,7 @@ namespace tardigradeBalanceEquations{
         );
 
         template<
-            int dim, int matresponse_dim, int matresponse_values, class density_iter, class densityDot_iter, class result_iter,
+            int dim, int matertial_response_dim, class density_iter, class densityDot_iter, class result_iter,
             typename testFunction_type,
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
             class material_response_iter
@@ -103,7 +103,7 @@ namespace tardigradeBalanceEquations{
             int dim, typename density_type, typename densityDot_type, typename result_type,
             typename dRdRho_type, typename dRdRhoDot_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter,
-            class dRdGradRho_iter_out, class dRdV_iter_out, class dRdGradV_iter_out
+            class dRdGradRho_iter, class dRdV_iter, class dRdGradV_iter
         >
         void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
@@ -112,9 +112,9 @@ namespace tardigradeBalanceEquations{
             const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
             result_type &result,
             dRdRho_type &dRdRho, dRdRhoDot_type &dRdRhoDot,
-            dRdGradRho_iter_out dRdGradRho_begin, dRdGradRho_iter_out dRdGradRho_end,
-            dRdV_iter_out dRdV_begin,             dRdV_iter_out dRdV_end,
-            dRdGradV_iter_out dRdGradV_begin,     dRdGradV_iter_out dRdGradV_end
+            dRdGradRho_iter dRdGradRho_begin, dRdGradRho_iter dRdGradRho_end,
+            dRdV_iter dRdV_begin,             dRdV_iter dRdV_end,
+            dRdGradV_iter dRdGradV_begin,     dRdGradV_iter dRdGradV_end
         );
 
         template<
@@ -122,7 +122,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type, typename interpolationFunction_type,
             typename dRdRho_type, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
-            class dRdU_iter_out, class dRdUMesh_iter_out,
+            class dRdU_iter, class dRdUMesh_iter,
             typename dDensityDotdDensity_type, typename dUDotdU_type
         >
         void computeBalanceOfMass(
@@ -136,13 +136,13 @@ namespace tardigradeBalanceEquations{
             const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
             result_type &result,
             dRdRho_type &dRdRho,
-            dRdU_iter_out dRdU_begin,             dRdU_iter_out dRdU_end,
-            dRdUMesh_iter_out dRdUMesh_begin,     dRdUMesh_iter_out dRdUMesh_end
+            dRdU_iter dRdU_begin,             dRdU_iter dRdU_end,
+            dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
         );
 
         template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
-            class velocity_iter, class velocityGradient_iter, class result_iter_out
+            class velocity_iter, class velocityGradient_iter, class result_iter
         >
         void computeBalanceOfMass(
             const density_iter &density_begin,                          const density_iter &density_end,
@@ -150,13 +150,13 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
-            result_iter_out result_start,                               result_iter_out result_stop
+            result_iter result_start,                               result_iter result_stop
         );
 
         template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             typename testFunction_type,
-            class velocity_iter, class velocityGradient_iter, class result_iter_out
+            class velocity_iter, class velocityGradient_iter, class result_iter
         >
         void computeBalanceOfMass(
             const density_iter &density_begin,                          const density_iter &density_end,
@@ -165,15 +165,15 @@ namespace tardigradeBalanceEquations{
             const velocity_iter &velocity_begin,                        const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin,       const velocityGradient_iter &velocity_gradient_end,
             const testFunction_type &psi,
-            result_iter_out result_start,                               result_iter_out result_stop
+            result_iter result_start,                               result_iter result_stop
         );
 
         template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter,
-            class result_iter_out,
-            class dRdRho_iter_out, class dRdRhoDot_iter_out, class dRdGradRho_iter_out,
-            class dRdV_iter_out, class dRdGradV_iter_out
+            class result_iter,
+            class dRdRho_iter, class dRdRhoDot_iter, class dRdGradRho_iter,
+            class dRdV_iter, class dRdGradV_iter
         >
         void computeBalanceOfMass(
             const density_iter &density_begin,                    const density_iter &density_end,
@@ -181,20 +181,20 @@ namespace tardigradeBalanceEquations{
             const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
             const velocityGradient_iter &velocity_gradient_begin, const velocityGradient_iter &velocity_gradient_end,
-            result_iter_out result_begin,         result_iter_out result_end,
-            dRdRho_iter_out dRdRho_begin,         dRdRho_iter_out dRdRho_end,
-            dRdRhoDot_iter_out dRdRhoDot_begin,   dRdRhoDot_iter_out dRdRhoDot_end,
-            dRdGradRho_iter_out dRdGradRho_begin, dRdGradRho_iter_out dRdGradRho_end,
-            dRdV_iter_out dRdV_begin,             dRdV_iter_out dRdV_end,
-            dRdGradV_iter_out dRdGradV_begin,     dRdGradV_iter_out dRdGradV_end
+            result_iter result_begin,         result_iter result_end,
+            dRdRho_iter dRdRho_begin,         dRdRho_iter dRdRho_end,
+            dRdRhoDot_iter dRdRhoDot_begin,   dRdRhoDot_iter dRdRhoDot_end,
+            dRdGradRho_iter dRdGradRho_begin, dRdGradRho_iter dRdGradRho_end,
+            dRdV_iter dRdV_begin,             dRdV_iter dRdV_end,
+            dRdGradV_iter dRdGradV_begin,     dRdGradV_iter dRdGradV_end
         );
 
         template<
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             typename testFunction_type, typename interpolationFunction_type,
             class velocity_iter, class velocityGradient_iter, class interpolationFunctionGradient_iter,
-            class result_iter_out,
-            class dRdRho_iter_out, class dRdU_iter_out, class dRdUMesh_iter_out,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdUMesh_iter,
             class dDensityDotdDensity_iter, class dUDotdU_iter
         >
         void computeBalanceOfMass(
@@ -208,10 +208,10 @@ namespace tardigradeBalanceEquations{
             const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
             const dDensityDotdDensity_iter &dDensityDotdDensity_begin,    const dDensityDotdDensity_iter &dDensityDotdDensity_end,
             const dUDotdU_iter &dUDotdU_begin,                            const dUDotdU_iter &dUDotdU_end,
-            result_iter_out result_begin,                                 result_iter_out result_end,
-            dRdRho_iter_out dRdRho_begin,         dRdRho_iter_out dRdRho_end,
-            dRdU_iter_out dRdU_begin,             dRdU_iter_out dRdU_end,
-            dRdUMesh_iter_out dRdUMesh_begin,     dRdUMesh_iter_out dRdUMesh_end
+            result_iter result_begin,                                 result_iter result_end,
+            dRdRho_iter dRdRho_begin,         dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,             dRdU_iter dRdU_end,
+            dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
         );
 
     }

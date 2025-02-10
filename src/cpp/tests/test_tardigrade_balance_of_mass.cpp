@@ -2071,7 +2071,7 @@ void evaluate_at_nodes(
             unsigned int j = active_phase;
 
             // Single phase evaluation
-            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,3>(
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,10>(
                 density_tp1_p[ j ],                                  density_dot_tp1_p[ j ],
                 std::cbegin( grad_density_tp1 )  + 3 * j,            std::cbegin( grad_density_tp1 )  + 3 * ( j + 1 ),
                 std::cbegin( v_tp1_p )           + 3 * j,            std::cbegin( v_tp1_p )           + 3 * ( j + 1 ),
@@ -2086,7 +2086,7 @@ void evaluate_at_nodes(
         else{
 
             // Multiphase evaluation
-            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,3,num_unknowns>(
+            tardigradeBalanceEquations::balanceOfMass::computeBalanceOfMass<dim,10>(
                 std::cbegin( density_tp1_p ),                        std::cend( density_tp1_p ),
                 std::cbegin( density_dot_tp1_p ),                    std::cend( density_dot_tp1_p ),
                 std::cbegin( grad_density_tp1 ),                     std::cend( grad_density_tp1 ),
