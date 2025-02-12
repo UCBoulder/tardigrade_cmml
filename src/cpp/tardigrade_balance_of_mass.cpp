@@ -922,22 +922,46 @@ namespace tardigradeBalanceEquations{
             std::fill( dRdU_begin,   dRdU_end,   0 );
             std::fill( dRdW_begin,   dRdW_end,   0 );
 
+            // Set the number of phases
+            const unsigned int nphases = ( unsigned int )( dRdRho_end - dRdRho_begin );
+
             // Add the material response contributions to the density Jacobian
             for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + p.first + density_index ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * density_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_dim * ( p.first + density_index ) + a + material_response_num_dof ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
             }
 
-            *( dRdRho_begin + phase + density_index ) += phase_dRdRho;
+            *( dRdRho_begin + phase ) += phase_dRdRho;
+
+            // Add the material response contributions to the U vector
+            for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                // DOF value contributions
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * velocity_index + p.first ) ) * dUDotdU * interpolation_function;
+
+                // DOF spatial gradient contributions
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * dUDotdU * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            for ( unsigned int a = 0; a < dim; ++a ){
+
+                *( dRdU_begin + dim * phase + a ) += phase_dRdU[ a ];
+
+            }
 
 //            // Add the material response contributions to the displacement Jacobian
 //
