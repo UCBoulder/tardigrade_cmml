@@ -1026,30 +1026,30 @@ namespace tardigradeBalanceEquations{
 
             }
 
-//            // Add the material response contributions to the mesh displacement Jacobian
-//            for ( unsigned int j = 0; j < material_response_num_dof; ++j ){
-//
-//                for ( unsigned int a = 0; a < material_response_dim; ++a ){
-//
-//                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
-//
-//                        *( dRdUMesh_begin + a ) += 
-//                            test_function
-//                            * ( *( material_response_jacobian_begin + material_response_num_dof * material_response_dim * mass_change_index + material_response_dim * j + k + material_response_num_dof ) )
-//                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * j + a ) )
-//                            * ( *( interpolation_function_gradient_begin + k ) );
-//
-//                    }
-//
-//                }
-//
-//            }
-//
-//            for ( unsigned int a = 0; a < dim; ++a ){
-//
-//                *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + mass_change_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
-//
-//            }
+            // Add the material response contributions to the mesh displacement Jacobian
+            for ( unsigned int i = 0; i < material_response_num_dof; ++i ){
+
+                for ( unsigned int j = 0; j < material_response_dim; ++j ){
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *( dRdUMesh_begin + a ) += 
+                            test_function
+                            * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * i + j ) )
+                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * i + a ) )
+                            * ( *( interpolation_function_gradient_begin + j ) );
+
+                    }
+
+                }
+
+            }
+
+            for ( unsigned int a = 0; a < dim; ++a ){
+
+                *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + mass_change_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+            }
 
         }
 

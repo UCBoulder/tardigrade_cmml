@@ -2736,86 +2736,6 @@ void evaluate_at_nodes(
         );
 
     }
-//
-//
-//
-//
-//
-//    for ( unsigned int j = low_bound; j < high_bound; ++j ){
-//
-//        std::vector< floatType > grad_u( 9, 0 );
-//
-//        std::copy(
-//            std::begin( grad_w_tp1 ) + 9 * j,
-//            std::begin( grad_w_tp1 ) + 9 * ( j + 1 ),
-//            std::begin( grad_u )
-//        );
-//
-//        std::vector< floatType > F(  9, 0 );
-//
-//        std::vector< floatType > dFdGradU( 81, 0 );
-//
-//        std::vector< floatType > Fp( 9, 0 );
-//
-//        std::vector< floatType > previous_dof_vector( dof_vector.size( ), 0 );
-//
-//        std::vector< floatType > previous_state_variables( 13, 0 );
-//
-//        tardigradeConstitutiveTools::computeDeformationGradient( grad_u, F, dFdGradU, true ); // The false here isn't strictly correct, but it helps the Jacobian tests
-//
-//        hydraLinearTest linearTest(
-//            0, dt, theta_tp1_p[ j ], 0., F, Fp,
-//            dof_vector, previous_dof_vector,
-//            previous_state_variables,
-//            linear_test_params,
-//            1, 13
-//        );
-//
-//        linearTest.evaluate( );
-//
-//        std::copy(
-//            std::begin( *linearTest.getUnknownVector( ) ),
-//            std::end(   *linearTest.getUnknownVector( ) ),
-//            std::begin( material_response ) + material_response_size * j
-//        );
-//
-//        linearTest.computeTangents( );
-//
-//        linearTest.computedXdAdditionalDOF( );
-//
-//        std::copy(
-//            std::begin( *linearTest.getFlatdXdAdditionalDOF( ) ),
-//            std::end( *linearTest.getFlatdXdAdditionalDOF( ) ),
-//            std::begin( material_response_jacobian ) + material_response_size * dof_vector_size * j
-//        );
-//
-//        for ( unsigned int I = 0; I < material_response_size; ++I ){
-//
-//            material_response_jacobian[ dof_vector_size * ( I + material_response_size * j ) + nphases * ( 1 + dim + dim ) + j ]
-//                += ( *linearTest.getFlatdXdT( ) )[ I ];
-//
-//            for ( unsigned int ij = 0; ij < dim * dim; ++ij ){
-//
-//                for ( unsigned int ab = 0; ab < dim * dim; ++ab ){
-//
-//                    material_response_jacobian[ dof_vector_size * ( I + material_response_size * j ) + ab + nphases * ( 1 + 3 + 3 + 1 + 1 + 3 ) + num_additional_dof + dim * dim * j ]
-//                        += ( *linearTest.getFlatdXdF( ) )[ dim * dim * I + ij ]
-//                         * dFdGradU[ dim * dim * ij + ab ];
-//
-//                }
-//
-//            }
-//
-//        }
-//
-//    }
-
-//    std::cout << "material_response_jacobian:\n";
-//    for ( unsigned int I = 0; I < nphases * material_response_size; ++I ){
-//        for ( unsigned int J = 0; J < dof_vector_size; ++J ){
-//            std::cout << material_response_jacobian[ dof_vector_size * I + J ] << " ";
-//        } std::cout << "\n";
-//    }
 
     std::fill( value_begin, value_end, 0 );
 
@@ -2911,8 +2831,7 @@ void evaluate_at_nodes(
                     Ns[ i ], 
                     Ns[ k ],
                     std::cbegin( dNdxs ) + dim * k, std::cbegin( dNdxs ) + dim * ( k + 1 ),
-                    std::begin( material_response_jacobian ) + material_response_size * dof_vector_size * j,
-                    std::begin( material_response_jacobian ) + material_response_size * dof_vector_size * ( j + 1 ),
+                    std::begin( dof_vector ) + num_dof, std::end( dof_vector ),
                     dDensityDotdDensity, dUDotdU,
                     j,
                     value_n[ nphases * i + j ],
@@ -2927,14 +2846,14 @@ void evaluate_at_nodes(
         
                 value_n[ nphases * i + j ] *= J;
 
-                std::cout << "dRdW_n:\n";
-                const unsigned int _row = nphases;
-                const unsigned int _col = nphases * 3;
-                for ( unsigned int _i = 0; _i < _row; ++_i ){
-                    for ( unsigned int _j = 0; _j < _col; ++_j ){
-                        std::cout << dRdW_n[ _col * _i + _j ] << " ";
-                    } std::cout << "\n";
-                } std::cout << "\n";
+//                std::cout << "dRdUMesh_n:\n";
+//                const unsigned int _row = nphases;
+//                const unsigned int _col = 3;
+//                for ( unsigned int _i = 0; _i < _row; ++_i ){
+//                    for ( unsigned int _j = 0; _j < _col; ++_j ){
+//                        std::cout << dRdUMesh_n[ _col * _i + _j ] << " ";
+//                    } std::cout << "\n";
+//                } std::cout << "\n";
     
             }
             else{
@@ -3011,18 +2930,25 @@ void evaluate_at_nodes(
 
                 }
 
+                for ( unsigned int l = 0; l < dim; ++l ){
+
+                    *( dRdUMesh_begin + nphases * node_count * 3 * i + node_count * 3 * j + 3 * k + l )
+                        += dRdUMesh_n[ 3 * j + l ] * J;
+
+                }
+
             }
 
         }
 
     }
 
-    std::cout << "dRdW:\n";
+    std::cout << "dRdUMesh:\n";
     unsigned int rows = node_count * nphases * 1;
-    unsigned int cols = node_count * nphases * 3;
+    unsigned int cols = node_count * 3;
     for ( unsigned int i = 0; i < rows; ++i ){
         for ( unsigned int j = 0; j < cols; ++j ){
-            std::cout << *( dRdW_begin + cols * i + j ) << " ";
+            std::cout << *( dRdUMesh_begin + cols * i + j ) << " ";
         } std::cout << "\n";
     }
 
@@ -3862,6 +3788,89 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::un
                 if ( phase == active_phase ){
 
                     BOOST_TEST( dRdZ[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+                }
+
+            }
+
+        }
+
+    }
+
+    // Check the derivatives w.r.t. the mesh displacement
+    {
+
+        constexpr unsigned int vardim = 3 * 8;
+        constexpr unsigned int outdim = 1 * nphases * 8;
+
+        for ( unsigned int i = 0; i < vardim; ++i ){
+
+            floatType delta = eps * std::fabs( umesh_tp1[ i ] ) + eps;
+
+            std::array< floatType, vardim > xp = umesh_tp1;
+            std::array< floatType, vardim > xm = umesh_tp1;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            std::array< floatType, outdim > vp, vm;
+
+            evaluate_at_nodes< 3, 8, nphases, num_additional_dof >(
+                std::cbegin( local_point ),   std::cend( local_point ),
+                dt,
+                std::cbegin( density_t ),     std::cend( density_t ),
+                std::cbegin( density_tp1 ),   std::cend( density_tp1 ),
+                std::cbegin( u_t ),           std::cend( u_t ),
+                std::cbegin( u_tp1 ),         std::cend( u_tp1 ),
+                std::cbegin( w_t ),           std::cend( w_t ),
+                std::cbegin( w_tp1 ),         std::cend( w_tp1 ),
+                std::cbegin( theta_t ),       std::cend( theta_t ),
+                std::cbegin( theta_tp1 ),     std::cend( theta_tp1 ),
+                std::cbegin( e_t ),           std::cend( e_t ),
+                std::cbegin( e_tp1 ),         std::cend( e_tp1 ),
+                std::cbegin( z_t ),           std::cend( z_t ),
+                std::cbegin( z_tp1 ),         std::cend( z_tp1 ),
+                std::cbegin( umesh_t ),       std::cend( umesh_t ),
+                std::cbegin( xp ),            std::cend( xp ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( u_dot_t ),       std::cend( u_dot_t ),
+                std::cbegin( X ),             std::cend( X ),
+                alpha, std::begin( vp ),  std::end( vp ),
+                active_phase
+            );
+
+            evaluate_at_nodes< 3, 8, nphases, num_additional_dof >(
+                std::cbegin( local_point ),   std::cend( local_point ),
+                dt,
+                std::cbegin( density_t ),     std::cend( density_t ),
+                std::cbegin( density_tp1 ),   std::cend( density_tp1 ),
+                std::cbegin( u_t ),           std::cend( u_t ),
+                std::cbegin( u_tp1 ),         std::cend( u_tp1 ),
+                std::cbegin( w_t ),           std::cend( w_t ),
+                std::cbegin( w_tp1 ),         std::cend( w_tp1 ),
+                std::cbegin( theta_t ),       std::cend( theta_t ),
+                std::cbegin( theta_tp1 ),     std::cend( theta_tp1 ),
+                std::cbegin( e_t ),           std::cend( e_t ),
+                std::cbegin( e_tp1 ),         std::cend( e_tp1 ),
+                std::cbegin( z_t ),           std::cend( z_t ),
+                std::cbegin( z_tp1 ),         std::cend( z_tp1 ),
+                std::cbegin( umesh_t ),       std::cend( umesh_t ),
+                std::cbegin( xm ),            std::cend( xm ),
+                std::cbegin( density_dot_t ), std::cend( density_dot_t ),
+                std::cbegin( u_dot_t ),       std::cend( u_dot_t ),
+                std::cbegin( X ),             std::cend( X ),
+                alpha, std::begin( vm ),  std::end( vm ),
+                active_phase
+            );
+
+            for ( unsigned int j = 0; j < outdim; ++j ){
+
+                    unsigned int node = j / nphases;
+                    unsigned int phase = j - nphases * node;
+
+                if ( phase == active_phase ){
+
+                    BOOST_TEST( dRdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
 
                 }
 
