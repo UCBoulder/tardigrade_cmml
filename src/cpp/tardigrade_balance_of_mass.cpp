@@ -786,12 +786,12 @@ namespace tardigradeBalanceEquations{
             class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
             class dRdUMesh_iter,
             typename dDensityDotdDensity_type, typename dUDotdU_type,
-            int density_index         = 0,
-            int displacement_index    = 1,
-            int velocity_index        = 4,
-            int temperature_index     = 7,
-            int internal_energy_index = 8,
-            int additional_dof_index  = 9
+            int density_index,
+            int displacement_index,
+            int velocity_index,
+            int temperature_index,
+            int internal_energy_index,
+            int additional_dof_index
         >
         void computeBalanceOfMass(
             const density_type &density,                                  const densityDot_type &density_dot,
@@ -817,9 +817,10 @@ namespace tardigradeBalanceEquations{
             dRdZ_iter dRdZ_begin,             dRdZ_iter dRdZ_end,
             dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
         ){
+
             /*!
              * A balance of mass function for a general material response problem where the change in mass may be
-             * a function of many different variables. Evaluates for all phases.
+             * a function of many different variables.
              * 
              * The material response vector is assumed to be organized as
              * 
@@ -1048,6 +1049,265 @@ namespace tardigradeBalanceEquations{
             for ( unsigned int a = 0; a < dim; ++a ){
 
                 *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + mass_change_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+            }
+
+        }
+
+        template<
+            int dim, int mass_change_index, int material_response_dim, int material_response_num_dof,
+            class density_iter, class densityDot_iter, class result_iter,
+            typename testFunction_type, typename interpolationFunction_type,
+            class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter,
+            class material_response_iter, class material_response_jacobian_iter,
+            class interpolationFunctionGradient_iter,
+            class full_material_response_dof_gradient_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
+            class dRdUMesh_iter,
+            typename dDensityDotdDensity_type, typename dUDotdU_type,
+            int density_index,
+            int displacement_index,
+            int velocity_index,
+            int temperature_index,
+            int internal_energy_index,
+            int additional_dof_index
+        >
+        void computeBalanceOfMass(
+            const density_iter &density_begin,                            const density_iter &density_end,
+            const densityDot_iter &density_dot_begin,                     const densityDot_iter &density_dot_end,
+            const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin,        const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const testFunction_type &test_function,                       const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
+            result_iter result_begin,         result_iter result_end,
+            dRdRho_iter dRdRho_begin,         dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,             dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin,             dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin,     dRdTheta_iter dRdTheta_end,
+            dRdE_iter dRdE_begin,             dRdE_iter dRdE_end,
+            dRdZ_iter dRdZ_begin,             dRdZ_iter dRdZ_end,
+            dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
+        ){
+
+            /*!
+             * A balance of mass function for a general material response problem where the change in mass may be
+             * a function of many different variables. Evaluates for all phases.
+             * 
+             * The material response vector is assumed to be organized as
+             * 
+             * \f$ \sigma, e, c, b, \pi, q, r, \Pi \f$
+             *
+             * where \f$ \sigma \f$ is the Cauchy stress, \f$ e \f$ is the predicted internal energy per unit mass,
+             * \f$ c \f$ is the mass change rate per unit volume, \f$ b \f$ is the body force vector, \f$ \pi \f$ is
+             * the net inter-phase force, \f$ q \f$ is the heat flux vector, \f$ r \f$ is the volumetric heat generation
+             * per unit mass, and \f$ \Pi \f$ is the net interphase heat transfer. We note that additional outputs can be
+             * added to the material response vector, but they must be done after the above quantities.
+             * 
+             * We assume that the material_response_jacobian is organized such that there are material_response_num_dof
+             * degrees of freedom followed by the gradients of these degrees of freedom for the columns of the Jacobian.
+             * If the degrees of freedom are \f$ rho, w, \f$ and \f$ v \f$ then the columns of the jacobian would be 
+             * 
+             * 
+             * \f$ \rho, w, v, \nabla \rho, \nabla w, \nabla v \f$
+             * 
+             * If the degrees of freedom are vector quantities, then they, and their gradients, must be stored in
+             * row-major form.
+             * 
+             * In the case of a multi-phase problem we expect the following structure:
+             * 
+             * \f$ \rho^1 \f$, \rho^2, \ldots w^1, w^2, \ldots, v^1, v^2, \ldots, \nabla \rho^1, \nabla \rho^2, ... \f$
+             *
+             * where the superscript indicates the phase. In this function we assume a default order of
+             * 
+             * \f$ \rho, w, v, \theta, e, z \f$
+             * 
+             * Where \f$ v \f$ is the velocity which may be equal to \f$ u \f$ or it's time derivative.
+             * 
+             * mass_change_index is the index of the material response vector that represents the mass change rate
+             * material_response_dim is the spatial dimension of the material-response Jacobian
+             * material_response_num_dof are the number of degrees of freedom in the material-response Jacobian
+             * 
+             * \param &density_begin: The starting iterator of the value of the density \f$ \rho \f$
+             * \param &density_end: The stopping iterator of the value of the density \f$ \rho \f$
+             * \param &density_dot_begin: The starting iterator of the value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_dot_end: The stopping iterator of the value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \rho_{,i} \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ v_i \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ v_i \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ v_{i,j} \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &material_response_jacobian_begin: The starting iterator of the material response Jacobian vector
+             * \param &material_response_jacobian_end: The stopping iterator of the material response Jacobian vector
+             * \param &test_function: The test function \f$ \psi \f$
+             * \param &interpolation_function: The interpolation function \f$ \phi \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \phi_{,i} \f$
+             * \param &full_material_response_dof_gradient_begin: The starting iterator of the spatial gradient of all of the degrees of freedom used by the material response
+             * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of all of the degrees of freedom used by the material response
+             * \param &dDensityDotdDensity: The derivative of the time-derivative of the density w.r.t. the density (based on timestep and integration scheme)
+             * \param &dUDotdU: The derivative of the time-derivative of the displacement w.r.t. the displacement (may not be mesh displacement)
+             * \param &result_begin: The starting iterator of the net mass change per unit volume \f$ c \f$
+             * \param &result_end: The stopping iterator of the net mass change per unit volume \f$ c \f$
+             * \param &dRdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
+             * \param &dRdU_begin: The starting iterator of the derivative of the mass change rate w.r.t. the spatial dof (may not be displacement)
+             * \param &dRdU_end: The stopping iterator of the derivative of the mass change rate w.r.t. the spatial dof (may not be displacement)
+             * \param &dRdW_begin: The starting iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dRdW_end: The stopping iterator of the derivative of the mass change rate w.r.t. the displacement (may not be mesh displacement)
+             * \param &dRdTheta_begin: The starting iterator of the derivative of the mass change rate w.r.t. the temperature
+             * \param &dRdTheta_end: The stopping iterator of the derivative of the mass change rate w.r.t. the temperature
+             * \param &dRdE_begin: The starting iterator of the derivative of the mass change rate w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the derivative of the mass change rate w.r.t. the internal energy
+             * \param &dRdZ_begin: The starting iterator of the derivative of the mass change rate w.r.t. the additional dof
+             * \param &dRdZ_end: The stopping iterator of the derivative of the mass change rate w.r.t. the additional dof
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the mass change rate w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the mass change rate w.r.t. the mesh displacement
+             */
+
+            using density_type     = typename std::iterator_traits<density_iter>::value_type;
+
+            using density_dot_type = typename std::iterator_traits<densityDot_iter>::value_type;
+
+            using result_type      = typename std::iterator_traits<result_iter>::value_type;
+
+            const unsigned int nphases = ( unsigned int )( density_begin - density_end );
+
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+
+            const unsigned int num_additional_dof = ( unsigned int )( dRdZ_end - dRdZ_begin ) / nphases;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The length of density dot and density must be the same"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The length of the density gradient and the density must be consistent"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( velocity_end - velocity_begin ), "The length of the velocity and the density must be consistent"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * dim == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The length of the velocity gradient and the density must be consistent"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                mass_change_index < material_response_size, "The material response vector must be larger than the mass-change index times the number of phases"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                material_response_size * material_response_num_dof == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
+                "The material response jacobian but have a consistent size with the material response vector and the material_response_num_dof"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim == ( unsigned int )( interpolation_function_gradient_end - interpolation_function_gradient_begin ),
+                "The interpolation function gradient must have a size of dim"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( result_end - result_begin ),
+                "The result vector must be the same size as the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * 1 == ( unsigned int )( dRdRho_end - dRdRho_begin ),
+                "dRdRho must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * material_response_dim == ( unsigned int )( dRdU_end - dRdU_begin ),
+                "dRdU must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * material_response_dim == ( unsigned int )( dRdW_end - dRdW_begin ),
+                "dRdW must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * 1 == ( unsigned int )( dRdTheta_end - dRdTheta_begin ),
+                "dRdTheta must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * 1 == ( unsigned int )( dRdE_end - dRdE_begin ),
+                "dRdE must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * num_additional_dof == ( unsigned int )( dRdZ_end - dRdZ_begin ),
+                "dRdZ must have a consistent size with the density vector"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ),
+                "dRdUMesh must have a consistent size with the density vector"
+            )
+
+            for(
+                auto v = std::pair< unsigned int, density_iter >( 0, density_begin );
+                v.second != density_end;
+                ++v.first, ++v.second
+            ){
+
+                computeBalanceOfMass
+                <
+                    dim, mass_change_index, material_response_dim, material_response_num_dof,
+                    density_type, density_dot_type, result_type,
+                    testFunction_type, interpolationFunction_type,
+                    densityGradient_iter,
+                    velocity_iter, velocityGradient_iter,
+                    material_response_iter, material_response_jacobian_iter,
+                    interpolationFunctionGradient_iter,
+                    full_material_response_dof_gradient_iter,
+                    dRdRho_iter, dRdU_iter, dRdW_iter, dRdTheta_iter, dRdE_iter, dRdZ_iter,
+                    dRdUMesh_iter,
+                    dDensityDotdDensity_type, dUDotdU_type,
+                    density_index,
+                    displacement_index,
+                    velocity_index,
+                    temperature_index,
+                    internal_energy_index,
+                    additional_dof_index
+                >
+                (
+                    *( density_begin + v.first ),                                 *( density_dot_begin + v.first ),
+                    density_gradient_begin  + dim * v.first,                       density_gradient_begin  + dim * ( v.first + 1 ),
+                    velocity_begin          + dim * v.first,                      velocity_begin          + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first,                velocity_gradient_begin + dim * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first,   material_response_begin + material_response_size * ( v.first + 1 ),
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * v.first,
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( v.first + 1 ),
+                    test_function, interpolation_function,
+                    interpolation_function_gradient_begin, interpolation_function_gradient_end,
+                    full_material_response_dof_gradient_begin,
+                    full_material_response_dof_gradient_end,
+                    dDensityDotdDensity, dUDotdU,
+                    v.first,
+                    *( result_begin + v.first ),
+                    dRdRho_begin   + nphases *   1 * v.first, dRdRho_begin   + nphases * 1   * ( v.first + 1 ),
+                    dRdU_begin     + nphases * dim * v.first, dRdU_begin     + nphases * dim * ( v.first + 1 ),
+                    dRdW_begin     + nphases * dim * v.first, dRdW_begin     + nphases * dim * ( v.first + 1 ),
+                    dRdTheta_begin + nphases *   1 * v.first, dRdTheta_begin + nphases *   1 * ( v.first + 1 ),
+                    dRdE_begin     + nphases *   1 * v.first, dRdE_begin     + nphases *   1 * ( v.first + 1 ),
+                    dRdZ_begin     + nphases * num_additional_dof * v.first,
+                    dRdZ_begin     + nphases * num_additional_dof * ( v.first + 1 ),
+                    dRdUMesh_begin +       1 * dim * v.first, dRdUMesh_begin +       1 * dim * ( v.first + 1 )
+                );
 
             }
 
