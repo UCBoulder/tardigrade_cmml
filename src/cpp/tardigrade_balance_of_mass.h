@@ -258,6 +258,50 @@ namespace tardigradeBalanceEquations{
             dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
         );
 
+        template<
+            int dim, int mass_change_index, int material_response_dim, int material_response_num_dof,
+            class density_iter, class densityDot_iter, class result_iter,
+            typename testFunction_type, typename interpolationFunction_type,
+            class densityGradient_iter,
+            class velocity_iter, class velocityGradient_iter,
+            class material_response_iter, class material_response_jacobian_iter,
+            class interpolationFunctionGradient_iter,
+            class full_material_response_dof_gradient_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
+            class dRdUMesh_iter,
+            typename dDensityDotdDensity_type, typename dUDotdU_type,
+            int density_index         = 0,
+            int displacement_index    = 1,
+            int velocity_index        = 4,
+            int temperature_index     = 7,
+            int internal_energy_index = 8,
+            int additional_dof_index  = 9
+        >
+        void computeBalanceOfMass(
+            const density_iter &density_begin,                            const density_iter &density_end,
+            const densityDot_iter &density_dot_begin,                     const densityDot_iter &density_dot_end,
+            const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
+            const velocityGradient_iter &velocity_gradient_begin,         const velocityGradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin,        const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const testFunction_type &test_function,                       const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dDensityDotdDensity_type &dDensityDotdDensity,          const dUDotdU_type &dUDotdU,
+            result_iter result_begin,         result_iter result_end,
+            dRdRho_iter dRdRho_begin,         dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,             dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin,             dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin,     dRdTheta_iter dRdTheta_end,
+            dRdE_iter dRdE_begin,             dRdE_iter dRdE_end,
+            dRdZ_iter dRdZ_begin,             dRdZ_iter dRdZ_end,
+            dRdUMesh_iter dRdUMesh_begin,     dRdUMesh_iter dRdUMesh_end
+        );
+
     }
 
 }

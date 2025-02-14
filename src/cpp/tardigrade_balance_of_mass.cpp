@@ -1182,11 +1182,11 @@ namespace tardigradeBalanceEquations{
 
             using result_type      = typename std::iterator_traits<result_iter>::value_type;
 
-            const unsigned int nphases = ( unsigned int )( density_begin - density_end );
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
 
             const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
 
-            const unsigned int num_additional_dof = ( unsigned int )( dRdZ_end - dRdZ_begin ) / nphases;
+            const unsigned int num_additional_dof = material_response_num_dof - nphases * ( 1 + material_response_dim + material_response_dim + 1 + 1 );
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
                 nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The length of density dot and density must be the same"
@@ -1209,7 +1209,7 @@ namespace tardigradeBalanceEquations{
             )
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
-                material_response_size * material_response_num_dof == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
+                nphases * material_response_size * material_response_num_dof * ( 1 + material_response_dim ) == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
                 "The material response jacobian but have a consistent size with the material response vector and the material_response_num_dof"
             )
 
@@ -1286,12 +1286,12 @@ namespace tardigradeBalanceEquations{
                 >
                 (
                     *( density_begin + v.first ),                                 *( density_dot_begin + v.first ),
-                    density_gradient_begin  + dim * v.first,                       density_gradient_begin  + dim * ( v.first + 1 ),
+                    density_gradient_begin  + dim * v.first,                      density_gradient_begin  + dim * ( v.first + 1 ),
                     velocity_begin          + dim * v.first,                      velocity_begin          + dim * ( v.first + 1 ),
-                    velocity_gradient_begin + dim * dim * v.first,                velocity_gradient_begin + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first,                velocity_gradient_begin + dim * dim * ( v.first + 1 ),
                     material_response_begin + material_response_size * v.first,   material_response_begin + material_response_size * ( v.first + 1 ),
-                    material_response_jacobian_begin + material_response_size * material_response_num_dof * v.first,
-                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( v.first + 1 ),
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * v.first,
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * ( v.first + 1 ),
                     test_function, interpolation_function,
                     interpolation_function_gradient_begin, interpolation_function_gradient_end,
                     full_material_response_dof_gradient_begin,
@@ -1304,8 +1304,8 @@ namespace tardigradeBalanceEquations{
                     dRdW_begin     + nphases * dim * v.first, dRdW_begin     + nphases * dim * ( v.first + 1 ),
                     dRdTheta_begin + nphases *   1 * v.first, dRdTheta_begin + nphases *   1 * ( v.first + 1 ),
                     dRdE_begin     + nphases *   1 * v.first, dRdE_begin     + nphases *   1 * ( v.first + 1 ),
-                    dRdZ_begin     + nphases * num_additional_dof * v.first,
-                    dRdZ_begin     + nphases * num_additional_dof * ( v.first + 1 ),
+                    dRdZ_begin     + num_additional_dof * v.first,
+                    dRdZ_begin     + num_additional_dof * ( v.first + 1 ),
                     dRdUMesh_begin +       1 * dim * v.first, dRdUMesh_begin +       1 * dim * ( v.first + 1 )
                 );
 
