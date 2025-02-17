@@ -2948,7 +2948,7 @@ void evaluate_at_nodes(
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::unit_test::tolerance( 1e-5 ) ){
+BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_hydra_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
      * Test computing the balance of mass in a finite element context
      */
@@ -3876,7 +3876,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::un
 
 }
 
-BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_multiphase_fea, * boost::unit_test::tolerance( 1e-5 ) ){
+BOOST_AUTO_TEST_CASE( test_computeBalanceOfMass_hydra_multiphase_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
      * Test computing the balance of mass in a finite element context
      */
