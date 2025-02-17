@@ -494,7 +494,7 @@ namespace tardigradeBalanceEquations{
              * \param &material_response_end: The stopping iterator of the material response vector
              * \param &volume_fraction_begin: The starting iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
              *     i.e., the mass of the phase per unit volume.
-             * \param &volume_fraction: The stopping iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
              *     i.e., the mass of the phase per unit volume.
              * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
              * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
