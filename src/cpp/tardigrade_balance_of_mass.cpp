@@ -876,7 +876,7 @@ namespace tardigradeBalanceEquations{
              * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of all of the degrees of freedom used by the material response
              * \param &dDensityDotdDensity: The derivative of the time-derivative of the density w.r.t. the density (based on timestep and integration scheme)
              * \param &dUDotdU: The derivative of the time-derivative of the displacement w.r.t. the displacement (may not be mesh displacement)
-             * \param &phase: The phase currently being processed
+             * \param &phase: The phase the balance equation applies to
              * \param &result: The net mass change per unit volume \f$ c \f$
              * \param &dRdRho_begin: The starting iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
              * \param &dRdRho_end: The stopping iterator of the derivative of the mass change rate w.r.t. density \f$ \rho \f$
