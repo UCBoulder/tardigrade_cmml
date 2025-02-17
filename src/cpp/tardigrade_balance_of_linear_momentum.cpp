@@ -389,6 +389,11 @@ namespace tardigradeBalanceEquations{
 //            std::cout << "  psi      : " << test_function << "\n";
 //            std::cout << "  grad_psi : "; for ( auto v = test_function_gradient_begin; v != test_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
 
+            using result_type = typename std::iterator_traits<result_iter>::value_type;
+
+            std::array< result_type,       dim > dRdB_phase;
+            std::array< result_type, dim * dim > dRdCauchy_phase;
+
             computeBalanceOfLinearMomentum<dim>(
                 density, density_dot, density_gradient_begin, density_gradient_end,
                 velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
