@@ -272,7 +272,7 @@ namespace tardigradeBalanceEquations{
 
         template<
             int dim, int material_response_dim, int body_force_index, int cauchy_stress_index, int interphasic_force_index,
-            int material_response_dim, int material_response_num_dof,
+            int material_response_num_dof,
             typename density_type, typename density_dot_type, class density_gradient_iter,
             class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
             class material_response_iter, class material_response_jacobian_iter,
@@ -400,7 +400,7 @@ namespace tardigradeBalanceEquations{
                 test_function_gradient_begin, test_function_gradient_end,
                 interpolation_function,
                 interpolation_function_gradient_begin, interpolation_function_gradient_end,
-                dRhoDotdRho, dUDotdU, dUDDotdU,
+                dDensityDotdDensity, dUDotdU, dUDDotdU,
                 result_begin, result_end,
                 dRdRho_begin +       dim * phase,      dRdRho_begin +       dim * ( phase + 1 ),
                 dRdU_begin   + dim * dim * phase,      dRdRho_begin + dim * dim * ( phase + 1 ),
@@ -417,11 +417,26 @@ namespace tardigradeBalanceEquations{
 
             }
 
-            // Add the contributions to the density Jacobian from the material response (body force, Cauchy stress, interphasic force)
-            for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+            // Set the number of phases
+            const unsigned int nphases = ( unsigned int )( dRdRho_end - dRdRho_begin ) / dim;
 
-                // DOF value contributions
-                *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * 
+            // Add the contributions to the density Jacobian from the material response (body force, Cauchy stress, interphasic force)
+            for ( unsigned int i = 0; i < dim; ++i ){
+
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin + nphases * i ); p.second != dRdRho_begin + nphases * ( i + 1 ); ++p.first, ++p.second ){
+
+                    // DOF value contributions
+                    *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + i ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    // DOF spatial gradient contributions
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + i ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+
+                    }
+
+                }
 
             }
 
