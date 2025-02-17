@@ -187,6 +187,328 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
+            int dim, int material_response_dim, int body_force_index, int cauchy_stress_index, int interphasic_force_index,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            typename volume_fraction_type,
+            typename testFunction_type, class testFunctionGradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_type &volume_fraction,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            result_iter result_begin,                              result_iter result_end
+        ){
+            /*!
+             * Compute the balance of linear momentum including the inter-phasic force
+             * 
+             * material_response_dim: The spatial dimension of the material response
+             * body_force_index: The index of the material response vector where the body force is located
+             * cauchy_stress_index: The index of the material response vector where the cauchy stress force is located
+             * interphasic_force_index: The index of the material response vector where the net interphasic force is located
+             * 
+             * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction: The volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             */
+
+//            std::cout << "\n\nvalues\n";
+//            std::cout << "  rho    : " << density << "\n";
+//            std::cout << "  rho_dot: " << density_dot << "\n";
+//            std::cout << "  grad_rho : "; for ( auto v = density_gradient_begin;  v != density_gradient_end;  ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  v        : "; for ( auto v = velocity_begin;          v != velocity_end;          ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  a        : "; for ( auto v = velocity_dot_begin;      v != velocity_dot_end;      ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  grad_v   : "; for ( auto v = velocity_gradient_begin; v != velocity_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  MR       : "; for ( auto v = material_response_begin; v != material_response_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  vf       : " << volume_fraction << "\n";
+//            std::cout << "  psi      : " << test_function << "\n";
+//            std::cout << "  grad_psi : "; for ( auto v = test_function_gradient_begin; v != test_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+
+            computeBalanceOfLinearMomentum<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
+                velocity_gradient_begin, velocity_gradient_end,
+                material_response_begin + body_force_index,    material_response_begin + body_force_index + material_response_dim,
+                material_response_begin + cauchy_stress_index, material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
+                volume_fraction,
+                test_function,
+                test_function_gradient_begin, test_function_gradient_end,
+                result_begin, result_end
+            );
+
+            // Add the contribution from the interphasic force
+            for ( auto v = std::pair< unsigned int, result_iter >( 0, result_begin ); v.second != result_end; ++v.first, ++v.second ){
+
+                *v.second += test_function * ( *( material_response_begin + interphasic_force_index + v.first ) );
+
+            }
+
+        }
+
+        template<
+            int dim, int material_response_dim, int body_force_index, int cauchy_stress_index, int interphasic_force_index,
+            int material_response_dim, int material_response_num_dof,
+            typename density_type, typename density_dot_type, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class material_response_iter, class material_response_jacobian_iter,
+            typename volume_fraction_type,
+            typename testFunction_type, class testFunctionGradient_iter,
+            typename interpolationFunction_type, class interpolationFunctionGradient_iter,
+            class full_material_response_dof_gradient_iter,
+            typename dDensityDotdDensity_type, typename dUDotdU_type, typename dUDDotdU_type,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
+            class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            int density_index         = 0,
+            int displacement_index    = 1,
+            int velocity_index        = 4,
+            int temperature_index     = 7,
+            int internal_energy_index = 8,
+            int additional_dof_index  = 9
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const volume_fraction_type &volume_fraction,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            const interpolationFunction_type &interpolation_function,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_begin,
+            const interpolationFunctionGradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dDensityDotdDensity_type &dDensityDotdDensity,   const dUDotdU_type &dUDotdU, const dUDDotdU_type &dUDDotdU,
+            const unsigned int phase,
+            result_iter result_begin,                              result_iter result_end,
+            dRdRho_iter dRdRho_begin,                              dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                                  dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin,                                  dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin,                          dRdTheta_iter dRdTheta_end,
+            dRdE_iter dRdE_begin,                                  dRdE_iter dRdE_end,
+            dRdZ_iter dRdZ_begin,                                  dRdZ_iter dRdZ_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin,        dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                          dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the balance of linear momentum including the inter-phasic force
+             * 
+             * material_response_dim: The spatial dimension of the material response
+             * body_force_index: The index of the material response vector where the body force is located
+             * cauchy_stress_index: The index of the material response vector where the cauchy stress force is located
+             * interphasic_force_index: The index of the material response vector where the net interphasic force is located
+             * 
+             * \param &density: The mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot: The partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &material_response_jacobian_begin: The starting iterator of the material response vector Jacobian
+             * \param &material_response_jacobian_end: The stopping iterator of the material response vector Jacobian
+             * \param &volume_fraction: The volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the interpolation function \f$ \left( \phi \right) \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &full_material_response_dof_gradient_begin: The starting iterator of the spatial gradient of the material response dof vector
+             * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of the material response dof vector
+             * \param &dDensityDotdDensity: The total derivative of the time derivative of the density w.r.t. the density
+             * \param &dUDotdU: The total derivative of the time derivative of the spatial dof w.r.t. the spatial dof (1 if the spatial DOF is the velocity)
+             * \param &dUDDotdU: The total derivative of the second time derivative of the spatial dof w.r.t. the spatial dof
+             * \param &phase: The phase the balance equation applies to
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             * \param &dRdRho_begin: The starting iterator of the Jacobian of the result w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the Jacobian of the result w.r.t. the density
+             * \param &dRdU_begin: The starting iterator of the Jacobian of the result w.r.t. the spatial dof
+             * \param &dRdU_end: The stopping iterator of the Jacobian of the result w.r.t. the spatial dof
+             * \param &dRdW_begin: The starting iterator of the Jacobian of the result w.r.t. the displacement
+             * \param &dRdW_end: The stopping iterator of the Jacobian of the result w.r.t. the displacement
+             * \param &dRdTheta_begin: The starting iterator of the Jacobian of the result w.r.t. the temperature
+             * \param &dRdTheta_end: The stopping iterator of the Jacobian of the result w.r.t. the temperature
+             * \param &dRdE_begin: The starting iterator of the Jacobian of the result w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the Jacobian of the result w.r.t. the internal energy
+             * \param &dRdZ_begin: The starting iterator of the Jacobian of the result w.r.t. the additional dof
+             * \param &dRdZ_end: The stopping iterator of the Jacobian of the result w.r.t. the additional dof
+             * \param &dRdVolumeFraction_begin: The starting iterator of the Jacobian of the result w.r.t. the volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the Jacobian of the result w.r.t. the volume fraction
+             * \param &dRdUMesh_begin: The starting iterator of the Jacobian of the result w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the Jacobian of the result w.r.t. the mesh displacement
+             */
+
+//            std::cout << "\n\nvalues\n";
+//            std::cout << "  rho    : " << density << "\n";
+//            std::cout << "  rho_dot: " << density_dot << "\n";
+//            std::cout << "  grad_rho : "; for ( auto v = density_gradient_begin;  v != density_gradient_end;  ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  v        : "; for ( auto v = velocity_begin;          v != velocity_end;          ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  a        : "; for ( auto v = velocity_dot_begin;      v != velocity_dot_end;      ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  grad_v   : "; for ( auto v = velocity_gradient_begin; v != velocity_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  MR       : "; for ( auto v = material_response_begin; v != material_response_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  vf       : " << volume_fraction << "\n";
+//            std::cout << "  psi      : " << test_function << "\n";
+//            std::cout << "  grad_psi : "; for ( auto v = test_function_gradient_begin; v != test_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+
+            computeBalanceOfLinearMomentum<dim>(
+                density, density_dot, density_gradient_begin, density_gradient_end,
+                velocity_begin, velocity_end, velocity_dot_begin, velocity_dot_end,
+                velocity_gradient_begin, velocity_gradient_end,
+                material_response_begin + body_force_index,    material_response_begin + body_force_index + material_response_dim,
+                material_response_begin + cauchy_stress_index, material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
+                volume_fraction,
+                test_function,
+                test_function_gradient_begin, test_function_gradient_end,
+                interpolation_function,
+                interpolation_function_gradient_begin, interpolation_function_gradient_end,
+                dRhoDotdRho, dUDotdU, dUDDotdU,
+                result_begin, result_end,
+                dRdRho_begin +       dim * phase,      dRdRho_begin +       dim * ( phase + 1 ),
+                dRdU_begin   + dim * dim * phase,      dRdRho_begin + dim * dim * ( phase + 1 ),
+                std::begin(      dRdB_phase ),         std::end(      dRdB_phase ),
+                std::begin( dRdCauchy_phase ),         std::end( dRdCauchy_phase ),
+                dRdVolumeFraction_begin + dim * phase, dRdVolumeFraction_begin + dim * ( phase + 1 ),
+                dRdUMesh_begin,                        dRdUMesh_end
+            );
+
+            // Add the contribution from the interphasic force
+            for ( auto v = std::pair< unsigned int, result_iter >( 0, result_begin ); v.second != result_end; ++v.first, ++v.second ){
+
+                *v.second += test_function * ( *( material_response_begin + interphasic_force_index + v.first ) );
+
+            }
+
+            // Add the contributions to the density Jacobian from the material response (body force, Cauchy stress, interphasic force)
+            for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                // DOF value contributions
+                *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * 
+
+            }
+
+        }
+
+        template<
+            int dim, int material_response_dim, int body_force_index, int cauchy_stress_index, int interphasic_force_index,
+            class density_iter,  class density_dot_iter, class density_gradient_iter,
+            class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class volume_fraction_iter,
+            typename testFunction_type, class testFunctionGradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfLinearMomentum(
+            const density_iter &density_begin,                     const density_iter &density_end,
+            const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
+            const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
+            const velocity_dot_iter &velocity_dot_begin,           const velocity_dot_iter &velocity_dot_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_iter &volume_fraction_begin,     const volume_fraction_iter &volume_fraction_end,
+            const testFunction_type &test_function,
+            const testFunctionGradient_iter &test_function_gradient_begin,
+            const testFunctionGradient_iter &test_function_gradient_end,
+            result_iter result_begin,                              result_iter result_end
+        ){
+            /*!
+             * Compute the balance of linear momentum including the inter-phasic force
+             * 
+             * material_response_dim: The spatial dimension of the material response
+             * body_force_index: The index of the material response vector where the body force is located
+             * cauchy_stress_index: The index of the material response vector where the cauchy stress force is located
+             * interphasic_force_index: The index of the material response vector where the net interphasic force is located
+             * 
+             * \param &density_begin: The starting iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_end: The stopping iterator of the mass density per unit current volume \f$ \left( \rho \right) \f$
+             * \param &density_dot_begin: The starting iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_dot_end: The stopping iterator of the partial time derivative of the density \f$ \left( \frac{\partial}{\partial t} \rho \right) \f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the density \f$ \left( \rho_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity \f$ \left( v_i \right) \f$
+             * \param &velocity_dot_begin: The starting iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_dot_end: The stopping iterator of the partial time derivative of the velocity \f$ \left( \frac{\partial}{\partial t} v_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity \f$ \left( v_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &volume_fraction: The stopping iterator of the volume fraction of the phase. Only applied to the Cauchy stress because the density is assumed to be the apparent density
+             *     i.e., the mass of the phase per unit volume.
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
+             * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
+             */
+
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+
+            for ( auto v = std::pair< unsigned int, density_iter >( 0, density_begin ); v.second != density_end; ++v.first, ++v.second ){
+
+                computeBalanceOfLinearMomentum<
+                    dim, material_response_dim, body_force_index, cauchy_stress_index, interphasic_force_index
+                >(
+                    *( density_begin + v.first ),                  *( density_dot_begin + v.first ),
+                    density_gradient_begin        + dim * v.first, density_gradient_begin        + dim * ( v.first + 1 ),
+                    velocity_begin                + dim * v.first, velocity_begin                + dim * ( v.first + 1 ),
+                    velocity_dot_begin            + dim * v.first, velocity_dot_begin            + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first,
+                    material_response_begin + material_response_size * ( v.first + 1 ),
+                    *( volume_fraction_begin + v.first ),
+                    test_function,
+                    test_function_gradient_begin, test_function_gradient_end,
+                    result_begin + dim * v.first, result_begin + dim * ( v.first + 1 )
+                );
+
+            }
+
+        }
+
+        template<
             int dim,
             typename density_type, typename density_dot_type, class density_gradient_iter,
             class velocity_iter, class velocity_dot_iter, class velocity_gradient_iter,
