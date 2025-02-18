@@ -142,24 +142,8 @@ foreach(package ${upstream_packages})
     endif()
 endforeach(package)
 
-#=============================================================================================== ADD PROJECT TARGETS ===
-# MUST COME AFTER DEPENDENCY LOCATING
-# Add project source directories
-if(${not_conda_test} STREQUAL "true")
-    include_directories(${CPP_SRC_PATH})
-    add_subdirectory(${CPP_SRC_PATH})
-endif()
-
 # Only add tests and documentation for current project builds. Protects downstream project builds.
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-    # Find Boost. Required for tests
-    find_package(Boost 1.53.0 REQUIRED COMPONENTS unit_test_framework)
-    # Add c++ tests and docs
-    add_subdirectory(${CPP_TEST_PATH})
-    if(${not_conda_test} STREQUAL "true")
-        add_subdirectory(${DOXYGEN_SRC_PATH})
-        add_subdirectory(${SPHINX_SRC_PATH})
-    endif()
     # Add test-only external projects
     set(test_upstream_packages "tardigrade_constitutive_tools" "tardigrade_hydra")
 
@@ -185,6 +169,26 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
             set(LOCAL_BUILD_INCLUDE_DIRECTORIES ${LOCAL_BUILD_INCLUDE_DIRECTORIES} ${${package}_SOURCE_DIR}/${CPP_SRC_PATH})
         endif()
     endforeach(package)
+endif()
+
+#=============================================================================================== ADD PROJECT TARGETS ===
+# MUST COME AFTER DEPENDENCY LOCATING
+# Add project source directories
+if(${not_conda_test} STREQUAL "true")
+    include_directories(${CPP_SRC_PATH})
+    add_subdirectory(${CPP_SRC_PATH})
+endif()
+
+# Only add tests and documentation for current project builds. Protects downstream project builds.
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    # Find Boost. Required for tests
+    find_package(Boost 1.53.0 REQUIRED COMPONENTS unit_test_framework)
+    # Add c++ tests and docs
+    add_subdirectory(${CPP_TEST_PATH})
+    if(${not_conda_test} STREQUAL "true")
+        add_subdirectory(${DOXYGEN_SRC_PATH})
+        add_subdirectory(${SPHINX_SRC_PATH})
+    endif()
 endif()
 
 #==================================================================================== SETUP INSTALLATION CMAKE FILES ===
