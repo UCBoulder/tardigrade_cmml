@@ -377,22 +377,41 @@ namespace tardigradeBalanceEquations{
              * \param &dRdUMesh_end: The stopping iterator of the Jacobian of the result w.r.t. the mesh displacement
              */
 
-//            std::cout << "\n\nvalues\n";
-//            std::cout << "  rho    : " << density << "\n";
-//            std::cout << "  rho_dot: " << density_dot << "\n";
-//            std::cout << "  grad_rho : "; for ( auto v = density_gradient_begin;  v != density_gradient_end;  ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//            std::cout << "  v        : "; for ( auto v = velocity_begin;          v != velocity_end;          ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//            std::cout << "  a        : "; for ( auto v = velocity_dot_begin;      v != velocity_dot_end;      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//            std::cout << "  grad_v   : "; for ( auto v = velocity_gradient_begin; v != velocity_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//            std::cout << "  MR       : "; for ( auto v = material_response_begin; v != material_response_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//            std::cout << "  vf       : " << volume_fraction << "\n";
-//            std::cout << "  psi      : " << test_function << "\n";
-//            std::cout << "  grad_psi : "; for ( auto v = test_function_gradient_begin; v != test_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "\n\nvalues\n";
+            std::cout << "  dim       : " << dim << "\n";
+            std::cout << "  MR dim    : " << material_response_dim << "\n";
+            std::cout << "  B index   : " << body_force_index << "\n";
+            std::cout << "  C index   : " << cauchy_stress_index << "\n";
+            std::cout << "  pi index  : " << interphasic_force_index << "\n";
+            std::cout << "  MR num dof: " << material_response_num_dof << "\n";
+            std::cout << "  rho       : " << density << "\n";
+            std::cout << "  rho_dot   : " << density_dot << "\n";
+            std::cout << "  grad_rho  : "; for ( auto v = density_gradient_begin;  v != density_gradient_end;  ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  v         : "; for ( auto v = velocity_begin;          v != velocity_end;          ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  a         : "; for ( auto v = velocity_dot_begin;      v != velocity_dot_end;      ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  grad_v    : "; for ( auto v = velocity_gradient_begin; v != velocity_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  MR        : "; for ( auto v = material_response_begin; v != material_response_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  MRJ       : "; for ( auto v = material_response_jacobian_begin; v != material_response_jacobian_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  vf        : " << volume_fraction << "\n";
+            std::cout << "  psi       : " << test_function << "\n";
+            std::cout << "  grad_psi  : "; for ( auto v = test_function_gradient_begin; v != test_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  phi       : " << interpolation_function << "\n";
+            std::cout << "  grad_phi  : "; for ( auto v = interpolation_function_gradient_begin; v != interpolation_function_gradient_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  dRdRho    : "; for ( auto v = dRdRho_begin;            v != dRdRho_end;            ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  dRdU      : "; for ( auto v = dRdU_begin;              v != dRdU_end;              ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  dRdB      : "; for ( auto v = dRdB_begin;              v != dRdB_end;              ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//            std::cout << "  dRdCauchy : "; for ( auto v = dRdCauchy_begin;         v != dRdCauchy_end;         ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  dRdVF     : "; for ( auto v = dRdVolumeFraction_begin; v != dRdVolumeFraction_end; ++v ){ std::cout << *v << " "; } std::cout << "\n";
+            std::cout << "  dRdUMesh  : "; for ( auto v = dRdUMesh_begin;          v != dRdUMesh_end;          ++v ){ std::cout << *v << " "; } std::cout << "\n";
 
             using result_type = typename std::iterator_traits<result_iter>::value_type;
 
-            std::array< result_type,       dim > dRdB_phase;
-            std::array< result_type, dim * dim > dRdCauchy_phase;
+            std::array< result_type,             dim > dRdRho_phase;
+            std::array< result_type,       dim * dim > dRdU_phase;
+            std::array< result_type,       dim * dim > dRdB_phase;
+            std::array< result_type, dim * dim * dim > dRdCauchy_phase;
+            std::array< result_type,             dim > dRdVF_phase;
+            std::array< result_type,       dim * dim > dRdUMesh_phase;
 
             computeBalanceOfLinearMomentum<dim>(
                 density, density_dot, density_gradient_begin, density_gradient_end,
@@ -407,12 +426,12 @@ namespace tardigradeBalanceEquations{
                 interpolation_function_gradient_begin, interpolation_function_gradient_end,
                 dDensityDotdDensity, dUDotdU, dUDDotdU,
                 result_begin, result_end,
-                dRdRho_begin +       dim * phase,      dRdRho_begin +       dim * ( phase + 1 ),
-                dRdU_begin   + dim * dim * phase,      dRdRho_begin + dim * dim * ( phase + 1 ),
+                std::begin(    dRdRho_phase ),         std::end(    dRdRho_phase ),
+                std::begin(      dRdU_phase ),         std::end(      dRdU_phase ),
                 std::begin(      dRdB_phase ),         std::end(      dRdB_phase ),
                 std::begin( dRdCauchy_phase ),         std::end( dRdCauchy_phase ),
-                dRdVolumeFraction_begin + dim * phase, dRdVolumeFraction_begin + dim * ( phase + 1 ),
-                dRdUMesh_begin,                        dRdUMesh_end
+                std::begin(     dRdVF_phase ),         std::end(     dRdVF_phase ),
+                std::begin(  dRdUMesh_phase ),         std::end(  dRdUMesh_phase )
             );
 
             // Add the contribution from the interphasic force
@@ -425,23 +444,44 @@ namespace tardigradeBalanceEquations{
             // Set the number of phases
             const unsigned int nphases = ( unsigned int )( dRdRho_end - dRdRho_begin ) / dim;
 
-            // Add the contributions to the density Jacobian from the material response (body force, Cauchy stress, interphasic force)
             for ( unsigned int i = 0; i < dim; ++i ){
 
+                // BODY FORCE CONTRIBUTIONS
+                for ( unsigned int j = 0; j < dim; ++j ){
+
+                    for ( unsigned int k = 0; k < dim; ++k ){
+
+                        *( dRdRho_begin + nphases * i + k ) += dRdB_phase[ dim * i + j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + j ) + nphases * density_index + k ) ) * interpolation_function;
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+                        
+                            *( dRdRho_begin + nphases * i + k ) += dRdB_phase[ dim * i + j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + k ) + a ) ) * interpolation_function;
+
+                        }
+
+                    }
+
+                }
+
+                // CAUCHY STRESS CONTRIBUTIONS
+
+                // INTERPHASIC FORCE CONTRIBUTIONS
                 for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin + nphases * i ); p.second != dRdRho_begin + nphases * ( i + 1 ); ++p.first, ++p.second ){
 
                     // DOF value contributions
-                    *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + i ) + nphases * density_index + p.first ) ) * interpolation_function;
+                    *p.second += test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + i ) + nphases * density_index + p.first ) ) * interpolation_function;
 
                     // DOF spatial gradient contributions
                     for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                        *p.second += test_function *( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( body_force_index + i ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                        *p.second += test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + i ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
 
                     }
 
                 }
+
+                *( dRdRho_begin + nphases * i + phase ) += dRdRho_phase[ i ];
 
             }
 
