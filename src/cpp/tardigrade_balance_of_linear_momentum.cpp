@@ -842,7 +842,6 @@ namespace tardigradeBalanceEquations{
              * \param &dDensityDotdDensity: The total derivative of the time derivative of the density w.r.t. the density
              * \param &dUDotdU: The total derivative of the time derivative of the spatial dof w.r.t. the spatial dof (1 if the spatial DOF is the velocity)
              * \param &dUDDotdU: The total derivative of the second time derivative of the spatial dof w.r.t. the spatial dof
-             * \param &phase: The phase the balance equation applies to
              * \param &result_begin: The starting iterator of the non-divergence part of the balance of linear momentum
              * \param &result_end: The stopping iterator of the non-divergence part of the balance of linear momentum
              * \param &dRdRho_begin: The starting iterator of the Jacobian of the result w.r.t. the density
