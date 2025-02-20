@@ -1876,7 +1876,7 @@ void evaluate_at_nodes(
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
-     * Test computing the balance of mass in a finite element context
+     * Test computing the balance of linear momentum in a finite element context
      */
 
     std::array< floatType, 8 > density_t = {
@@ -2444,7 +2444,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_fea, * boost::unit_tes
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_multiphase_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
-     * Test computing the balance of mass in a finite element context
+     * Test computing the balance of linear momentum in a finite element context
      */
 
     constexpr unsigned int nphases = 4;
@@ -4567,7 +4567,7 @@ void evaluate_at_nodes(
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
-     * Test computing the balance of mass in a finite element context
+     * Test computing the balance of linear momentum in a finite element context
      */
 
     constexpr unsigned int nphases = 4;
@@ -5726,7 +5726,7 @@ BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_fea, * boost::un
 
 BOOST_AUTO_TEST_CASE( test_computeBalanceOfLinearMomentum_hydra_multiphase_fea, * boost::unit_test::tolerance( 1e-5 ) ){
     /*!
-     * Test computing the balance of mass in a finite element context
+     * Test computing the balance of linear momentum in a finite element context
      */
 
     constexpr unsigned int nphases = 4;
