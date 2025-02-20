@@ -693,7 +693,7 @@ namespace tardigradeBalanceEquations{
              * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
              * \param &material_response_begin: The starting iterator of the material response vector
              * \param &material_response_end: The stopping iterator of the material response vector
-             * \param &volume_fraction: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction: The the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
              * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
              * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
              * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
@@ -715,6 +715,137 @@ namespace tardigradeBalanceEquations{
             );
 
             result -= test_function * ( *( material_response_begin + interphasic_heat_transfer_index ) );
+
+        }
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            class density_iter, class density_dot_iter,
+            class density_gradient_iter,
+            class internal_energy_iter, class internal_energy_dot_iter,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class volume_fraction_iter,
+            typename test_function_type, class test_function_gradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfEnergy(
+            const density_iter &density_begin, const density_iter &density_end,
+            const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_iter &internal_energy_begin, const internal_energy_iter &internal_energy_end,
+            const internal_energy_dot_iter &internal_energy_dot_begin, const internal_energy_dot_iter &internal_energy_dot_end,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_iter &volume_fraction_begin, const volume_fraction_iter &volume_fraction_end,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_iter result_begin, result_iter result_end
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector for a multiphasic problem
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The stopping iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             */
+
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_end - internal_energy_begin ), "The density and internal energy vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_dot_end - internal_energy_dot_begin ), "The density and internal energy dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( internal_energy_gradient_end - internal_energy_gradient_begin ), "The density and internal energy gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * dim == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The density and volume fraction vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim == ( unsigned int )( test_function_gradient_end - test_function_gradient_begin ), "The test function gradient must be of size dim"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( result_end - result_begin ), "The density and result vectors must be the same size"
+            )
+
+            for ( auto v = std::pair< unsigned int, density_iter >( 0, density_begin ); v.second != density_end; ++v.first, ++v.second ){
+
+                computeBalanceOfEnergy<
+                    dim, material_response_dim,
+                    cauchy_stress_index, internal_heat_generation_index,
+                    heat_flux_index, interphasic_force_index, interphasic_heat_transfer_index
+                >
+                (
+                    *( density_begin + v.first ), *( density_dot_begin + v.first ),
+                    density_gradient_begin + dim * v.first, density_gradient_begin + dim * ( v.first + 1 ),
+                    *( internal_energy_begin + v.first ), *( internal_energy_dot_begin + v.first ),
+                    internal_energy_gradient_begin + dim * v.first, internal_energy_gradient_begin + dim * ( v.first + 1 ),
+                    velocity_begin + dim * v.first,                velocity_begin + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first,
+                    material_response_begin + material_response_size * ( v.first + 1 ),
+                    *( volume_fraction_begin + v.first ),
+                    test_function,
+                    test_function_gradient_begin, test_function_gradient_end,
+                    *( result_begin + v.first )
+                );
+
+            }
 
         }
 
