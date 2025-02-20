@@ -651,6 +651,74 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            typename density_type, typename density_dot_type,
+            class density_gradient_iter,
+            typename internal_energy_type, typename internal_energy_dot_type,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            typename volume_fraction_type,
+            typename test_function_type, class test_function_gradient_iter,
+            typename result_type
+        >
+        void computeBalanceOfEnergy(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_type &volume_fraction,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_type &result
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector
+             * 
+             * \param &density: The apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot: The partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy: The internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot: The partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result: The result of the non-divergence part of the balance of energy
+             */
+
+            computeBalanceOfEnergy<dim>(
+                density,         density_dot,         density_gradient_begin,         density_gradient_end,
+                internal_energy, internal_energy_dot, internal_energy_gradient_begin, internal_energy_gradient_end,
+                velocity_begin,  velocity_end,        velocity_gradient_begin,        velocity_gradient_end,
+                material_response_begin + cauchy_stress_index, material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
+                volume_fraction,
+                *( material_response_begin + internal_heat_generation_index ),
+                material_response_begin + interphasic_force_index, material_response_begin + interphasic_force_index + material_response_dim,
+                material_response_begin + heat_flux_index,         material_response_begin + heat_flux_index + material_response_dim,
+                test_function,
+                test_function_gradient_begin, test_function_gradient_end,
+                result
+            );
+
+            result -= test_function * ( *( material_response_begin + interphasic_heat_transfer_index ) );
+
+        }
+
+        template<
             int dim, typename density_type, typename density_dot_type,
             class density_gradient_iter,
             typename internal_energy_type, typename internal_energy_dot_type,
