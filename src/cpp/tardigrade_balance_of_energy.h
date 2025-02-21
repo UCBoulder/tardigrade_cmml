@@ -187,6 +187,62 @@ namespace tardigradeBalanceEquations{
         );
 
         template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            typename density_type, typename density_dot_type,
+            class density_gradient_iter,
+            typename internal_energy_type, typename internal_energy_dot_type,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            typename volume_fraction_type,
+            typename test_function_type, class test_function_gradient_iter,
+            typename result_type
+        >
+        void computeBalanceOfEnergy(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_type &volume_fraction,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_type &result
+        );
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            class density_iter, class density_dot_iter,
+            class density_gradient_iter,
+            class internal_energy_iter, class internal_energy_dot_iter,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class volume_fraction_iter,
+            typename test_function_type, class test_function_gradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfEnergy(
+            const density_iter &density_begin, const density_iter &density_end,
+            const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_iter &internal_energy_begin, const internal_energy_iter &internal_energy_end,
+            const internal_energy_dot_iter &internal_energy_dot_begin, const internal_energy_dot_iter &internal_energy_dot_end,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_iter &volume_fraction_begin, const volume_fraction_iter &volume_fraction_end,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_iter result_begin, result_iter result_end
+        );
+
+        template<
             int dim,
             typename density_type, typename density_dot_type,
             class density_gradient_iter,
