@@ -700,32 +700,16 @@ namespace tardigradeBalanceEquations{
              * \param &result: The result of the non-divergence part of the balance of energy
              */
 
-            // TEMP
-            result = 0;
-            std::array< double, 9 > cauchy_stress;
-            std::array< double, 3 > interphasic_force;
-            std::array< double, 3 > heat_flux;
-
-            std::fill( std::begin( cauchy_stress ),     std::end( cauchy_stress ),     0 );
-            double internal_heat_generation = 0;
-            std::fill( std::begin( interphasic_force ), std::end( interphasic_force ), 0 );
-            std::fill( std::begin( heat_flux ),         std::end( heat_flux ),         0 );
-            // END TEMP
-
             computeBalanceOfEnergy<dim>(
                 density,         density_dot,         density_gradient_begin,         density_gradient_end,
                 internal_energy, internal_energy_dot, internal_energy_gradient_begin, internal_energy_gradient_end,
                 velocity_begin,  velocity_end,        velocity_gradient_begin,        velocity_gradient_end,
-//                std::begin( cauchy_stress ), std::end( cauchy_stress ),
                 material_response_begin + cauchy_stress_index,
                 material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
                 volume_fraction,
-                internal_heat_generation,
-                std::begin( interphasic_force ), std::end( interphasic_force ),
-                std::begin( heat_flux ),         std::end( heat_flux ),
-//                *( material_response_begin + internal_heat_generation_index ),
-//                material_response_begin + interphasic_force_index, material_response_begin + interphasic_force_index + material_response_dim,
-//                material_response_begin + heat_flux_index,         material_response_begin + heat_flux_index + material_response_dim,
+                *( material_response_begin + internal_heat_generation_index ),
+                material_response_begin + interphasic_force_index, material_response_begin + interphasic_force_index + material_response_dim,
+                material_response_begin + heat_flux_index,         material_response_begin + heat_flux_index + material_response_dim,
                 test_function,
                 test_function_gradient_begin, test_function_gradient_end,
                 result
@@ -855,35 +839,18 @@ namespace tardigradeBalanceEquations{
             std::fill( dRdVolumeFraction_begin, dRdVolumeFraction_end, 0 );
             std::fill( dRdUMesh_begin,          dRdUMesh_end,          0 );
 
-            // TEMP
-            result = 0;
-            std::array< double, 9 > cauchy_stress;
-            std::array< double, 3 > interphasic_force;
-            std::array< double, 3 > heat_flux;
-
-            std::fill( std::begin( cauchy_stress ),     std::end( cauchy_stress ),     0 );
-            double internal_heat_generation = 0;
-            std::fill( std::begin( interphasic_force ), std::end( interphasic_force ), 0 );
-            std::fill( std::begin( heat_flux ),         std::end( heat_flux ),         0 );
-            // END TEMP
-
             computeBalanceOfEnergy<dim>(
                 density,         density_dot,         density_gradient_begin,         density_gradient_end,
                 internal_energy, internal_energy_dot, internal_energy_gradient_begin, internal_energy_gradient_end,
                 velocity_begin,  velocity_end,        velocity_gradient_begin,        velocity_gradient_end,
-//                std::begin( cauchy_stress ),
-//                std::end(   cauchy_stress ),
                 material_response_begin + cauchy_stress_index,
                 material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
                 volume_fraction,
-                internal_heat_generation,
-                std::begin( interphasic_force ), std::end( interphasic_force ),
-                std::begin( heat_flux ),         std::end( heat_flux ),
-//                *( material_response_begin + internal_heat_generation_index ),
-//                material_response_begin + interphasic_force_index,
-//                material_response_begin + interphasic_force_index + material_response_dim,
-//                material_response_begin + heat_flux_index,
-//                material_response_begin + heat_flux_index + material_response_dim,
+                *( material_response_begin + internal_heat_generation_index ),
+                material_response_begin + interphasic_force_index,
+                material_response_begin + interphasic_force_index + material_response_dim,
+                material_response_begin + heat_flux_index,
+                material_response_begin + heat_flux_index + material_response_dim,
                 test_function,          test_function_gradient_begin,          test_function_gradient_end,
                 interpolation_function, interpolation_function_gradient_begin, interpolation_function_gradient_end,
                 dRhoDotdRho, dEDotdE, dUDotdU,
@@ -1006,11 +973,307 @@ namespace tardigradeBalanceEquations{
 
             }
 
-            // INTERNAL HEAT GENERATION CONTRIBUTIONS
+            // INTERNAL HEAT GENERATION
+            // density
+            for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // velocity
+            for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                }
+
+            }
+
+            // displacement
+            for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // temperature
+            for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // internal energy
+            for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // additional dof
+            for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // mesh displacement
+            for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *( dRdUMesh_begin + a ) -=
+                            dRdr_phase
+                            * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * I + k ) )
+                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                            * ( *( interpolation_function_gradient_begin + k ) );
+
+                    }
+
+                }
+
+            }
 
             // INTERPHASIC FORCE CONTRIBUTIONS
+            for ( unsigned int j = 0; j < dim; ++j ){
+
+                // density
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // velocity
+                for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                    }
+
+                }
+
+                // displacement
+                for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // temperature
+                for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // internal energy
+                for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // additional dof
+                for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // mesh displacement
+                for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                            *( dRdUMesh_begin + a ) -=
+                                dRdpi_phase[ j ]
+                                * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * I + k ) )
+                                * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                                * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+            }
 
             // HEAT FLUX CONTRIBUTIONS
+            for ( unsigned int j = 0; j < dim; ++j ){
+
+                // density
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // velocity
+                for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                    }
+
+                }
+
+                // displacement
+                for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // temperature
+                for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // internal energy
+                for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // additional dof
+                for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // mesh displacement
+                for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                            *( dRdUMesh_begin + a ) -=
+                                dRdq_phase[ j ]
+                                * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * I + k ) )
+                                * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                                * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+            }
 
             // INTERPHASTIC HEAT TRANSFER
 
