@@ -95,6 +95,69 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
+            int dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
+            typename density_type, class velocity_iter,
+            typename volume_fraction_type, typename volume_fraction_dot_type,
+            class volume_fraction_gradient_iter,
+            class material_response_iter,
+            typename rest_density_type,
+            typename test_function_type,
+            typename result_type
+        >
+        void computeBalanceOfVolumeFraction(
+            const density_type                  &density,
+            const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
+            const volume_fraction_type          &volume_fraction,
+            const volume_fraction_dot_type      &volume_fraction_dot,
+            const volume_fraction_gradient_iter &volume_fraction_gradient_begin, const volume_fraction_gradient_iter &volume_fraction_gradient_end,
+            const material_response_iter        &material_response_begin,
+            const material_response_iter        &material_response_end,
+            const rest_density_type             &rest_density,
+            const test_function_type &test_function,
+            result_type &result,
+            const double volume_fraction_tolerance
+        ){
+            /*!
+             * Compute the balance of the volume fraction for a reacting continuum
+             * 
+             * \param &density: The current apparent density \f$ \left( \rho^{\alpha} \right) \f$
+             * \param &velocity_begin: The starting iterator of the phase velocity \f$ \left( v_i^{\alpha} \right) \f$
+             * \param &velocity_end: The stopping iterator of the phase velocity \f$ \left( v_i^{\alpha} \right) \f$
+             * \param &volume_fraction: The current volume fraction \f$ \left( \phi^{\alpha} \right) \f$
+             * \param &volume_fraction_dot: The partial time derivative of the current volume fraction \f$ \left( \frac{\partial \phi^{\alpha}}{\partial t} \right) \f$
+             * \param &volume_fraction_gradient_begin: The starting iterator of the spatial gradient of the volume fraction \f$ \left( \phi_{,i}^{\alpha} \right) \f$
+             * \param &volume_fraction_gradient_end: The stopping iterator of the spatial gradient of the volume fraction \f$ \left( \phi_{,i}^{\alpha} \right) \f$
+             * \param &material_response_begin: The starting iterator for the material response vector. This vector defines the mass change rate and the
+             *     trace of the mass-change velocity gradient which are located at their respective indices (see template parameters)
+             * \param &material_response_end: The stopping iterator for the material response vector. This vector defines the mass change rate and the
+             *     trace of the mass-change velocity gradient which are located at their respective indices (see template parameters)
+             * \param &rest_density: The rest density of the material \f$ \left( \bar{\gamma}^{\alpha} \right) \f$
+             * \param &test_function: The current value of the test function
+             * \param &result: The value of the balance of volume fraction
+             * \param volume_fraction_tolerance: The tolerance of the volume fraction where if it is less than the tolerance, the
+             *     true density is assumed to be the rest density.
+             */
+
+//            std::cout << "density                  : " << density << "\n";
+//            std::cout << "velocity                 : "; for ( auto _v = velocity_begin; _v != velocity_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
+//            std::cout << "volume_fraction          : " << volume_fraction << "\n";
+//            std::cout << "volume_fraction_dot      : " << volume_fraction_dot << "\n";
+//            std::cout << "volume_fraction_gradient : "; for ( auto _v = volume_fraction_gradient_begin; _v != volume_fraction_gradient_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
+//            std::cout << "MR                       : "; for ( auto _v = material_response_begin; _v != material_response_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
+
+            computeBalanceOfVolumeFraction<dim>(
+                density,
+                velocity_begin, velocity_end,
+                volume_fraction, volume_fraction_dot, volume_fraction_gradient_begin, volume_fraction_gradient_end,
+                *( material_response_begin + mass_change_rate_index ),
+                rest_density,
+                *( material_response_begin + trace_mass_change_velocity_gradient_index ),
+                test_function, result, volume_fraction_tolerance
+            );
+
+        }
+
+        template<
             int dim,
             typename density_type, class velocity_iter,
             typename volume_fraction_type, typename volume_fraction_dot_type,
@@ -349,6 +412,111 @@ namespace tardigradeBalanceEquations{
                     *( mass_change_rate_begin + rho.first ),
                     *( rest_density_begin + rho.first ),
                     *( trace_mass_change_velocity_gradient_begin + rho.first ),
+                    test_function,
+                    *( result_begin + rho.first ),
+                    volume_fraction_tolerance
+                );
+
+            }
+
+        }
+
+        template<
+            int dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
+            class density_iter, class velocity_iter,
+            class volume_fraction_iter, class volume_fraction_dot_iter,
+            class volume_fraction_gradient_iter,
+            class material_response_iter,
+            class rest_density_iter,
+            typename test_function_type,
+            class result_iter
+        >
+        void computeBalanceOfVolumeFraction(
+            const density_iter                  &density_begin,                  const density_iter                  &density_end,
+            const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
+            const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,
+            const volume_fraction_dot_iter      &volume_fraction_dot_begin,      const volume_fraction_dot_iter      &volume_fraction_dot_end,
+            const volume_fraction_gradient_iter &volume_fraction_gradient_begin, const volume_fraction_gradient_iter &volume_fraction_gradient_end,
+            const material_response_iter        &material_response_begin,        const material_response_iter        &material_response_end,
+            const rest_density_iter             &rest_density_begin,             const rest_density_iter             &rest_density_end,
+            const test_function_type &test_function,
+            result_iter result_begin, result_iter result_end,
+            const double volume_fraction_tolerance
+        ){
+            /*!
+             * Compute the balance of the volume fraction for a multiphase reacting continuum
+             * 
+             * \param &density_begin: The starting iterator of the current apparent density \f$ \left( \rho^{\alpha} \right) \f$
+             * \param &density_end: The stopping iterator of the current apparent density \f$ \left( \rho^{\alpha} \right) \f$
+             * \param &velocity_begin: The starting iterator of the phase velocity \f$ \left( v_i^{\alpha} \right) \f$
+             * \param &velocity_end: The stopping iterator of the phase velocity \f$ \left( v_i^{\alpha} \right) \f$
+             * \param &volume_fraction_begin: The starting iterator of the current volume fraction \f$ \left( \phi^{\alpha} \right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the current volume fraction \f$ \left( \phi^{\alpha} \right) \f$
+             * \param &volume_fraction_dot_begin: The starting iterator of the partial time derivative of the current volume fraction \f$ \left( \frac{\partial \phi^{\alpha}}{\partial t} \right) \f$
+             * \param &volume_fraction_dot_end: The stopping iterator of the partial time derivative of the current volume fraction \f$ \left( \frac{\partial \phi^{\alpha}}{\partial t} \right) \f$
+             * \param &volume_fraction_gradient_begin: The starting iterator of the spatial gradient of the volume fraction \f$ \left( \phi_{,i}^{\alpha} \right) \f$
+             * \param &volume_fraction_gradient_end: The stopping iterator of the spatial gradient of the volume fraction \f$ \left( \phi_{,i}^{\alpha} \right) \f$
+             * \param &material_response_begin: The starting iterator for the material response vector. This vector defines the mass change rate and the
+             *     trace of the mass-change velocity gradient which are located at their respective indices (see template parameters)
+             * \param &material_response_end: The stopping iterator for the material response vector. This vector defines the mass change rate and the
+             *     trace of the mass-change velocity gradient which are located at their respective indices (see template parameters)
+             * \param &rest_density_begin: The starting iterator of the rest density of the material \f$ \left( \bar{\gamma}^{\alpha} \right) \f$
+             * \param &rest_density_end: The stopping iterator of the rest density of the material \f$ \left( \bar{\gamma}^{\alpha} \right) \f$
+             * \param &test_function: The current value of the test function
+             * \param &result_begin: The starting iterator of the value of the balance of volume fraction
+             * \param &result_end: The stopping iterator of the value of the balance of volume fraction
+             * \param volume_fraction_tolerance: The tolerance of the volume fraction where if it is less than the tolerance, the
+             *     true density is assumed to be the rest density.
+             */
+
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim * nphases == ( unsigned int )( velocity_end - velocity_begin ),
+                "The velocity size is inconsistent with the number of phases"
+            );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ),
+                "The volume fraction size is not equal to the number of phases"
+            );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( volume_fraction_dot_end - volume_fraction_dot_begin ),
+                "The partial derivative of the volume fraction w.r.t. time size is not equal to the number of phases"
+            );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim * nphases == ( unsigned int )( volume_fraction_gradient_end - volume_fraction_gradient_begin ),
+                "The volume fraction gradient size is inconsistent with the number of phases"
+            );
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size == ( unsigned int )( material_response_end - material_response_begin ),
+                "The material response vector size must be a integer multiple of the number of phases"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                ( material_response_size > mass_change_rate_index ),
+                "The material response vector size must larger than the index for the mass change rate"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                ( material_response_size > trace_mass_change_velocity_gradient_index ),
+                "The material response vector size must larger than the index for the trace of the mass change rate velocity gradient"
+            )
+
+            for ( auto rho = std::pair< unsigned int, density_iter >( 0, density_begin ); rho.second != density_end; ++rho.first, ++rho.second ){
+
+                computeBalanceOfVolumeFraction<dim, mass_change_rate_index, trace_mass_change_velocity_gradient_index>(
+                    *rho.second,
+                    velocity_begin + dim * rho.first,                 velocity_begin + dim * ( rho.first + 1 ),
+                    *( volume_fraction_begin + rho.first ),           *( volume_fraction_dot_begin + rho.first ),
+                    volume_fraction_gradient_begin + dim * rho.first, volume_fraction_gradient_begin + dim * ( rho.first + 1 ),
+                    material_response_begin + material_response_size * rho.first,
+                    material_response_begin + material_response_size * ( rho.first + 1 ),
+                    *( rest_density_begin + rho.first ),
                     test_function,
                     *( result_begin + rho.first ),
                     volume_fraction_tolerance

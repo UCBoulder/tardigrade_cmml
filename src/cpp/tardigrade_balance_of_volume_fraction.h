@@ -45,6 +45,30 @@ namespace tardigradeBalanceEquations{
         );
 
         template<
+            int dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
+            typename density_type, class velocity_iter,
+            typename volume_fraction_type, typename volume_fraction_dot_type,
+            class volume_fraction_gradient_iter,
+            class material_response_iter,
+            typename rest_density_type,
+            typename test_function_type,
+            typename result_type
+        >
+        void computeBalanceOfVolumeFraction(
+            const density_type                  &density,
+            const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
+            const volume_fraction_type          &volume_fraction,
+            const volume_fraction_dot_type      &volume_fraction_dot,
+            const volume_fraction_gradient_iter &volume_fraction_gradient_begin, const volume_fraction_gradient_iter &volume_fraction_gradient_end,
+            const material_response_iter        &material_response_begin,
+            const material_response_iter        &material_response_end,
+            const rest_density_type             &rest_density,
+            const test_function_type &test_function,
+            result_type &result,
+            const double volume_fraction_tolerance = 1e-8
+        );
+
+        template<
             int dim,
             class density_iter, class velocity_iter,
             class volume_fraction_iter, class volume_fraction_dot_iter,
@@ -65,6 +89,29 @@ namespace tardigradeBalanceEquations{
             const rest_density_iter             &rest_density_begin,             const rest_density_iter             &rest_density_end,
             const trace_mass_change_velocity_gradient_iter &trace_mass_change_velocity_gradient_begin,
             const trace_mass_change_velocity_gradient_iter &trace_mass_change_velocity_gradient_end,
+            const test_function_type &test_function,
+            result_iter result_begin, result_iter result_end,
+            const double volume_fraction_tolerance = 1e-8
+        );
+
+        template<
+            int dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
+            class density_iter, class velocity_iter,
+            class volume_fraction_iter, class volume_fraction_dot_iter,
+            class volume_fraction_gradient_iter,
+            class material_response_iter,
+            class rest_density_iter,
+            typename test_function_type,
+            class result_iter
+        >
+        void computeBalanceOfVolumeFraction(
+            const density_iter                  &density_begin,                  const density_iter                  &density_end,
+            const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
+            const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,
+            const volume_fraction_dot_iter      &volume_fraction_dot_begin,      const volume_fraction_dot_iter      &volume_fraction_dot_end,
+            const volume_fraction_gradient_iter &volume_fraction_gradient_begin, const volume_fraction_gradient_iter &volume_fraction_gradient_end,
+            const material_response_iter        &material_response_begin,        const material_response_iter        &material_response_end,
+            const rest_density_iter             &rest_density_begin,             const rest_density_iter             &rest_density_end,
             const test_function_type &test_function,
             result_iter result_begin, result_iter result_end,
             const double volume_fraction_tolerance = 1e-8
