@@ -1627,6 +1627,13 @@ namespace tardigradeBalanceEquations{
             const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
             const unsigned int num_additional_dof = ( unsigned int )( dRdZ_end - dRdZ_begin ) / nphases;
 
+            using density_type             = typename std::iterator_traits<density_iter>::value_type;
+            using density_dot_type         = typename std::iterator_traits<density_dot_iter>::value_type;
+            using internal_energy_type     = typename std::iterator_traits<internal_energy_iter>::value_type;
+            using internal_energy_dot_type = typename std::iterator_traits<internal_energy_dot_iter>::value_type;
+            using volume_fraction_type     = typename std::iterator_traits<volume_fraction_iter>::value_type;
+            using result_type              = typename std::iterator_traits<result_iter>::value_type;
+
             TARDIGRADE_ERROR_TOOLS_CHECK(
                 nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors must be the same size"
             )
@@ -1721,7 +1728,28 @@ namespace tardigradeBalanceEquations{
                     dim, material_response_dim,
                     cauchy_stress_index, internal_heat_generation_index,
                     heat_flux_index, interphasic_force_index, interphasic_heat_transfer_index,
-                    material_response_num_dof
+                    material_response_num_dof,
+                    density_type, density_dot_type,
+                    density_gradient_iter,
+                    internal_energy_type, internal_energy_dot_type,
+                    internal_energy_gradient_iter,
+                    velocity_iter, velocity_gradient_iter,
+                    material_response_iter,
+                    material_response_jacobian_iter,
+                    volume_fraction_type,
+                    test_function_type, test_function_gradient_iter,
+                    interpolation_function_type, interpolation_function_gradient_iter,
+                    full_material_response_dof_gradient_iter,
+                    dRhoDotdRho_type, dEDotdE_type, dUDotdU_type,
+                    result_type,
+                    dRdRho_iter, dRdU_iter, dRdW_iter, dRdTheta_iter,
+                    dRdE_iter, dRdZ_iter, dRdVolumeFraction_iter, dRdUMesh_iter,
+                    density_index        ,
+                    displacement_index   ,
+                    velocity_index       ,
+                    temperature_index    ,
+                    internal_energy_index,
+                    additional_dof_index 
                 >
                 (
                     *( density_begin + v.first ), *( density_dot_begin + v.first ),
