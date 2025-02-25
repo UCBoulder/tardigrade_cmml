@@ -48,9 +48,7 @@ namespace tardigradeBalanceEquations{
             result_type &result
         ){
             /*!
-             * Compute the non-divergence parts of the balance of energy i.e.
-             * 
-             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * Compute the full balance of energy in a variational context
              * 
              * \param &density: The apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
              * \param &density_dot: The partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
@@ -153,9 +151,7 @@ namespace tardigradeBalanceEquations{
             dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
         ){
             /*!
-             * Compute the non-divergence parts of the balance of energy i.e.
-             * 
-             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * Compute the balance of energy.
              * 
              * \param &density: The apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
              * \param &density_dot: The partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
@@ -375,9 +371,7 @@ namespace tardigradeBalanceEquations{
             result_iter result_begin,                                            result_iter result_end
         ){
             /*!
-             * Compute the non-divergence parts of the multiphase balance of energy i.e.
-             * 
-             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * Compute the multiphase balance of energy
              * 
              * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
              * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
@@ -516,9 +510,7 @@ namespace tardigradeBalanceEquations{
             dRdUMesh_iter dRdUMesh_begin,                   dRdUMesh_iter dRdUMesh_end
         ){
             /*!
-             * Compute the non-divergence parts of the multiphase balance of energy i.e.
-             * 
-             * \f$ \frac{\partial}{\partial t}\left( \rho^{\alpha} e^{\alpha} \right) + \left( \rho^{\alpha} v_i^{\alpha} e^{\alpha} \right)_{,i} - \frac{1}{2} c^{\alpha} v_i^{\alpha} v_i^{\alpha} + \sum_{\beta} \pi_i^{\alpha \beta} v_i^{\alpha} - \phi^{\alpha}\sigma_{ji}^{\alpha}v_{i,j}^{\alpha} - \rho^{\alpha} r^{\alpha} \f$
+             * Compute the multiphase balance of energy.
              * 
              * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
              * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
@@ -657,6 +649,1144 @@ namespace tardigradeBalanceEquations{
             }
 
         }
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            typename density_type, typename density_dot_type,
+            class density_gradient_iter,
+            typename internal_energy_type, typename internal_energy_dot_type,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            typename volume_fraction_type,
+            typename test_function_type, class test_function_gradient_iter,
+            typename result_type
+        >
+        void computeBalanceOfEnergy(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_type &volume_fraction,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_type &result
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector
+             * 
+             * \param &density: The apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot: The partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy: The internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot: The partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction: The the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &result: The result of the non-divergence part of the balance of energy
+             */
+
+            computeBalanceOfEnergy<dim>(
+                density,         density_dot,         density_gradient_begin,         density_gradient_end,
+                internal_energy, internal_energy_dot, internal_energy_gradient_begin, internal_energy_gradient_end,
+                velocity_begin,  velocity_end,        velocity_gradient_begin,        velocity_gradient_end,
+                material_response_begin + cauchy_stress_index,
+                material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
+                volume_fraction,
+                *( material_response_begin + internal_heat_generation_index ),
+                material_response_begin + interphasic_force_index, material_response_begin + interphasic_force_index + material_response_dim,
+                material_response_begin + heat_flux_index,         material_response_begin + heat_flux_index + material_response_dim,
+                test_function,
+                test_function_gradient_begin, test_function_gradient_end,
+                result
+            );
+
+            result -= test_function * ( *( material_response_begin + interphasic_heat_transfer_index ) );
+
+        }
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index, int material_response_num_dof,
+            typename density_type, typename density_dot_type,
+            class density_gradient_iter,
+            typename internal_energy_type, typename internal_energy_dot_type,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class material_response_jacobian_iter,
+            typename volume_fraction_type,
+            typename test_function_type, class test_function_gradient_iter,
+            typename interpolation_function_type, class interpolation_function_gradient_iter,
+            class full_material_response_dof_gradient_iter,
+            typename dRhoDotdRho_type, typename dEDotdE_type, typename dUDotdU_type,
+            typename result_type,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
+            class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
+        >
+        void computeBalanceOfEnergy(
+            const density_type &density, const density_dot_type &density_dot,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const volume_fraction_type &volume_fraction,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin, const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dRhoDotdRho_type &dRhoDotdRho, const dEDotdE_type dEDotdE, const dUDotdU_type &dUDotdU,
+            const unsigned int &phase,
+            result_type &result,
+            dRdRho_iter dRdRho_begin,                       dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                           dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin,                           dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin,                   dRdTheta_iter dRdTheta_end,
+            dRdE_iter dRdE_begin,                           dRdE_iter dRdE_end,
+            dRdZ_iter dRdZ_begin,                           dRdZ_iter dRdZ_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin, dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                   dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector
+             * 
+             * \param &density: The apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot: The partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy: The internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot: The partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &material_response_jacobian_begin: The starting iterator of the material response Jacobian vector
+             * \param &material_response_jacobian_end: The stopping iterator of the material response Jacobian vector
+             * \param &volume_fraction: The the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the interpolation function \f$ \left( \phi \right) \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &full_material_response_dof_gradient_begin: The starting iterator of the spatial gradient of the material response dof vector
+             * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of the material response dof vector
+             * \param &dRhoDotdRho: The derivative of the time rate of change of the density w.r.t. the density
+             * \param &dEDotdE: The derivative of the time rate of change of the internal energy w.r.t. the internal energy
+             * \param &dUDotdU: The derivative of the time rate of change of the displacement degree of freedom w.r.t. the displacement degree of freedom
+             * \param &phase: The phase that is having the balance of energy computed on
+             * \param &result: The result of the non-divergence part of the balance of energy
+             * \param &dRdRho_begin: The starting iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdU_begin: The starting iterator derivative of the residual w.r.t. the spatial degree of freedom
+             * \param &dRdU_end: The stopping iterator derivative of the residual w.r.t. the spatial degree of freedom
+             * \param &dRdW_begin: The starting iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdW_end: The stopping iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdTheta_begin: The starting iterator of the derivative of the residual w.r.t. the temperature
+             * \param &dRdTheta_end: The stopping iterator of the derivative of the residual w.r.t. the temperature
+             * \param &dRdE_begin: The starting iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdZ_begin: The starting iterator of the derivative of the residual w.r.t. the additional degrees of freedom
+             * \param &dRdZ_end: The stopping iterator of the derivative of the residual w.r.t. the additional degrees of freedom
+             * \param &dRdVolumeFraction_begin: The starting iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the residual w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the residual w.r.t. the mesh displacement
+             */
+
+            std::array< result_type, material_response_dim * material_response_dim > dRdCauchy_phase;
+
+            result_type dRdr_phase;
+
+            std::array< result_type, material_response_dim > dRdpi_phase, dRdq_phase;
+
+            std::fill( dRdRho_begin,            dRdRho_end,            0 );
+            std::fill( dRdU_begin,              dRdU_end,              0 );
+            std::fill( dRdW_begin,              dRdW_end,              0 );
+            std::fill( dRdTheta_begin,          dRdTheta_end,          0 );
+            std::fill( dRdE_begin,              dRdE_end,              0 );
+            std::fill( dRdZ_begin,              dRdZ_end,              0 );
+            std::fill( dRdVolumeFraction_begin, dRdVolumeFraction_end, 0 );
+            std::fill( dRdUMesh_begin,          dRdUMesh_end,          0 );
+
+            computeBalanceOfEnergy<dim>(
+                density,         density_dot,         density_gradient_begin,         density_gradient_end,
+                internal_energy, internal_energy_dot, internal_energy_gradient_begin, internal_energy_gradient_end,
+                velocity_begin,  velocity_end,        velocity_gradient_begin,        velocity_gradient_end,
+                material_response_begin + cauchy_stress_index,
+                material_response_begin + cauchy_stress_index + material_response_dim * material_response_dim,
+                volume_fraction,
+                *( material_response_begin + internal_heat_generation_index ),
+                material_response_begin + interphasic_force_index,
+                material_response_begin + interphasic_force_index + material_response_dim,
+                material_response_begin + heat_flux_index,
+                material_response_begin + heat_flux_index + material_response_dim,
+                test_function,          test_function_gradient_begin,          test_function_gradient_end,
+                interpolation_function, interpolation_function_gradient_begin, interpolation_function_gradient_end,
+                dRhoDotdRho, dEDotdE, dUDotdU,
+                result,
+                *( dRdRho_begin + phase ),            *( dRdE_begin + phase ),
+                dRdU_begin   + dim * phase,           dRdU_begin + dim * ( phase + 1 ),
+                std::begin( dRdCauchy_phase ),        std::end( dRdCauchy_phase ),
+                *( dRdVolumeFraction_begin + phase ), dRdr_phase,
+                std::begin( dRdpi_phase ),            std::end( dRdpi_phase ),
+                std::begin( dRdq_phase ),             std::end( dRdq_phase ),
+                dRdUMesh_begin,                       dRdUMesh_end
+            );
+
+            result -= test_function * ( *( material_response_begin + interphasic_heat_transfer_index ) );
+
+            const unsigned int nphases = ( unsigned int )( dRdRho_end - dRdRho_begin );
+
+            // Scale the volume fraction by the interpolation function
+            *( dRdVolumeFraction_begin + phase ) *= interpolation_function;
+
+            // CAUCHY STRESS CONTRIBUTIONS
+            for ( unsigned int j = 0; j < dim * dim; ++j ){
+
+                // density
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // velocity
+                for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                    }
+
+                }
+
+                // displacement
+                for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // temperature
+                for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // internal energy
+                for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // additional dof
+                for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdCauchy_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // mesh displacement
+                for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                            *( dRdUMesh_begin + a ) -=
+                                dRdCauchy_phase[ j ]
+                                * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( cauchy_stress_index + j ) + material_response_num_dof + material_response_dim * I + k ) )
+                                * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                                * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            // INTERNAL HEAT GENERATION
+            // density
+            for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // velocity
+            for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                }
+
+            }
+
+            // displacement
+            for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // temperature
+            for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // internal energy
+            for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // additional dof
+            for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second += dRdr_phase * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // mesh displacement
+            for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *( dRdUMesh_begin + a ) -=
+                            dRdr_phase
+                            * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( internal_heat_generation_index ) + material_response_num_dof + material_response_dim * I + k ) )
+                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                            * ( *( interpolation_function_gradient_begin + k ) );
+
+                    }
+
+                }
+
+            }
+
+            // INTERPHASIC FORCE CONTRIBUTIONS
+            for ( unsigned int j = 0; j < dim; ++j ){
+
+                // density
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // velocity
+                for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                    }
+
+                }
+
+                // displacement
+                for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // temperature
+                for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // internal energy
+                for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // additional dof
+                for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdpi_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // mesh displacement
+                for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                            *( dRdUMesh_begin + a ) -=
+                                dRdpi_phase[ j ]
+                                * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_force_index + j ) + material_response_num_dof + material_response_dim * I + k ) )
+                                * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                                * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            // HEAT FLUX CONTRIBUTIONS
+            for ( unsigned int j = 0; j < dim; ++j ){
+
+                // density
+                for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // velocity
+                for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                    }
+
+                }
+
+                // displacement
+                for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // temperature
+                for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // internal energy
+                for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // additional dof
+                for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                    *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *p.second += dRdq_phase[ j ] * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                    }
+
+                }
+
+                // mesh displacement
+                for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                    for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                        for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                            *( dRdUMesh_begin + a ) -=
+                                dRdq_phase[ j ]
+                                * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( heat_flux_index + j ) + material_response_num_dof + material_response_dim * I + k ) )
+                                * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                                * ( *( interpolation_function_gradient_begin + k ) );
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+            // INTERPHASTIC HEAT TRANSFER
+            // density
+            for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * density_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // velocity
+            for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * velocity_index + p.first ) ) * interpolation_function * dUDotdU;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) ) * dUDotdU;
+
+                }
+
+            }
+
+            // displacement
+            for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * displacement_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // temperature
+            for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * temperature_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // internal energy
+            for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // additional dof
+            for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
+
+                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+
+                for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
+
+            }
+
+            // mesh displacement
+            for ( unsigned int I = 0; I < material_response_num_dof; ++I ){
+
+                for ( unsigned int k = 0; k < material_response_dim; ++k ){
+
+                    for ( unsigned int a = 0; a < material_response_dim; ++a ){
+
+                        *( dRdUMesh_begin + a ) +=
+                            test_function
+                            * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * ( interphasic_heat_transfer_index ) + material_response_num_dof + material_response_dim * I + k ) )
+                            * ( *( full_material_response_dof_gradient_begin + material_response_dim * I + a ) )
+                            * ( *( interpolation_function_gradient_begin + k ) );
+
+                    }
+
+                }
+
+            }
+
+            for ( unsigned int a = 0; a < dim; ++a ){
+
+                *( dRdUMesh_begin + a ) -= test_function * ( *( material_response_begin + interphasic_heat_transfer_index ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+            }
+
+        }
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index,
+            class density_iter, class density_dot_iter,
+            class density_gradient_iter,
+            class internal_energy_iter, class internal_energy_dot_iter,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class volume_fraction_iter,
+            typename test_function_type, class test_function_gradient_iter,
+            class result_iter
+        >
+        void computeBalanceOfEnergy(
+            const density_iter &density_begin, const density_iter &density_end,
+            const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_iter &internal_energy_begin, const internal_energy_iter &internal_energy_end,
+            const internal_energy_dot_iter &internal_energy_dot_begin, const internal_energy_dot_iter &internal_energy_dot_end,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const volume_fraction_iter &volume_fraction_begin, const volume_fraction_iter &volume_fraction_end,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            result_iter result_begin, result_iter result_end
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector for a multiphasic problem
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The stopping iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             */
+
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_end - internal_energy_begin ), "The density and internal energy vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_dot_end - internal_energy_dot_begin ), "The density and internal energy dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( internal_energy_gradient_end - internal_energy_gradient_begin ), "The density and internal energy gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * dim == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The density and volume fraction vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim == ( unsigned int )( test_function_gradient_end - test_function_gradient_begin ), "The test function gradient must be of size dim"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( result_end - result_begin ), "The density and result vectors must be the same size"
+            )
+
+            for ( auto v = std::pair< unsigned int, density_iter >( 0, density_begin ); v.second != density_end; ++v.first, ++v.second ){
+
+                computeBalanceOfEnergy<
+                    dim, material_response_dim,
+                    cauchy_stress_index, internal_heat_generation_index,
+                    heat_flux_index, interphasic_force_index, interphasic_heat_transfer_index
+                >
+                (
+                    *( density_begin + v.first ), *( density_dot_begin + v.first ),
+                    density_gradient_begin + dim * v.first, density_gradient_begin + dim * ( v.first + 1 ),
+                    *( internal_energy_begin + v.first ), *( internal_energy_dot_begin + v.first ),
+                    internal_energy_gradient_begin + dim * v.first, internal_energy_gradient_begin + dim * ( v.first + 1 ),
+                    velocity_begin + dim * v.first,                velocity_begin + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first,
+                    material_response_begin + material_response_size * ( v.first + 1 ),
+                    *( volume_fraction_begin + v.first ),
+                    test_function,
+                    test_function_gradient_begin, test_function_gradient_end,
+                    *( result_begin + v.first )
+                );
+
+            }
+
+        }
+
+        template<
+            int dim, int material_response_dim, int cauchy_stress_index, int internal_heat_generation_index, int heat_flux_index,
+            int interphasic_force_index, int interphasic_heat_transfer_index, int material_response_num_dof,
+            class density_iter, class density_dot_iter,
+            class density_gradient_iter,
+            class internal_energy_iter, class internal_energy_dot_iter,
+            class internal_energy_gradient_iter,
+            class velocity_iter, class velocity_gradient_iter,
+            class material_response_iter,
+            class material_response_jacobian_iter,
+            class volume_fraction_iter,
+            typename test_function_type, class test_function_gradient_iter,
+            typename interpolation_function_type, class interpolation_function_gradient_iter,
+            class full_material_response_dof_gradient_iter,
+            typename dRhoDotdRho_type, typename dEDotdE_type, typename dUDotdU_type,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
+            class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
+        >
+        void computeBalanceOfEnergy(
+            const density_iter &density_begin, const density_iter &density_end,
+            const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
+            const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
+            const internal_energy_iter &internal_energy_begin, const internal_energy_iter &internal_energy_end,
+            const internal_energy_dot_iter &internal_energy_dot_begin, const internal_energy_dot_iter &internal_energy_dot_end,
+            const internal_energy_gradient_iter &internal_energy_gradient_begin, const internal_energy_gradient_iter &internal_energy_gradient_end,
+            const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
+            const velocity_gradient_iter &velocity_gradient_begin, const velocity_gradient_iter &velocity_gradient_end,
+            const material_response_iter &material_response_begin, const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const volume_fraction_iter &volume_fraction_begin, const volume_fraction_iter &volume_fraction_end,
+            const test_function_type &test_function,
+            const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin, const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dRhoDotdRho_type &dRhoDotdRho, const dEDotdE_type dEDotdE, const dUDotdU_type &dUDotdU,
+            result_iter result_begin,                      result_iter result_end,
+            dRdRho_iter dRdRho_begin,                       dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin,                           dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin,                           dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin,                   dRdTheta_iter dRdTheta_end,
+            dRdE_iter dRdE_begin,                           dRdE_iter dRdE_end,
+            dRdZ_iter dRdZ_begin,                           dRdZ_iter dRdZ_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin, dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter dRdUMesh_begin,                   dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the full balance of energy in a variational context using a generalized material response vector for a multiphasic problem
+             * 
+             * \param &density_begin: The starting iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_end: The stopping iterator of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\rho^{\alpha}\right)\f$
+             * \param &density_dot_begin: The starting iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_dot_end: The stopping iterator of the partial temporal derivative of the apparent density (dm / dv) of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} \rho^{\alpha}\right)\f$
+             * \param &density_gradient_begin: The starting iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &density_gradient_end: The stopping iterator of the spatial gradient of the apparent density (dm/dv) of phase \f$ \alpha \f$ \f$\left( \rho^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_begin: The starting iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_end: The stopping iterator of the internal energy of phase \f$ \alpha \f$ \f$\left(e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_begin: The starting iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_dot_end: The stopping iterator of the partial temporal derivative of the internal energy of phase \f$ \alpha \f$ \f$\left(\frac{\partial}{\partial t} e^{\alpha}\right)\f$
+             * \param &internal_energy_gradient_begin: The starting iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &internal_energy_gradient_end: The stopping iterator of the spatial gradient of the internal energy of phase \f$ \alpha \f$ \f$\left( e^{\alpha}_{,i} \right) \f$
+             * \param &velocity_begin: The starting iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_end: The stopping iterator of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_i \right) \f$
+             * \param &velocity_gradient_begin: The starting iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &velocity_gradient_end: The stopping iterator of the spatial gradient of the velocity of phase \f$ \alpha \f$ \f$\left( v^{\alpha}_{i,j} \right) \f$
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &material_response_jacobian_begin: The starting iterator of the material response Jacobian vector
+             * \param &material_response_jacobian_end: The stopping iterator of the material response Jacobian vector
+             * \param &volume_fraction_begin: The starting iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &volume_fraction_end: The stopping iterator of the volume fraction of phase \f$ \alpha \f$ \f$ \left(\phi^{\alpha}\right) \f$
+             * \param &test_function: The value of the test function \f$ \left( \psi \right) \f$
+             * \param &test_function_gradient_begin: The starting iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &test_function_gradient_end: The stopping iterator of the spatial gradient of the test function \f$ \left( \psi_{,i} \right) \f$
+             * \param &interpolation_function: The value of the interpolation function \f$ \left( \phi \right) \f$
+             * \param &interpolation_function_gradient_begin: The starting iterator of the spatial gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &interpolation_function_gradient_end: The stopping iterator of the spatial gradient of the interpolation function \f$ \left( \phi_{,i} \right) \f$
+             * \param &full_material_response_dof_gradient_begin: The starting iterator of the spatial gradient of the material response dof vector
+             * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of the material response dof vector
+             * \param &dRhoDotdRho: The derivative of the time rate of change of the density w.r.t. the density
+             * \param &dEDotdE: The derivative of the time rate of change of the internal energy w.r.t. the internal energy
+             * \param &dUDotdU: The derivative of the time rate of change of the displacement degree of freedom w.r.t. the displacement degree of freedom
+             * \param result_begin: The starting iterator of the result of the non-divergence part of the balance of energy
+             * \param result_end: The stopping iterator of the result of the non-divergence part of the balance of energy
+             * \param &dRdRho_begin: The starting iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the residual w.r.t. the density
+             * \param &dRdU_begin: The starting iterator derivative of the residual w.r.t. the spatial degree of freedom
+             * \param &dRdU_end: The stopping iterator derivative of the residual w.r.t. the spatial degree of freedom
+             * \param &dRdW_begin: The starting iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdW_end: The stopping iterator derivative of the residual w.r.t. the displacement degree of freedom
+             * \param &dRdTheta_begin: The starting iterator of the derivative of the residual w.r.t. the temperature
+             * \param &dRdTheta_end: The stopping iterator of the derivative of the residual w.r.t. the temperature
+             * \param &dRdE_begin: The starting iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdE_end: The stopping iterator of the derivative of the residual w.r.t. the internal energy
+             * \param &dRdZ_begin: The starting iterator of the derivative of the residual w.r.t. the additional degrees of freedom
+             * \param &dRdZ_end: The stopping iterator of the derivative of the residual w.r.t. the additional degrees of freedom
+             * \param &dRdVolumeFraction_begin: The starting iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdVolumeFraction_end: The stopping iterator of the derivative of the residual w.r.t. the volume fraction
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the residual w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the residual w.r.t. the mesh displacement
+             */
+
+            const unsigned int nphases = ( unsigned int )( density_end - density_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+            const unsigned int num_additional_dof = ( unsigned int )( dRdZ_end - dRdZ_begin ) / nphases;
+
+            using density_type             = typename std::iterator_traits<density_iter>::value_type;
+            using density_dot_type         = typename std::iterator_traits<density_dot_iter>::value_type;
+            using internal_energy_type     = typename std::iterator_traits<internal_energy_iter>::value_type;
+            using internal_energy_dot_type = typename std::iterator_traits<internal_energy_dot_iter>::value_type;
+            using volume_fraction_type     = typename std::iterator_traits<volume_fraction_iter>::value_type;
+            using result_type              = typename std::iterator_traits<result_iter>::value_type;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The density and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( density_gradient_end - density_gradient_begin ), "The density and density gradient vectors must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_end - internal_energy_begin ), "The density and internal energy vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_dot_end - internal_energy_dot_begin ), "The density and internal energy dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( internal_energy_gradient_end - internal_energy_gradient_begin ), "The density and internal energy gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( velocity_end - velocity_begin ), "The density and velocity vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * dim == ( unsigned int )( velocity_gradient_end - velocity_gradient_begin ), "The density and velocity gradient vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size == ( unsigned int )( material_response_end - material_response_begin ), "The density and material response vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size * material_response_num_dof * ( 1 + material_response_dim ) == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ), "The density and material response Jacobian vectors must be a consistent size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( volume_fraction_end - volume_fraction_begin ), "The density and volume fraction vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim == ( unsigned int )( test_function_gradient_end - test_function_gradient_begin ), "The test function gradient must be of size dim"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                dim == ( unsigned int )( interpolation_function_gradient_end - interpolation_function_gradient_begin ), "The interpolation function gradient must be of size dim"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                material_response_num_dof * material_response_dim == ( unsigned int )( full_material_response_dof_gradient_end - full_material_response_dof_gradient_begin ), "The full material response dof gradient vector must be consistent with the material response size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( result_end - result_begin ), "The density and result vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdRho_end - dRdRho_begin ), "The density and dRdRho must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * nphases == ( unsigned int )( dRdU_end - dRdU_begin ), "The density and dRdU must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim * nphases == ( unsigned int )( dRdU_end - dRdU_begin ), "The density and dRdW must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdTheta_end - dRdTheta_begin ), "The density and dRdTheta must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdE_end - dRdE_begin ), "The density and dRdE must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * num_additional_dof == ( unsigned int )( dRdZ_end - dRdZ_begin ), "The density and dRdZ must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdVolumeFraction_end - dRdVolumeFraction_begin ), "The density and dRdVolumeFraction must be of consistent sizes"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * dim == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ), "The density and dRdUMesh must be of consistent sizes"
+            )
+
+            for ( auto v = std::pair< unsigned int, density_iter >( 0, density_begin ); v.second != density_end; ++v.first, ++v.second ){
+
+                computeBalanceOfEnergy<
+                    dim, material_response_dim,
+                    cauchy_stress_index, internal_heat_generation_index,
+                    heat_flux_index, interphasic_force_index, interphasic_heat_transfer_index,
+                    material_response_num_dof,
+                    density_type, density_dot_type,
+                    density_gradient_iter,
+                    internal_energy_type, internal_energy_dot_type,
+                    internal_energy_gradient_iter,
+                    velocity_iter, velocity_gradient_iter,
+                    material_response_iter,
+                    material_response_jacobian_iter,
+                    volume_fraction_type,
+                    test_function_type, test_function_gradient_iter,
+                    interpolation_function_type, interpolation_function_gradient_iter,
+                    full_material_response_dof_gradient_iter,
+                    dRhoDotdRho_type, dEDotdE_type, dUDotdU_type,
+                    result_type,
+                    dRdRho_iter, dRdU_iter, dRdW_iter, dRdTheta_iter,
+                    dRdE_iter, dRdZ_iter, dRdVolumeFraction_iter, dRdUMesh_iter,
+                    density_index        ,
+                    displacement_index   ,
+                    velocity_index       ,
+                    temperature_index    ,
+                    internal_energy_index,
+                    additional_dof_index 
+                >
+                (
+                    *( density_begin + v.first ), *( density_dot_begin + v.first ),
+                    density_gradient_begin + dim * v.first, density_gradient_begin + dim * ( v.first + 1 ),
+                    *( internal_energy_begin + v.first ), *( internal_energy_dot_begin + v.first ),
+                    internal_energy_gradient_begin + dim * v.first, internal_energy_gradient_begin + dim * ( v.first + 1 ),
+                    velocity_begin + dim * v.first,                velocity_begin + dim * ( v.first + 1 ),
+                    velocity_gradient_begin + dim * dim * v.first, velocity_gradient_begin + dim * dim * ( v.first + 1 ),
+                    material_response_begin + material_response_size * v.first,
+                    material_response_begin + material_response_size * ( v.first + 1 ),
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * v.first,
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * ( v.first + 1 ),
+                    *( volume_fraction_begin + v.first ),
+                    test_function,
+                    test_function_gradient_begin, test_function_gradient_end,
+                    interpolation_function,
+                    interpolation_function_gradient_begin, interpolation_function_gradient_end,
+                    full_material_response_dof_gradient_begin,
+                    full_material_response_dof_gradient_end,
+                    dRhoDotdRho, dEDotdE, dUDotdU,
+                    v.first,
+                    *( result_begin + v.first ),
+                    dRdRho_begin   +            nphases * v.first, dRdRho_begin   +            nphases * ( v.first + 1 ),
+                    dRdU_begin     +      nphases * dim * v.first, dRdU_begin     +      nphases * dim * ( v.first + 1 ),
+                    dRdW_begin     +      nphases * dim * v.first, dRdW_begin     +      nphases * dim * ( v.first + 1 ),
+                    dRdTheta_begin +            nphases * v.first, dRdTheta_begin +            nphases * ( v.first + 1 ),
+                    dRdE_begin     +            nphases * v.first, dRdE_begin     +            nphases * ( v.first + 1 ),
+                    dRdZ_begin     + num_additional_dof * v.first, dRdZ_begin     + num_additional_dof * ( v.first + 1 ),
+                    dRdVolumeFraction_begin + nphases * v.first,
+                    dRdVolumeFraction_begin + nphases * ( v.first + 1 ),
+                    dRdUMesh_begin + dim * v.first, dRdUMesh_begin + dim * ( v.first + 1 )
+                );
+
+            }
+
+        }
+
 
         template<
             int dim, typename density_type, typename density_dot_type,

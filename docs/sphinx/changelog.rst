@@ -20,6 +20,7 @@ New Features
 - Added a hexahedral finite element to test the balance equations in a FEA context (:pull:`15`). By `Nathan Miller`_.
 - Added the FEA Jacobians for the balance of mass, linear momentum, and energy (:pull:`16`). By `Nathan Miller`_.
 - Added the balance of volume fraction (:pull:`17`). By `Nathan Miller`_.
+- Added material model version for the balance equations. (:pull:`18`). By `Nathan Miller`_.
 
 Internal Changes
 ================
