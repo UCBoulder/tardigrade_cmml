@@ -3350,72 +3350,72 @@ void evaluate_at_nodes(
 
             }
 
-           for ( unsigned int j = 0; j < nphases; ++j ){
+            for ( unsigned int j = 0; j < nphases; ++j ){
 
-                BOOST_TEST( value_n[ nphases * i + j ] == *( value_begin + nphases * i + j ) );
+                 BOOST_TEST( value_n[ nphases * i + j ] == *( value_begin + nphases * i + j ) );
 
-//                // node, phase, node, x
-//                //    i,     j,    k, l
+//                 // node, phase, node, x
+//                 //    i,     j,    k, l
 
-                for ( unsigned int l = 0; l < nphases; ++l ){
+                 for ( unsigned int l = 0; l < nphases; ++l ){
 
-                    *( dRdRho_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
-                        += dRdRho_n[ nphases * j + l ] * J;
+                     *( dRdRho_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
+                         += dRdRho_n[ nphases * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < nphases * dim; ++l ){
+                 for ( unsigned int l = 0; l < nphases * dim; ++l ){
 
-                    *( dRdU_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + l )
-                        += dRdU_n[ nphases * dim * j + l ] * J;
+                     *( dRdU_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + l )
+                         += dRdU_n[ nphases * dim * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < nphases * dim; ++l ){
+                 for ( unsigned int l = 0; l < nphases * dim; ++l ){
 
-                    *( dRdW_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + l )
-                        += dRdW_n[ nphases * dim * j + l ] * J;
+                     *( dRdW_begin + nphases * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + l )
+                         += dRdW_n[ nphases * dim * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < nphases; ++l ){
+                 for ( unsigned int l = 0; l < nphases; ++l ){
 
-                    *( dRdTheta_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
-                        += dRdTheta_n[ nphases * 1 * j + l ] * J;
+                     *( dRdTheta_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
+                         += dRdTheta_n[ nphases * 1 * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < nphases; ++l ){
+                 for ( unsigned int l = 0; l < nphases; ++l ){
 
-                    *( dRdE_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
-                        += dRdE_n[ nphases * 1 * j + l ] * J;
+                     *( dRdE_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
+                         += dRdE_n[ nphases * 1 * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < num_additional_dof; ++l ){
+                 for ( unsigned int l = 0; l < num_additional_dof; ++l ){
 
-                    *( dRdZ_begin + nphases * node_count * num_additional_dof * 1 * i + node_count * num_additional_dof * 1 * j + num_additional_dof * 1 * k + l )
-                        += dRdZ_n[ num_additional_dof * 1 * j + l ] * J;
+                     *( dRdZ_begin + nphases * node_count * num_additional_dof * 1 * i + node_count * num_additional_dof * 1 * j + num_additional_dof * 1 * k + l )
+                         += dRdZ_n[ num_additional_dof * 1 * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < nphases; ++l ){
+                 for ( unsigned int l = 0; l < nphases; ++l ){
 
-                    *( dRdVF_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
-                        += dRdVolumeFraction_n[ nphases * 1 * j + l ] * J;
+                     *( dRdVF_begin + nphases * node_count * nphases * 1 * i + node_count * nphases * 1 * j + nphases * 1 * k + l )
+                         += dRdVolumeFraction_n[ nphases * 1 * j + l ] * J;
 
-                }
+                 }
 
-                for ( unsigned int l = 0; l < dim; ++l ){
+                 for ( unsigned int l = 0; l < dim; ++l ){
 
-                    *( dRdUMesh_begin + nphases * node_count * 3 * i + node_count * 3 * j + 3 * k + l )
-                        += dRdUMesh_n[ 3 * j + l ] * J;
+                     *( dRdUMesh_begin + nphases * node_count * 3 * i + node_count * 3 * j + 3 * k + l )
+                         += dRdUMesh_n[ 3 * j + l ] * J;
 
-                }
+                 }
 
-            }
+             }
 
-        }
+         }
 
     }
 
