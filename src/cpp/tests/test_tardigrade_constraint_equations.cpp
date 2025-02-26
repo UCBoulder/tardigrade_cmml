@@ -3520,8 +3520,7 @@ template<
     class d_t_in,       class d_tp1_in,
     class v_t_in,       class v_tp1_in,
     class umesh_t_in, class umesh_tp1_in, class d_dot_t_in,
-    class X_in, typename alpha_type, typename beta_type, class value_out,
-    int material_response_size = 23
+    class X_in, typename alpha_type, typename beta_type, class value_out
 >
 void evaluate_at_nodes(
     const xi_in &xi_begin, const xi_in &xi_end, dt_type dt,
@@ -3633,6 +3632,140 @@ void evaluate_at_nodes(
                 J
             )
         );
+
+    }
+
+}
+
+
+template<
+    int dim, int node_count, int nphases,
+    class xi_in, typename dt_type,
+    class d_t_in,       class d_tp1_in,
+    class v_t_in,       class v_tp1_in,
+    class umesh_t_in, class umesh_tp1_in, class d_dot_t_in,
+    class X_in, typename alpha_type, typename beta_type, class value_out,
+    class dRdD_iter, class dRdV_iter, class dRdUMesh_iter
+>
+void evaluate_at_nodes(
+    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt,
+    const d_t_in &d_t_begin, const d_t_in &d_t_end,
+    const d_tp1_in &d_tp1_begin, const d_tp1_in &d_tp1_end,
+    const v_t_in &v_t_begin, const v_t_in &v_t_end,
+    const v_tp1_in &v_tp1_begin, const v_tp1_in &v_tp1_end,
+    const umesh_t_in &umesh_t_begin, const umesh_t_in &umesh_t_end,
+    const umesh_tp1_in &umesh_tp1_begin, const umesh_tp1_in &umesh_tp1_end,
+    const d_dot_t_in &d_dot_t_begin, const d_dot_t_in &d_dot_t_end,
+    const X_in &X_begin, const X_in &X_end,
+    const alpha_type &alpha, const beta_type &beta, value_out value_begin, value_out value_end,
+    dRdD_iter     dRdD_begin,     dRdD_iter     dRdD_end,
+    dRdV_iter     dRdV_begin,     dRdV_iter     dRdV_end,
+    dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
+){
+
+    // Update the mesh nodes
+    std::array< typename std::iterator_traits<umesh_t_in  >::value_type, dim * node_count > x_t;
+    std::array< typename std::iterator_traits<umesh_tp1_in>::value_type, dim * node_count > x_tp1;
+
+    std::transform( X_begin, X_end,   umesh_t_begin,   std::begin( x_t ), std::plus<typename std::iterator_traits<umesh_t_in  >::value_type>( ) );
+    std::transform( X_begin, X_end, umesh_tp1_begin, std::begin( x_tp1 ), std::plus<typename std::iterator_traits<umesh_tp1_in>::value_type>( ) );
+
+    // Calculate the current rates of change
+    std::array< typename std::iterator_traits<d_tp1_in>::value_type, dim * node_count * nphases > d_dot_tp1;
+
+    floatType dDDotdD;
+
+    compute_current_rate_of_change(
+        dt, d_t_begin, d_t_end, d_tp1_begin, d_tp1_end,
+        d_dot_t_begin, d_dot_t_end, alpha,
+        std::begin( d_dot_tp1 ), std::end( d_dot_tp1 ),
+        dDDotdD
+    );
+
+    // Instantiate the element
+    tardigradeBalanceEquations::finiteElementUtilities::LinearHex<
+        floatType, typename std::array< floatType, 24 >::const_iterator,
+        typename std::array< floatType, 3>::const_iterator,
+        typename std::array< floatType, 8>::iterator,
+        typename std::array< floatType, 24>::iterator
+    > e(
+        std::cbegin( x_tp1 ), std::cend( x_tp1 ), X_begin, X_end
+    );
+
+    std::array<
+        typename std::iterator_traits<d_tp1_in>::value_type, dim * nphases
+    > d_dot_tp1_p, v_tp1_p;
+
+    // Interpolate quantities to the local point
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, std::begin( d_dot_tp1 ), std::end( d_dot_tp1 ),
+        std::begin( d_dot_tp1_p ), std::end( d_dot_tp1_p )
+    );
+
+    e.InterpolateQuantity(
+        xi_begin, xi_end, v_tp1_begin, v_tp1_end,
+        std::begin( v_tp1_p ), std::end( v_tp1_p )
+    );
+
+    std::fill( value_begin, value_end, 0 );
+
+    std::array< floatType, node_count * nphases * dim > value_n;
+
+//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
+//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
+////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
+
+    // Get the Jacobian of transformation
+    std::array< floatType, dim * dim > dxdxi;
+    e.GetLocalQuantityGradient(
+        xi_begin, xi_end, std::cbegin( x_tp1 ), std::cend( x_tp1 ),
+        std::begin( dxdxi ), std::end( dxdxi )
+    );
+
+    floatType J = tardigradeVectorTools::determinant
+    <
+        typename std::array< floatType, dim * dim >::const_iterator,
+        floatType, 3, 3
+    >(
+        std::cbegin( dxdxi ), std::cend( dxdxi ),
+        3, 3
+    );
+
+    std::array< floatType, node_count> Ns;
+    e.GetShapeFunctions( xi_begin, xi_end, std::begin( Ns ), std::end( Ns ) );
+
+    for ( unsigned int i = 0; i < node_count; ++i ){
+
+        tardigradeBalanceEquations::constraintEquations::computeDisplacementConstraint(
+            std::cbegin( d_dot_tp1_p ), std::cend( d_dot_tp1_p ),
+            std::cbegin( v_tp1_p ),     std::cend( v_tp1_p ),
+            Ns[ i ],
+            value_begin + dim * nphases * i, value_begin + dim * nphases * ( i + 1 )
+        );
+
+        std::transform(
+            value_begin + dim * nphases * i,
+            value_begin + dim * nphases * ( i + 1 ),
+            value_begin + dim * nphases * i,
+            std::bind(
+                std::multiplies< typename std::iterator_traits< value_out >::value_type >( ),
+                std::placeholders::_1,
+                J
+            )
+        );
+
+        for ( unsigned int k = 0; k < node_count; ++k ){
+
+        }
 
     }
 
@@ -3828,5 +3961,57 @@ BOOST_AUTO_TEST_CASE( test_computeDisplacementConstraint, * boost::unit_test::to
     );
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+    std::array< floatType, 8 * 3 * nphases * 8 * 3 * nphases > dRdD, dRdV;
+
+    std::array< floatType, 8 * 3 * nphases * 8 * 3 > dRdUMesh;
+
+    std::fill( std::begin( result ), std::end( result ), 0 );
+
+    evaluate_at_nodes<3,8,nphases>(
+        std::cbegin( local_point ), std::cend( local_point ),
+        dt,
+        std::cbegin( d_t ),         std::cend( d_t ),
+        std::cbegin( d_tp1 ),       std::cend( d_tp1 ),
+        std::cbegin( v_t ),         std::cend( v_t ),
+        std::cbegin( v_tp1 ),       std::cend( v_tp1 ),
+        std::cbegin( umesh_t ),     std::cend( umesh_t ),
+        std::cbegin( umesh_tp1 ),   std::cend( umesh_tp1 ),
+        std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+        std::cbegin( X ),           std::cend( X ),
+        alpha, beta,
+        std::begin( result ),       std::end( result ),
+        std::begin( dRdD ),         std::end( dRdD ),
+        std::begin( dRdV ),         std::end( dRdV ),
+        std::begin( dRdUMesh ),     std::end( dRdUMesh )
+    );
+
+    BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
+
+//template<
+//    int dim, int node_count, int nphases,
+//    class xi_in, typename dt_type,
+//    class d_t_in,       class d_tp1_in,
+//    class v_t_in,       class v_tp1_in,
+//    class umesh_t_in, class umesh_tp1_in, class d_dot_t_in,
+//    class X_in, typename alpha_type, typename beta_type, class value_out,
+//    class dRdD_iter, class dRdV_iter, class dRdUMesh_iter,
+//>
+//void evaluate_at_nodes(
+//    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt,
+//    const d_t_in &d_t_begin, const d_t_in &d_t_end,
+//    const d_tp1_in &d_tp1_begin, const d_tp1_in &d_tp1_end,
+//    const v_t_in &v_t_begin, const v_t_in &v_t_end,
+//    const v_tp1_in &v_tp1_begin, const v_tp1_in &v_tp1_end,
+//    const umesh_t_in &umesh_t_begin, const umesh_t_in &umesh_t_end,
+//    const umesh_tp1_in &umesh_tp1_begin, const umesh_tp1_in &umesh_tp1_end,
+//    const d_dot_t_in &d_dot_t_begin, const d_dot_t_in &d_dot_t_end,
+//    const X_in &X_begin, const X_in &X_end,
+//    const alpha_type &alpha, const beta_type &beta, value_out value_begin, value_out value_end,
+//    dRdD_iter     dRdD_begin,     dRdD_iter     dRdD_end,
+//    dRdV_iter     dRdV_begin,     dRdV_iter     dRdV_end,
+//    dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
+//){
+
 
 }
