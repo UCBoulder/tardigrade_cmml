@@ -77,12 +77,12 @@ namespace tardigradeBalanceEquations{
             class dRdRho_iter, class dRdU_iter, class dRdW_iter,
             class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
             class dRdUMesh_iter,
-            int density_index         = 0,
-            int displacement_index    = 1,
-            int velocity_index        = 4,
-            int temperature_index     = 7,
-            int internal_energy_index = 8,
-            int additional_dof_index  = 9
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
         >
         void computeInternalEnergyConstraint(
             const internal_energy_type &internal_energy,
@@ -388,12 +388,12 @@ namespace tardigradeBalanceEquations{
             class dRdRho_iter, class dRdU_iter, class dRdW_iter,
             class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
             class dRdUMesh_iter,
-            int density_index         = 0,
-            int displacement_index    = 1,
-            int velocity_index        = 4,
-            int temperature_index     = 7,
-            int internal_energy_index = 8,
-            int additional_dof_index  = 9
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
         >
         void computeInternalEnergyConstraint(
             const internal_energy_iter &internal_energy_begin,
@@ -564,6 +564,166 @@ namespace tardigradeBalanceEquations{
                     dRdZ_begin     +                      num_additional_dof * v.first, dRdZ_begin     +                      num_additional_dof * ( v.first + 1 ),
                     dRdUMesh_begin +                   material_response_dim * v.first, dRdUMesh_begin +                   material_response_dim * ( v.first + 1 )
                 );
+
+            }
+
+        }
+
+        template<
+            class displacement_dot_iter,
+            class velocity_iter,
+            typename test_function_type,
+            class result_iter
+        >
+        void computeDisplacementConstraint(
+            const displacement_dot_iter &displacement_dot_begin, const displacement_dot_iter &displacement_dot_end,
+            const velocity_iter         &velocity_begin,         const velocity_iter         &velocity_end,
+            const test_function_type &test_function,
+            result_iter result_begin, result_iter result_end
+        ){
+            /*!
+             * Compute the constraint for the displacement to the velocity DOF. If this is integrated over the volume
+             * then the test function should be provided as normal. If this is directly applied at the nodes, then
+             * setting the test function to 1 will achieve the desired result.
+             * 
+             * \param displacement_dot_begin: The starting iterator for the time derivative of the displacement dof
+             * \param displacement_dot_end: The stopping iterator for the time derivative of the displacement dof
+             * \param velocity_begin: The starting iterator for the velocity dof
+             * \param velocity_end: The stopping iterator for the velocity dof
+             * \param test_function: The test function. If the constraint is being applied in a volume-integrated
+             *     way then this should be set to the test function value. If it is being applied at a mesh's nodes
+             *     then it should be set to 1.
+             * \param result_begin: The starting iterator of the constraint violation result
+             * \param result_end: The stopping iterator of the constraint violation result
+             */
+
+            using result_type = typename std::iterator_traits<result_iter>::value_type;
+
+            TARDIGRADE_ERROR_TOOLS_EVAL(
+                const unsigned int length = ( unsigned int )( displacement_dot_end - displacement_dot_begin );
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                length == ( unsigned int )( velocity_end - velocity_begin ),
+                "The velocity and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                length == ( unsigned int )( result_end - result_begin ),
+                "The result and density dot vectors must be the same size"
+            )
+
+            std::transform(
+                displacement_dot_begin,
+                displacement_dot_end,
+                velocity_begin,
+                result_begin,
+                std::minus< result_type >( )
+            );
+
+            std::transform(
+                result_begin, result_end, result_begin,
+                std::bind(
+                    std::multiplies< result_type >( ),
+                    std::placeholders::_1,
+                    test_function
+                )
+            );
+
+        }
+
+        template<
+            int dim,
+            class displacement_dot_iter,
+            class velocity_iter,
+            typename test_function_type,
+            typename interpolation_function_type,
+            class interpolation_function_gradient_iter,
+            typename dDDotdD_type,
+            class result_iter,
+            class dRdD_iter, class dRdV_iter, class dRdUMesh_iter
+        >
+        void computeDisplacementConstraint(
+            const displacement_dot_iter &displacement_dot_begin, const displacement_dot_iter &displacement_dot_end,
+            const velocity_iter         &velocity_begin,         const velocity_iter         &velocity_end,
+            const test_function_type &test_function,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const dDDotdD_type &dDDotdD,
+            result_iter result_begin, result_iter result_end,
+            dRdD_iter dRdD_begin,         dRdD_iter dRdD_end,
+            dRdV_iter dRdV_begin,         dRdV_iter dRdV_end,
+            dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the constraint for the displacement to the velocity DOF. If this is integrated over the volume
+             * then the test function, interpolation function and interpolation function gradient should be provided
+             * as normal. If this is directly applied at the nodes, then setting the test function and interpolation
+             * function to 1 and the interpolation function gradient to zero will achieve the desired result.
+             * 
+             * \param displacement_dot_begin: The starting iterator for the time derivative of the displacement dof
+             * \param displacement_dot_end: The stopping iterator for the time derivative of the displacement dof
+             * \param velocity_begin: The starting iterator for the velocity dof
+             * \param velocity_end: The stopping iterator for the velocity dof
+             * \param test_function: The test function. If the constraint is being applied in a volume-integrated
+             *     way then this should be set to the test function value. If it is being applied at a mesh's nodes
+             *     then it should be set to 1.
+             * \param interpolation_function: The interpolation function. If the constraint is being applied in a volume-integrated
+             *     way then this should be set to the interpolation function value. If it is being applied at a mesh's nodes
+             *     then it should be set to 1.
+             * \param interpolation_function_gradient_begin: The starting iterator of the interpolation function. If the constraint is being applied in a volume-integrated
+             *     way then this should be set to the interpolation function gradient value. If it is being applied at a mesh's nodes
+             *     then it should be set to 0.
+             * \param interpolation_function_gradient_end: The starting iterator of the interpolation function. If the constraint is being applied in a volume-integrated
+             *     way then this should be set to the interpolation function gradient value. If it is being applied at a mesh's nodes
+             *     then it should be set to 0.
+             * \param dDDotdD: The derivative of the displacement dot w.r.t. the displacement
+             * \param result_begin: The starting iterator of the constraint violation result
+             * \param result_end: The stopping iterator of the constraint violation result
+             * \param dRdD_begin: The starting iterator for the derivative of the residual w.r.t. the displacement (only the diagonal is returned as everything else is zero)
+             * \param dRdD_end:   The stopping iterator for the derivative of the residual w.r.t. the displacement (only the diagonal is returned as everything else is zero)
+             * \param dRdV_begin: The starting iterator for the derivative of the residual w.r.t. the velocity (only the diagonal is returned as everything else is zero)
+             * \param dRdV_end:   The stopping iterator for the derivative of the residual w.r.t. the velocity (only the diagonal is returned as everything else is zero)
+             * \param dRdUMesh_begin: The starting iterator for the derivative of the residual w.r.t. the mesh displacement
+             * \param dRdUMesh_end: The stopping iterator for the derivative of the residual w.r.t. the mesh displacement
+             */
+
+            TARDIGRADE_ERROR_TOOLS_EVAL(
+                const unsigned int length = ( unsigned int )( displacement_dot_end - displacement_dot_begin );
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                length == ( unsigned int )( dRdD_end - dRdD_begin ),
+                "The dRdD and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                length == ( unsigned int )( dRdV_end - dRdV_begin ),
+                "The dRdV and density dot vectors must be the same size"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                length * dim == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ),
+                "The dRdUMesh vector must be the length of the density dot vector time the length of the interpolation function gradient vector"
+            )
+
+            computeDisplacementConstraint(
+                displacement_dot_begin, displacement_dot_end,
+                velocity_begin,         velocity_end,
+                test_function,
+                result_begin, result_end
+            );
+
+            for ( auto v = std::pair< unsigned int, dRdD_iter >( 0, dRdV_begin ); v.second != dRdD_end; ++v.first, ++v.second ){
+                *v.second                 =  test_function * dDDotdD * interpolation_function;
+                *( dRdV_begin + v.first ) = -test_function * interpolation_function;
+
+                for ( unsigned int a = 0; a < dim; ++a ){
+
+                    *( dRdUMesh_begin + dim * v.first + a ) = test_function * ( *( result_begin + v.first ) ) * ( *( interpolation_function_gradient_begin + a ) );
+
+                }
 
             }
 
