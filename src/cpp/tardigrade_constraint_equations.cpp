@@ -373,6 +373,202 @@ namespace tardigradeBalanceEquations{
 
         }
 
+        template<
+            int material_response_dim, int predicted_internal_energy_index,
+            int material_response_num_dof,
+            class internal_energy_iter,
+            class material_response_iter,
+            class material_response_jacobian_iter,
+            typename test_function_type,
+            typename interpolation_function_type,
+            class interpolation_function_gradient_iter,
+            class full_material_response_dof_gradient_iter,
+            typename dUDotdU_type,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter,
+            class dRdTheta_iter, class dRdE_iter, class dRdZ_iter,
+            class dRdUMesh_iter,
+            int density_index         = 0,
+            int displacement_index    = 1,
+            int velocity_index        = 4,
+            int temperature_index     = 7,
+            int internal_energy_index = 8,
+            int additional_dof_index  = 9
+        >
+        void computeInternalEnergyConstraint(
+            const internal_energy_iter &internal_energy_begin,
+            const internal_energy_iter &internal_energy_end,
+            const material_response_iter &material_response_begin,
+            const material_response_iter &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const test_function_type &test_function,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dUDotdU_type dUDotdU,
+            result_iter result_begin,
+            result_iter result_end,
+            dRdRho_iter dRdRho_begin, dRdRho_iter dRdRho_end,
+            dRdU_iter dRdU_begin, dRdU_iter dRdU_end,
+            dRdW_iter dRdW_begin, dRdW_iter dRdW_end,
+            dRdTheta_iter dRdTheta_begin, dRdTheta_iter dRdTheta_end,
+            dRdE_iter     dRdE_begin,     dRdE_iter     dRdE_end,
+            dRdZ_iter     dRdZ_begin,     dRdZ_iter     dRdZ_end,
+            dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
+        ){
+            /*!
+             * Compute the value of the constraint on the internal energy.
+             * 
+             * Traditionally, the internal energy is related to the temperature via
+             * 
+             * \f$ e = c \theta \f$
+             * 
+             * where \f$ e \f$ is the internal energy, \f$ c \f$ is the specific heat,
+             * and \f$ \theta \f$ is the temperature. The specific heat may not be a
+             * constant value however and may depend on the temperature, pressure, or
+             * other measures of the material state. By defining a constraint as
+             * 
+             * \f$ R = e^{p} - e \f$ where \f$ e^p \f$ is the predicted internal energy
+             * from the material response calculation.
+             * 
+             * \param &internal_energy_begin: The starting iterator of the internal energy degree of freedom
+             * \param &internal_energy_end: The stopping iterator internal energy degree of freedom
+             * \param &material_response_begin: The starting iterator of the material response vector
+             * \param &material_response_end: The stopping iterator of the material response vector
+             * \param &material_response_jacobian_begin: The starting iterator of the material response Jacobian vector
+             * \param &material_response_jacobian_end: The stopping iterator of the material response Jacobian vector
+             * \param &test_function: The test function from the variational solution strategy
+             * \param &interpolation_function: The current value of the interpolation function
+             * \param &interpolation_function_gradient_begin: The starting iterator of the current value of the spatial gradient of the interpolation function
+             * \param &interpolation_function_gradient_end: The stopping iterator of the current value of the spatial gradient of the interpolation function
+             * \param &full_material_response_dof_gradient_begin: The starting iterator of the spatial gradient of the material response dof vector
+             * \param &full_material_response_dof_gradient_end: The stopping iterator of the spatial gradient of the material response dof vector
+             * \param &dUDotdU: The derivative of the phase velocity w.r.t. the phase displacement dof
+             * \param &result_begin: The starting iterator of the resulting error between the internal energy DOF and the material response
+             * \param &result_end: The stopping starting iterator of the resulting error between the internal energy DOF and the material response
+             * \param &dRdRho_begin: The starting iterator of the derivative of the residual w.r.t. the apparent density
+             * \param &dRdRho_end: The stopping iterator of the derivative of the residual w.r.t. the apparent density
+             * \param &dRdU_begin: The starting iterator of the derivative of the residual w.r.t. the phase spatial DOF associated with velocity
+             * \param &dRdU_end: The stopping iterator of the derivative of the residual w.r.t. the phase spatial DOF associated with velocity
+             * \param &dRdW_begin: The starting iterator of the derivative of the residual w.r.t. the phase displacement dof
+             * \param &dRdW_end: The stopping iterator of the derivative of the residual w.r.t. the phase displacement dof
+             * \param &dRdTheta_begin: The starting iterator of the derivative of the residual w.r.t. the phase temperature
+             * \param &dRdTheta_end: The stopping iterator of the derivative of the residual w.r.t. the phase temperature
+             * \param &dRdE_begin: The starting iterator of the derivative of the residual w.r.t. the phase internal energy
+             * \param &dRdE_end: The stopping iterator of the derivative of the residual w.r.t. the phase internal energy
+             * \param &dRdZ_begin: The starting iterator of the derivative of the residual w.r.t. the phase additional dof
+             * \param &dRdZ_end: The stopping iterator of the derivative of the residual w.r.t. the phase additional dof
+             * \param &dRdUMesh_begin: The starting iterator of the derivative of the residual w.r.t. the mesh displacement
+             * \param &dRdUMesh_end: The stopping iterator of the derivative of the residual w.r.t. the mesh displacement
+             */
+
+            using internal_energy_type     = typename std::iterator_traits<internal_energy_iter>::value_type;
+            using result_type              = typename std::iterator_traits<result_iter>::value_type;
+
+            const unsigned int nphases = ( unsigned int )( result_end - result_begin );
+            const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
+            const unsigned int num_additional_dof = ( unsigned int )( dRdZ_end - dRdZ_begin ) / nphases;
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases == ( unsigned int )( internal_energy_end - internal_energy_begin ),
+                "The number of internal energy values must be equal to the number of phases"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size == ( unsigned int )( material_response_end - material_response_begin ),
+                "The material response vector must be a scalar multiple of the number of phases"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_size * ( 1 + material_response_dim ) * material_response_num_dof == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
+                "The material response jacobian vector must be a scalar multiple of the number of phases, the material response size and 1 + the material response dimension times the number of dof in the material response"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                material_response_dim * material_response_num_dof == ( unsigned int )( full_material_response_dof_gradient_end - full_material_response_dof_gradient_begin ),
+                "The full material response dof gradient have a size of the material response dimension times the number of dof in the material resionse"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * material_response_dim == ( unsigned int )( dRdU_end - dRdU_begin ),
+                "dRdU must be a consistent size with the material response dimension and the number of phases"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases * material_response_dim == ( unsigned int )( dRdW_end - dRdW_begin ),
+                "dRdW must be a consistent size with the material response dimension and the number of phases squared"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdTheta_end - dRdTheta_begin ),
+                "dRdTheta must be the same size as the number of phases squared"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * nphases == ( unsigned int )( dRdE_end - dRdE_begin ),
+                "dRdE must be the same size as the number of phases squared"
+            )
+
+            TARDIGRADE_ERROR_TOOLS_CHECK(
+                nphases * material_response_dim == ( unsigned int )( dRdUMesh_end - dRdUMesh_begin ),
+                "dRdUMesh must be the same size as the spatial dimension of the material response times the number of phases"
+            )
+
+            for ( auto v = std::pair< unsigned int, result_iter >( 0, result_begin ); v.second != result_end; ++v.first, ++v.second ){
+
+                computeInternalEnergyConstraint<
+                    material_response_dim, predicted_internal_energy_index,
+                    material_response_num_dof,
+                    internal_energy_type,
+                    material_response_iter,
+                    material_response_jacobian_iter,
+                    test_function_type,
+                    interpolation_function_type,
+                    interpolation_function_gradient_iter,
+                    full_material_response_dof_gradient_iter,
+                    dUDotdU_type,
+                    result_type,
+                    dRdRho_iter, dRdU_iter, dRdW_iter,
+                    dRdTheta_iter, dRdE_iter, dRdZ_iter,
+                    dRdUMesh_iter,
+                    density_index        ,
+                    displacement_index   ,
+                    velocity_index       ,
+                    temperature_index    ,
+                    internal_energy_index,
+                    additional_dof_index 
+                >
+                (
+                    *( internal_energy_begin + v.first ),
+                    material_response_begin + material_response_size * v.first,
+                    material_response_begin + material_response_size * ( v.first + 1 ),
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * v.first,
+                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * ( v.first + 1 ),
+                    test_function,
+                    interpolation_function,
+                    interpolation_function_gradient_begin,
+                    interpolation_function_gradient_end,
+                    full_material_response_dof_gradient_begin,
+                    full_material_response_dof_gradient_end,
+                    dUDotdU,
+                    v.first,
+                    *v.second,
+                    dRdRho_begin   +                                 nphases * v.first, dRdRho_begin   +                                 nphases * ( v.first + 1 ),
+                    dRdU_begin     +         nphases * material_response_dim * v.first, dRdU_begin     +         nphases * material_response_dim * ( v.first + 1 ),
+                    dRdW_begin     +         nphases * material_response_dim * v.first, dRdW_begin     +         nphases * material_response_dim * ( v.first + 1 ),
+                    dRdTheta_begin +                                 nphases * v.first, dRdTheta_begin +                                 nphases * ( v.first + 1 ),
+                    dRdE_begin     +                                 nphases * v.first, dRdE_begin     +                                 nphases * ( v.first + 1 ),
+                    dRdZ_begin     +                      num_additional_dof * v.first, dRdZ_begin     +                      num_additional_dof * ( v.first + 1 ),
+                    dRdUMesh_begin +                   material_response_dim * v.first, dRdUMesh_begin +                   material_response_dim * ( v.first + 1 )
+                );
+
+            }
+
+        }
+
     }
 
 }
