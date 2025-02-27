@@ -715,13 +715,17 @@ namespace tardigradeBalanceEquations{
                 result_begin, result_end
             );
 
-            for ( auto v = std::pair< unsigned int, dRdD_iter >( 0, dRdV_begin ); v.second != dRdD_end; ++v.first, ++v.second ){
+            std::fill( dRdD_begin, dRdD_end, 0 );
+            std::fill( dRdV_begin, dRdV_end, 0 );
+            std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
+
+            for ( auto v = std::pair< unsigned int, dRdD_iter >( 0, dRdD_begin ); v.second != dRdD_end; ++v.first, ++v.second ){
                 *v.second                 =  test_function * dDDotdD * interpolation_function;
                 *( dRdV_begin + v.first ) = -test_function * interpolation_function;
 
                 for ( unsigned int a = 0; a < dim; ++a ){
 
-                    *( dRdUMesh_begin + dim * v.first + a ) = test_function * ( *( result_begin + v.first ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *( dRdUMesh_begin + dim * v.first + a ) = ( *( result_begin + v.first ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 

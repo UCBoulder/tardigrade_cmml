@@ -838,18 +838,6 @@ void evaluate_at_nodes(
 
     std::fill( value_begin, value_end, 0 );
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-
    for ( unsigned int i = 0; i < node_count; ++i ){
 
         if ( active_phase >= 0 ){
@@ -875,12 +863,9 @@ void evaluate_at_nodes(
                 )
             );
 
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-
         }
         else{
 
-//            std::cout << "i: " << i << "\n";
             tardigradeBalanceEquations::constraintEquations::computeInternalEnergyConstraint<9>(
                 std::cbegin( e_tp1_p ),              std::cend( e_tp1_p ),
                 std::cbegin( material_response ),    std::cend( material_response ),
@@ -898,8 +883,6 @@ void evaluate_at_nodes(
                     J
                 )
             );
-
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
 
         }
 
@@ -1276,18 +1259,6 @@ void evaluate_at_nodes(
 
     std::fill( std::begin( dRdUMesh_n ),          std::end( dRdUMesh_n ), 0 );
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-
    for ( unsigned int i = 0; i < node_count; ++i ){
 
         if ( active_phase >= 0 ){
@@ -1313,12 +1284,9 @@ void evaluate_at_nodes(
                 )
             );
 
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-
         }
         else{
 
-//            std::cout << "i: " << i << "\n";
             tardigradeBalanceEquations::constraintEquations::computeInternalEnergyConstraint<9>(
                 std::cbegin( e_tp1_p ),              std::cend( e_tp1_p ),
                 std::cbegin( material_response ),    std::cend( material_response ),
@@ -1336,8 +1304,6 @@ void evaluate_at_nodes(
                     J
                 )
             );
-
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
 
         }
 
@@ -3582,18 +3548,6 @@ void evaluate_at_nodes(
 
     std::fill( value_begin, value_end, 0 );
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-
     // Get the Jacobian of transformation
     std::array< floatType, dim * dim > dxdxi;
     e.GetLocalQuantityGradient(
@@ -3712,17 +3666,17 @@ void evaluate_at_nodes(
 
     std::array< floatType, node_count * nphases * dim > value_n;
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
+    std::array< floatType, nphases * dim > dRdD_n, dRdV_n;
+
+    std::array< floatType, nphases * dim * dim > dRdUMesh_n;
+
+    std::fill( std::begin( value_n ),    std::end( value_n ),    0 );
+    std::fill( std::begin( dRdD_n ),     std::end( dRdD_n ),     0 );
+    std::fill( std::begin( dRdV_n ),     std::end( dRdV_n ),     0 );
+    std::fill( std::begin( dRdUMesh_n ), std::end( dRdUMesh_n ), 0 );
+    std::fill( dRdD_begin,     dRdD_end,     0 );
+    std::fill( dRdV_begin,     dRdV_end,     0 );
+    std::fill( dRdUMesh_begin, dRdUMesh_end, 0 );
 
     // Get the Jacobian of transformation
     std::array< floatType, dim * dim > dxdxi;
@@ -3742,6 +3696,10 @@ void evaluate_at_nodes(
 
     std::array< floatType, node_count> Ns;
     e.GetShapeFunctions( xi_begin, xi_end, std::begin( Ns ), std::end( Ns ) );
+
+    std::array< floatType, node_count * dim > dNdx;
+    e.GetGlobalShapeFunctionGradients( xi_begin, xi_end, std::cbegin( x_tp1 ), std::cend( x_tp1 ),
+                                       std::begin( dNdx ), std::end( dNdx ) );
 
     for ( unsigned int i = 0; i < node_count; ++i ){
 
@@ -3764,6 +3722,45 @@ void evaluate_at_nodes(
         );
 
         for ( unsigned int k = 0; k < node_count; ++k ){
+
+            tardigradeBalanceEquations::constraintEquations::computeDisplacementConstraint<dim>(
+                std::cbegin( d_dot_tp1_p ), std::cend( d_dot_tp1_p ),
+                std::cbegin( v_tp1_p ),     std::cend( v_tp1_p ),
+                Ns[ i ],
+                Ns[ k ], std::cbegin( dNdx ) + dim * k, std::cbegin( dNdx ) + dim * ( k + 1 ),
+                dDDotdD,
+                std::begin( value_n ) + dim * nphases * i, std::begin( value_n ) + dim * nphases * ( i + 1 ),
+                std::begin( dRdD_n ), std::end( dRdD_n ),
+                std::begin( dRdV_n ), std::end( dRdV_n ),
+                std::begin( dRdUMesh_n ), std::end( dRdUMesh_n )
+            );
+
+            std::transform(
+                std::begin( value_n ) + dim * nphases * i,
+                std::begin( value_n ) + dim * nphases * ( i + 1 ),
+                std::begin( value_n ) + dim * nphases * i,
+                std::bind(
+                    std::multiplies< typename std::iterator_traits< value_out >::value_type >( ),
+                    std::placeholders::_1,
+                    J
+                )
+            );
+
+            for ( unsigned int j = 0; j < nphases * dim; ++j ){
+
+                BOOST_TEST( value_n[ nphases * dim * i + j ] == *( value_begin + nphases * dim * i + j ) );
+
+                *( dRdD_begin + nphases * dim * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + j ) += dRdD_n[ j ] * J;
+
+                *( dRdV_begin + nphases * dim * node_count * nphases * dim * i + node_count * nphases * dim * j + nphases * dim * k + j ) += dRdV_n[ j ] * J;
+
+                for ( unsigned int l = 0; l < dim; ++l ){
+
+                    *( dRdUMesh_begin + nphases * dim * node_count * dim * i + node_count * dim * j + dim * k + l ) += dRdUMesh_n[ dim * j + l ] * J;
+
+                }
+
+            }
 
         }
 
@@ -3988,30 +3985,177 @@ BOOST_AUTO_TEST_CASE( test_computeDisplacementConstraint, * boost::unit_test::to
 
     BOOST_TEST( answer == result, CHECK_PER_ELEMENT );
 
-//template<
-//    int dim, int node_count, int nphases,
-//    class xi_in, typename dt_type,
-//    class d_t_in,       class d_tp1_in,
-//    class v_t_in,       class v_tp1_in,
-//    class umesh_t_in, class umesh_tp1_in, class d_dot_t_in,
-//    class X_in, typename alpha_type, typename beta_type, class value_out,
-//    class dRdD_iter, class dRdV_iter, class dRdUMesh_iter,
-//>
-//void evaluate_at_nodes(
-//    const xi_in &xi_begin, const xi_in &xi_end, dt_type dt,
-//    const d_t_in &d_t_begin, const d_t_in &d_t_end,
-//    const d_tp1_in &d_tp1_begin, const d_tp1_in &d_tp1_end,
-//    const v_t_in &v_t_begin, const v_t_in &v_t_end,
-//    const v_tp1_in &v_tp1_begin, const v_tp1_in &v_tp1_end,
-//    const umesh_t_in &umesh_t_begin, const umesh_t_in &umesh_t_end,
-//    const umesh_tp1_in &umesh_tp1_begin, const umesh_tp1_in &umesh_tp1_end,
-//    const d_dot_t_in &d_dot_t_begin, const d_dot_t_in &d_dot_t_end,
-//    const X_in &X_begin, const X_in &X_end,
-//    const alpha_type &alpha, const beta_type &beta, value_out value_begin, value_out value_end,
-//    dRdD_iter     dRdD_begin,     dRdD_iter     dRdD_end,
-//    dRdV_iter     dRdV_begin,     dRdV_iter     dRdV_end,
-//    dRdUMesh_iter dRdUMesh_begin, dRdUMesh_iter dRdUMesh_end
-//){
+    floatType eps = 1e-6;
 
+    // Check the derivatives w.r.t. the displacement
+    {
+        constexpr unsigned int vardim = 3 * nphases * 8;
+        constexpr unsigned int outdim = 3 * nphases * 8;
+
+        for ( unsigned int i = 0; i < vardim; ++i ){
+
+            floatType delta = eps * std::fabs( d_tp1[ i ] ) + eps;
+
+            std::array< floatType, vardim > xp = d_tp1;
+            std::array< floatType, vardim > xm = d_tp1;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            std::array< floatType, outdim > vp, vm;
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( xp ),          std::cend( xp ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( v_tp1 ),       std::cend( v_tp1 ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ),   std::cend( umesh_tp1 ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vp ),       std::end( vp )
+            );
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( xm ),          std::cend( xm ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( v_tp1 ),       std::cend( v_tp1 ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ),   std::cend( umesh_tp1 ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vm ),       std::end( vm )
+            );
+
+            for ( unsigned int j = 0; j < outdim; ++j ){
+
+                BOOST_TEST( dRdD[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
+    // Check the derivatives w.r.t. the velocity
+    {
+        constexpr unsigned int vardim = 3 * nphases * 8;
+        constexpr unsigned int outdim = 3 * nphases * 8;
+
+        for ( unsigned int i = 0; i < vardim; ++i ){
+
+            floatType delta = eps * std::fabs( v_tp1[ i ] ) + eps;
+
+            std::array< floatType, vardim > xp = v_tp1;
+            std::array< floatType, vardim > xm = v_tp1;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            std::array< floatType, outdim > vp, vm;
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( d_tp1 ),       std::cend( d_tp1 ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( xp ),          std::cend( xp ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ),   std::cend( umesh_tp1 ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vp ),       std::end( vp )
+            );
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( d_tp1 ),       std::cend( d_tp1 ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( xm ),          std::cend( xm ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( umesh_tp1 ),   std::cend( umesh_tp1 ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vm ),       std::end( vm )
+            );
+
+            for ( unsigned int j = 0; j < outdim; ++j ){
+
+                BOOST_TEST( dRdV[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
+
+    // Check the derivatives w.r.t. the mesh displacement
+    {
+        constexpr unsigned int vardim = 3 * 8;
+        constexpr unsigned int outdim = 3 * nphases * 8;
+
+        for ( unsigned int i = 0; i < vardim; ++i ){
+
+            floatType delta = eps * std::fabs( umesh_tp1[ i ] ) + eps;
+
+            std::array< floatType, vardim > xp = umesh_tp1;
+            std::array< floatType, vardim > xm = umesh_tp1;
+
+            xp[ i ] += delta;
+            xm[ i ] -= delta;
+
+            std::array< floatType, outdim > vp, vm;
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( d_tp1 ),       std::cend( d_tp1 ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( v_tp1 ),       std::cend( v_tp1 ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( xp ),          std::cend( xp ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vp ),       std::end( vp )
+            );
+
+            evaluate_at_nodes<3,8,nphases>(
+                std::cbegin( local_point ), std::cend( local_point ),
+                dt,
+                std::cbegin( d_t ),         std::cend( d_t ),
+                std::cbegin( d_tp1 ),       std::cend( d_tp1 ),
+                std::cbegin( v_t ),         std::cend( v_t ),
+                std::cbegin( v_tp1 ),       std::cend( v_tp1 ),
+                std::cbegin( umesh_t ),     std::cend( umesh_t ),
+                std::cbegin( xm ),          std::cend( xm ),
+                std::cbegin( d_dot_t ),     std::cend( d_dot_t ),
+                std::cbegin( X ),           std::cend( X ),
+                alpha, beta,
+                std::begin( vm ),       std::end( vm )
+            );
+
+            for ( unsigned int j = 0; j < outdim; ++j ){
+
+                BOOST_TEST( dRdUMesh[ vardim * j + i ] == ( vp[ j ] - vm[ j ] ) / ( 2 * delta ) );
+
+            }
+
+        }
+
+    }
 
 }
