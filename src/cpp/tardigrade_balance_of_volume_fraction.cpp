@@ -138,13 +138,6 @@ namespace tardigradeBalanceEquations{
              *     true density is assumed to be the rest density.
              */
 
-//            std::cout << "density                  : " << density << "\n";
-//            std::cout << "velocity                 : "; for ( auto _v = velocity_begin; _v != velocity_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-//            std::cout << "volume_fraction          : " << volume_fraction << "\n";
-//            std::cout << "volume_fraction_dot      : " << volume_fraction_dot << "\n";
-//            std::cout << "volume_fraction_gradient : "; for ( auto _v = volume_fraction_gradient_begin; _v != volume_fraction_gradient_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-//            std::cout << "MR                       : "; for ( auto _v = material_response_begin; _v != material_response_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-
             computeBalanceOfVolumeFraction<dim>(
                 density,
                 velocity_begin, velocity_end,

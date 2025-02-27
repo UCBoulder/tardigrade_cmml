@@ -2724,19 +2724,6 @@ void evaluate_at_nodes(
 
     std::fill( value_begin, value_end, 0 );
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_dot_tp1_p : "; for ( auto v = std::cbegin( vf_dot_tp1_p );  v != std::cend( vf_dot_tp1_p );  ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-
     for ( unsigned int i = 0; i < node_count; ++i ){
 
         if ( active_phase >= 0 ){
@@ -2766,12 +2753,9 @@ void evaluate_at_nodes(
                 )
             );
 
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-
         }
         else{
 
-//            std::cout << "i: " << i << "\n";
             tardigradeBalanceEquations::balanceOfVolumeFraction::computeBalanceOfVolumeFraction<dim,10,22>(
                 std::cbegin( density_tp1_p ),        std::cend( density_tp1_p ),
                 std::cbegin( v_tp1_p ),              std::cend( v_tp1_p ),
@@ -2794,8 +2778,6 @@ void evaluate_at_nodes(
                     J
                 )
             );
-
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
 
         }
 
@@ -3191,19 +3173,6 @@ void evaluate_at_nodes(
 
     std::fill( std::begin( dRdUMesh_n ),          std::end( dRdUMesh_n ), 0 );
 
-//    std::cout << "density_tp1_p: "; for ( auto v = std::cbegin( density_tp1_p ); v != std::cend( density_tp1_p ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "w_tp1_p      : "; for ( auto v = std::cbegin( w_tp1_p );       v != std::cend( w_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "v_tp1_p      : "; for ( auto v = std::cbegin( v_tp1_p );       v != std::cend( v_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "theta_tp1_p  : "; for ( auto v = std::cbegin( theta_tp1_p );   v != std::cend( theta_tp1_p );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "e_tp1_p      : "; for ( auto v = std::cbegin( e_tp1_p );       v != std::cend( e_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "z_tp1_p      : "; for ( auto v = std::cbegin( z_tp1_p );       v != std::cend( z_tp1_p );       ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_tp1_p     : "; for ( auto v = std::cbegin( vf_tp1_p );      v != std::cend( vf_tp1_p );      ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "vf_dot_tp1_p : "; for ( auto v = std::cbegin( vf_dot_tp1_p );  v != std::cend( vf_dot_tp1_p );  ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "grad_vf_tp1  : "; for ( auto v = std::cbegin( grad_vf_tp1 );   v != std::cend( grad_vf_tp1 );   ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = rest_density_begin;           v != rest_density_end;           ++v ){ std::cout << *v << " "; } std::cout << "\n";
-//    std::cout << "rest_density : "; for ( auto v = std::cbegin( material_response ); v != std::cend( material_response ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-////    std::cout << "dof_vector: "; for ( auto v = std::begin( dof_vector ); v != std::end( dof_vector ); ++v ){ std::cout << *v << " "; } std::cout << "\n";
-
     for ( unsigned int i = 0; i < node_count; ++i ){
 
         if ( active_phase >= 0 ){
@@ -3233,12 +3202,9 @@ void evaluate_at_nodes(
                 )
             );
 
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
-
         }
         else{
 
-//            std::cout << "i: " << i << "\n";
             tardigradeBalanceEquations::balanceOfVolumeFraction::computeBalanceOfVolumeFraction<dim,10,22>(
                 std::cbegin( density_tp1_p ),        std::cend( density_tp1_p ),
                 std::cbegin( v_tp1_p ),              std::cend( v_tp1_p ),
@@ -3261,8 +3227,6 @@ void evaluate_at_nodes(
                     J
                 )
             );
-
-//            std::cout << "value: "; for ( auto _v = value_begin; _v != value_end; ++_v ){ std::cout << *_v << " "; } std::cout << "\n";
 
         }
 
