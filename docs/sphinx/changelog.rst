@@ -23,6 +23,7 @@ New Features
 - Added material model version for the balance equations. (:pull:`18`). By `Nathan Miller`_.
 - Added a constraint equation enabling complex relationships between the material state and the internal energy. (:pull:`19`). By `Nathan Miller`_.
 - Added a constraint equation for the displacement. (:pull:`20`). by `Nathan Miller`_.
+- Marked all equations as inline and corrected documentation build errors. (:pull:`21`). By `Nathan Miller`_.
 
 Internal Changes
 ================
