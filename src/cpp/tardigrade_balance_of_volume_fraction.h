@@ -30,7 +30,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             typename result_type
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_type                  &density,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_type          &volume_fraction,
@@ -54,7 +54,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             typename result_type
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_type                  &density,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_type          &volume_fraction,
@@ -79,7 +79,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             class result_iter
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_iter                  &density_begin,                  const density_iter                  &density_end,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,
@@ -104,7 +104,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             class result_iter
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_iter                  &density_begin,                  const density_iter                  &density_end,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,
@@ -138,7 +138,7 @@ namespace tardigradeBalanceEquations{
             typename dRdTraceVA_type,
             class dRdUMesh_iter
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_type                  &density,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_type          &volume_fraction,
@@ -185,7 +185,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_type                  &density,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_type          &volume_fraction,
@@ -237,7 +237,7 @@ namespace tardigradeBalanceEquations{
             class dRdTraceVA_iter,
             class dRdUMesh_iter
         >
-        void computeBalanceOfVolumeFraction(
+        inline void computeBalanceOfVolumeFraction(
             const density_iter                  &density_begin,                  const density_iter                  &density_end,
             const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
             const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,

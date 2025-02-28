@@ -28,12 +28,12 @@ namespace tardigradeBalanceEquations{
 
         typedef std::array< floatType, global_sot_dim > secondOrderTensor; //!< Define a standard second-order tensor
 
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
             const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &result
         );
 
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const floatType   &density,  const floatType         &density_dot,       const floatVector &density_gradient,
             const floatVector &velocity, const secondOrderTensor &velocity_gradient, floatType &result,
             floatType   &dRdRho, floatType         &dRdRhoDot, floatVector &dRdGradRho,
@@ -44,7 +44,7 @@ namespace tardigradeBalanceEquations{
             int dim, typename density_type, typename densityDot_type, typename result_type,
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin, const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
@@ -57,7 +57,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type,
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin, const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
@@ -72,7 +72,7 @@ namespace tardigradeBalanceEquations{
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
             class material_response_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin, const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin, const velocity_iter &velocity_end,
@@ -88,7 +88,7 @@ namespace tardigradeBalanceEquations{
             class densityGradient_iter, class velocity_iter, class velocityGradient_iter,
             class material_response_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                     const density_iter &density_end,
             const densityDot_iter &density_dot_begin,              const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,    const densityGradient_iter &density_gradient_end,
@@ -105,7 +105,7 @@ namespace tardigradeBalanceEquations{
             class velocity_iter, class velocityGradient_iter,
             class dRdGradRho_iter, class dRdV_iter, class dRdGradV_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                  const velocity_iter &velocity_end,
@@ -125,7 +125,7 @@ namespace tardigradeBalanceEquations{
             class dRdU_iter, class dRdUMesh_iter,
             typename dDensityDotdDensity_type, typename dUDotdU_type
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,                                  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
@@ -144,7 +144,7 @@ namespace tardigradeBalanceEquations{
             int dim, class density_iter, class densityDot_iter, class densityGradient_iter,
             class velocity_iter, class velocityGradient_iter, class result_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                          const density_iter &density_end,
             const densityDot_iter &density_dot_begin,                   const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
@@ -158,7 +158,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type,
             class velocity_iter, class velocityGradient_iter, class result_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                          const density_iter &density_end,
             const densityDot_iter &density_dot_begin,                   const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,         const densityGradient_iter &density_gradient_end,
@@ -175,7 +175,7 @@ namespace tardigradeBalanceEquations{
             class dRdRho_iter, class dRdRhoDot_iter, class dRdGradRho_iter,
             class dRdV_iter, class dRdGradV_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                    const density_iter &density_end,
             const densityDot_iter &density_dot_begin,             const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,   const densityGradient_iter &density_gradient_end,
@@ -197,7 +197,7 @@ namespace tardigradeBalanceEquations{
             class dRdRho_iter, class dRdU_iter, class dRdUMesh_iter,
             class dDensityDotdDensity_iter, class dUDotdU_iter
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                            const density_iter &density_end,
             const densityDot_iter &density_dot_begin,                     const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
@@ -233,7 +233,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_type &density,                                  const densityDot_type &density_dot,
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                          const velocity_iter &velocity_end,
@@ -277,7 +277,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfMass(
+        inline void computeBalanceOfMass(
             const density_iter &density_begin,                            const density_iter &density_end,
             const densityDot_iter &density_dot_begin,                     const densityDot_iter &density_dot_end,
             const densityGradient_iter &density_gradient_begin,           const densityGradient_iter &density_gradient_end,

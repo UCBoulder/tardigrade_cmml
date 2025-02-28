@@ -32,7 +32,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type, class test_function_gradient_iter,
             typename result_type
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -71,7 +71,7 @@ namespace tardigradeBalanceEquations{
             typename dRdr_type, class dRdpi_iter, class dRdq_iter,
             class dRdUMesh_iter
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -114,7 +114,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type, class test_function_gradient_iter,
             class result_iter
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_iter &density_begin,                                   const density_iter &density_end,
             const density_dot_iter &density_dot_begin,                           const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,                 const density_gradient_iter &density_gradient_end,
@@ -155,7 +155,7 @@ namespace tardigradeBalanceEquations{
             class dRdr_iter, class dRdpi_iter, class dRdq_iter,
             class dRdUMesh_iter
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_iter &density_begin,                                   const density_iter &density_end,
             const density_dot_iter &density_dot_begin,                           const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,                 const density_gradient_iter &density_gradient_end,
@@ -199,7 +199,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type, class test_function_gradient_iter,
             typename result_type
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -226,7 +226,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type, class test_function_gradient_iter,
             class result_iter
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_iter &density_begin, const density_iter &density_end,
             const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
@@ -267,7 +267,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -322,7 +322,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfEnergy(
+        inline void computeBalanceOfEnergy(
             const density_iter &density_begin, const density_iter &density_end,
             const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
@@ -366,7 +366,7 @@ namespace tardigradeBalanceEquations{
             class net_interphase_force_iter,
             typename result_type
         >
-        void computeBalanceOfEnergyNonDivergence(
+        inline void computeBalanceOfEnergyNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -400,7 +400,7 @@ namespace tardigradeBalanceEquations{
             typename dRdVolumeFraction_type, typename dRdr_type,
             class dRdpi_iter
         >
-        void computeBalanceOfEnergyNonDivergence(
+        inline void computeBalanceOfEnergyNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
             const internal_energy_type &internal_energy, const internal_energy_dot_type &internal_energy_dot,
@@ -433,7 +433,7 @@ namespace tardigradeBalanceEquations{
             class net_interphase_force_iter,
             class result_iter
         >
-        void computeBalanceOfEnergyNonDivergence(
+        inline void computeBalanceOfEnergyNonDivergence(
             const density_iter &density_begin, const density_iter &density_end,
             const density_dot_iter &density_dot_begin, const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin, const density_gradient_iter &density_gradient_end,
@@ -466,7 +466,7 @@ namespace tardigradeBalanceEquations{
             class dRdVolumeFraction_iter, class dRdr_iter,
             class dRdpi_iter
         >
-        void computeBalanceOfEnergyNonDivergence(
+        inline void computeBalanceOfEnergyNonDivergence(
             const density_iter &density_begin,                      const density_iter &density_end,
             const density_dot_iter &density_dot_begin,              const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,    const density_gradient_iter &density_gradient_end,
@@ -499,7 +499,7 @@ namespace tardigradeBalanceEquations{
             class test_function_gradient_iter, class heat_flux_iter,
             typename result_type
         >
-        void computeBalanceOfEnergyDivergence(
+        inline void computeBalanceOfEnergyDivergence(
             const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
             const heat_flux_iter &heat_flux_begin,                           const heat_flux_iter &heat_flux_end,
             result_type &result
@@ -511,7 +511,7 @@ namespace tardigradeBalanceEquations{
             typename result_type,
             class dRdGradTestFunction_iter, class dRdq_iter
         >
-        void computeBalanceOfEnergyDivergence(
+        inline void computeBalanceOfEnergyDivergence(
             const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
             const heat_flux_iter &heat_flux_begin,                           const heat_flux_iter &heat_flux_end,
             result_type &result,
@@ -524,7 +524,7 @@ namespace tardigradeBalanceEquations{
             class test_function_gradient_iter, class heat_flux_iter,
             class result_iter
         >
-        void computeBalanceOfEnergyDivergence(
+        inline void computeBalanceOfEnergyDivergence(
             const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
             const heat_flux_iter &heat_flux_begin,                           const heat_flux_iter &heat_flux_end,
             result_iter result_begin,                                        result_iter result_end
@@ -536,7 +536,7 @@ namespace tardigradeBalanceEquations{
             class result_iter,
             class dRdGradTestFunction_iter, class dRdq_iter
         >
-        void computeBalanceOfEnergyDivergence(
+        inline void computeBalanceOfEnergyDivergence(
             const test_function_gradient_iter &test_function_gradient_begin, const test_function_gradient_iter &test_function_gradient_end,
             const heat_flux_iter &heat_flux_begin,                           const heat_flux_iter &heat_flux_end,
             result_iter result_begin,              result_iter result_end,
