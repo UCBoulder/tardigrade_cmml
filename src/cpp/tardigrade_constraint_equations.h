@@ -23,7 +23,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             typename result_type
         >
-        void computeInternalEnergyConstraint(
+        inline void computeInternalEnergyConstraint(
             const internal_energy_type &internal_energy,
             const material_response_iter &material_response_begin,
             const material_response_iter &material_response_end,
@@ -38,7 +38,7 @@ namespace tardigradeBalanceEquations{
             typename test_function_type,
             class result_iter
         >
-        void computeInternalEnergyConstraint(
+        inline void computeInternalEnergyConstraint(
             const internal_energy_iter &internal_energy_begin,
             const internal_energy_iter &internal_energy_end,
             const material_response_iter &material_response_begin,
@@ -70,7 +70,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeInternalEnergyConstraint(
+        inline void computeInternalEnergyConstraint(
             const internal_energy_type &internal_energy,
             const material_response_iter &material_response_begin,
             const material_response_iter &material_response_end,
@@ -116,7 +116,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeInternalEnergyConstraint(
+        inline void computeInternalEnergyConstraint(
             const internal_energy_iter &internal_energy_begin,
             const internal_energy_iter &internal_energy_end,
             const material_response_iter &material_response_begin,

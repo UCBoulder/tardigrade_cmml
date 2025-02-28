@@ -25,7 +25,7 @@ namespace tardigradeBalanceEquations{
             class body_force_iter,
             class result_iter
         >
-        void computeBalanceOfLinearMomentumNonDivergence(
+        inline void computeBalanceOfLinearMomentumNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
@@ -44,7 +44,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type, class testFunctionGradient_iter,
             class result_iter
         >
-        void computeBalanceOfLinearMomentum(
+        inline void computeBalanceOfLinearMomentum(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
@@ -72,7 +72,7 @@ namespace tardigradeBalanceEquations{
             class dRdVolumeFraction_iter, class dRdUMesh_iter,
             typename dRhoDotdRho_type, typename dUDotdU_type, typename dUDDotdU_type
         >
-        void computeBalanceOfLinearMomentum(
+        inline void computeBalanceOfLinearMomentum(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
@@ -107,7 +107,7 @@ namespace tardigradeBalanceEquations{
             typename testFunction_type, class testFunctionGradient_iter,
             class result_iter
         >
-        void computeBalanceOfLinearMomentum(
+        inline void computeBalanceOfLinearMomentum(
             const density_iter &density_begin,                     const density_iter &density_end,
             const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
@@ -133,7 +133,7 @@ namespace tardigradeBalanceEquations{
             class dRdV_iter, class dRdVDot_iter, class dRdGradV_iter,
             class dRdB_iter
         >
-        void computeBalanceOfLinearMomentumNonDivergence(
+        inline void computeBalanceOfLinearMomentumNonDivergence(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,
@@ -157,7 +157,7 @@ namespace tardigradeBalanceEquations{
             class body_force_iter,
             class result_iter
         >
-        void computeBalanceOfLinearMomentumNonDivergence(
+        inline void computeBalanceOfLinearMomentumNonDivergence(
             const density_iter &density_begin,                     const density_iter &density_end,
             const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
@@ -178,7 +178,7 @@ namespace tardigradeBalanceEquations{
             class dRdV_iter, class dRdVDot_iter, class dRdGradV_iter,
             class dRdB_iter
         >
-        void computeBalanceOfLinearMomentumNonDivergence(
+        inline void computeBalanceOfLinearMomentumNonDivergence(
             const density_iter &density_begin,                     const density_iter &density_end,
             const density_dot_iter &density_dot_begin,             const density_dot_iter &density_dot_end,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
@@ -201,7 +201,7 @@ namespace tardigradeBalanceEquations{
             class testFunctionGradient_iter, class cauchyStress_iter, typename volumeFraction_type,
             class result_iter
         >
-        void computeBalanceOfLinearMomentumDivergence(
+        inline void computeBalanceOfLinearMomentumDivergence(
             const testFunctionGradient_iter &grad_test_function_begin,
             const testFunctionGradient_iter &grad_test_function_end,
             const cauchyStress_iter &cauchy_stress_begin,    const cauchyStress_iter &cauchy_stress_end,
@@ -215,7 +215,7 @@ namespace tardigradeBalanceEquations{
             class result_iter,
             class dRdGradPsi_iter, class dRdCauchy_iter, class dRdVolumeFraction_iter
         >
-        void computeBalanceOfLinearMomentumDivergence(
+        inline void computeBalanceOfLinearMomentumDivergence(
             const testFunctionGradient_iter &grad_test_function_begin,
             const testFunctionGradient_iter &grad_test_function_end,
             const cauchyStress_iter &cauchy_stress_begin,    const cauchyStress_iter &cauchy_stress_end,
@@ -231,7 +231,7 @@ namespace tardigradeBalanceEquations{
             class testFunctionGradient_iter, class cauchyStress_iter, class volumeFraction_iter,
             class result_iter
         >
-        void computeBalanceOfLinearMomentumDivergence(
+        inline void computeBalanceOfLinearMomentumDivergence(
             const testFunctionGradient_iter &grad_test_function_begin,
             const testFunctionGradient_iter &grad_test_function_end,
             const cauchyStress_iter &cauchy_stress_begin,     const cauchyStress_iter &cauchy_stress_end,
@@ -245,7 +245,7 @@ namespace tardigradeBalanceEquations{
             class result_iter,
             class dRdGradPsi_iter, class dRdCauchy_iter, class dRdVolumeFraction_iter
         >
-        void computeBalanceOfLinearMomentumDivergence(
+        inline void computeBalanceOfLinearMomentumDivergence(
             const testFunctionGradient_iter &grad_test_function_begin,
             const testFunctionGradient_iter &grad_test_function_end,
             const cauchyStress_iter &cauchy_stress_begin,     const cauchyStress_iter &cauchy_stress_end,
@@ -277,7 +277,7 @@ namespace tardigradeBalanceEquations{
             int internal_energy_index = 8,
             int additional_dof_index  = 9
         >
-        void computeBalanceOfLinearMomentum(
+        inline void computeBalanceOfLinearMomentum(
             const density_type &density, const density_dot_type &density_dot,
             const density_gradient_iter &density_gradient_begin,   const density_gradient_iter &density_gradient_end,
             const velocity_iter &velocity_begin,                   const velocity_iter &velocity_end,

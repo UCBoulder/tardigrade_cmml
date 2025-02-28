@@ -844,7 +844,7 @@ namespace tardigradeBalanceEquations{
              * 
              * In the case of a multi-phase problem we expect the following structure:
              * 
-             * \f$ \rho^1 \f$, \rho^2, \ldots w^1, w^2, \ldots, v^1, v^2, \ldots, \nabla \rho^1, \nabla \rho^2, ... \f$
+             * \f$ \rho^1, \rho^2, \ldots w^1, w^2, \ldots, v^1, v^2, \ldots, \nabla \rho^1, \nabla \rho^2, ... \f$
              *
              * where the superscript indicates the phase. In this function we assume a default order of
              * 
@@ -1124,7 +1124,7 @@ namespace tardigradeBalanceEquations{
              * 
              * In the case of a multi-phase problem we expect the following structure:
              * 
-             * \f$ \rho^1 \f$, \rho^2, \ldots w^1, w^2, \ldots, v^1, v^2, \ldots, \nabla \rho^1, \nabla \rho^2, ... \f$
+             * \f$ \rho^1, \rho^2, \ldots w^1, w^2, \ldots, v^1, v^2, \ldots, \nabla \rho^1, \nabla \rho^2, ... \f$
              *
              * where the superscript indicates the phase. In this function we assume a default order of
              * 
