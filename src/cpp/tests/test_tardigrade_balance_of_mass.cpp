@@ -2609,7 +2609,9 @@ void evaluate_at_nodes(
         3, 3
     );
 
-    constexpr unsigned int num_dof = nphases * ( 1 + 3 + 3 + 1 + 1 ) + num_additional_dof;
+    constexpr unsigned int num_phase_dof = 9;
+
+    constexpr unsigned int num_dof = ( 1 + 3 + 3 + 1 + 1 ) + num_additional_dof;
 
     constexpr unsigned int dof_vector_size = ( nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 + 3 + 3 ) + num_additional_dof + 3 * num_additional_dof );
 
@@ -2831,7 +2833,7 @@ void evaluate_at_nodes(
                     Ns[ i ], 
                     Ns[ k ],
                     std::cbegin( dNdxs ) + dim * k, std::cbegin( dNdxs ) + dim * ( k + 1 ),
-                    std::begin( dof_vector ) + num_dof, std::end( dof_vector ),
+                    std::begin( dof_vector ) + ( nphases * num_phase_dof + num_additional_dof ), std::end( dof_vector ),
                     dDensityDotdDensity, dUDotdU,
                     j,
                     value_n[ nphases * i + j ],
@@ -2860,17 +2862,17 @@ void evaluate_at_nodes(
                     std::cbegin( material_response_jacobian ), std::cend( material_response_jacobian ),
                     Ns[ i ],
                     Ns[ k ],
-                    std::cbegin( dNdxs ) + dim * k,            std::cbegin( dNdxs ) + dim * ( k + 1 ),
-                    std::begin( dof_vector ) + num_dof,        std::end( dof_vector ),
-                    dDensityDotdDensity,                       dUDotdU,
-                    std::begin( value_n ) + nphases * i,       std::begin( value_n ) + nphases * ( i + 1 ),
-                    std::begin( dRdRho_n ),                    std::end( dRdRho_n ),
-                    std::begin( dRdU_n ),                      std::end( dRdU_n ),
-                    std::begin( dRdW_n ),                      std::end( dRdW_n ),
-                    std::begin( dRdTheta_n ),                  std::end( dRdTheta_n ),
-                    std::begin( dRdE_n ),                      std::end( dRdE_n ),
-                    std::begin( dRdZ_n ),                      std::end( dRdZ_n ),
-                    std::begin( dRdUMesh_n ),                  std::end( dRdUMesh_n )
+                    std::cbegin( dNdxs ) + dim * k,               std::cbegin( dNdxs ) + dim * ( k + 1 ),
+                    std::begin( dof_vector ) + ( nphases * num_phase_dof + num_additional_dof ), std::end( dof_vector ),
+                    dDensityDotdDensity,                          dUDotdU,
+                    std::begin( value_n ) + nphases * i,          std::begin( value_n ) + nphases * ( i + 1 ),
+                    std::begin( dRdRho_n ),                       std::end( dRdRho_n ),
+                    std::begin( dRdU_n ),                         std::end( dRdU_n ),
+                    std::begin( dRdW_n ),                         std::end( dRdW_n ),
+                    std::begin( dRdTheta_n ),                     std::end( dRdTheta_n ),
+                    std::begin( dRdE_n ),                         std::end( dRdE_n ),
+                    std::begin( dRdZ_n ),                         std::end( dRdZ_n ),
+                    std::begin( dRdUMesh_n ),                     std::end( dRdUMesh_n )
                 );
 
                 std::transform(
