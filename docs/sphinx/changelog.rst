@@ -24,6 +24,8 @@ New Features
 - Added a constraint equation enabling complex relationships between the material state and the internal energy. (:pull:`19`). By `Nathan Miller`_.
 - Added a constraint equation for the displacement. (:pull:`20`). by `Nathan Miller`_.
 - Marked all equations as inline and corrected documentation build errors. (:pull:`21`). By `Nathan Miller`_.
+- Changed the definition of the template parameter material_response_num_dof from being the total number of dof (which would change with phase count)
+  to just being the number of dof per phase (including the additional dof). (:pull:`22`). By `Nathan Miller`_.
 
 Internal Changes
 ================

@@ -832,9 +832,10 @@ namespace tardigradeBalanceEquations{
              * per unit mass, and \f$ \Pi \f$ is the net interphase heat transfer. We note that additional outputs can be
              * added to the material response vector, but they must be done after the above quantities.
              * 
-             * We assume that the material_response_jacobian is organized such that there are material_response_num_dof
-             * degrees of freedom followed by the gradients of these degrees of freedom for the columns of the Jacobian.
-             * If the degrees of freedom are \f$ rho, w, \f$ and \f$ v \f$ then the columns of the jacobian would be 
+             * We assume that the material_response_jacobian is organized such that there are nphases times the number of
+             * phase degrees of freedom plus the additional dof followed by the gradients of these degrees of freedom
+             * for the columns of the Jacobian. If the degrees of freedom are \f$ rho, w, \f$ and \f$ v \f$ then
+             * the columns of the jacobian would be 
              * 
              * 
              * \f$ \rho, w, v, \nabla \rho, \nabla w, \nabla v \f$
@@ -854,7 +855,8 @@ namespace tardigradeBalanceEquations{
              * 
              * mass_change_index is the index of the material response vector that represents the mass change rate
              * material_response_dim is the spatial dimension of the material-response Jacobian
-             * material_response_num_dof are the number of degrees of freedom in the material-response Jacobian
+             * material_response_num_dof are the number of degrees of freedom in the material-response Jacobian for each phase
+             * We note that there are 3 + 2 * material_response_dim expected degrees of freedom.
              * 
              * \param &density: The value of the density \f$ \rho \f$
              * \param &density_dot: The value of the partial time derivative of the density \f$ \frac{\partial \rho}{\partial t} \f$
@@ -928,17 +930,19 @@ namespace tardigradeBalanceEquations{
 
             // Set the number of phases
             const unsigned int nphases = ( unsigned int )( dRdRho_end - dRdRho_begin );
+            constexpr unsigned int num_phase_dof = 3 + 2 * material_response_dim;
+            const unsigned int num_additional_dof = ( material_response_num_dof - num_phase_dof );
 
             // Add the material response contributions to the density Jacobian
             for ( auto p = std::pair< unsigned int, dRdRho_iter >( 0, dRdRho_begin ); p.second != dRdRho_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * density_index + p.first ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * density_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * density_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
@@ -950,12 +954,12 @@ namespace tardigradeBalanceEquations{
             for ( auto p = std::pair< unsigned int, dRdU_iter >( 0, dRdU_begin ); p.second != dRdU_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * velocity_index + p.first ) ) * dUDotdU * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * velocity_index + p.first ) ) * dUDotdU * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * dUDotdU * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * velocity_index + p.first ) + a ) ) * dUDotdU * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
@@ -971,12 +975,12 @@ namespace tardigradeBalanceEquations{
             for ( auto p = std::pair< unsigned int, dRdW_iter >( 0, dRdW_begin ); p.second != dRdW_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * displacement_index + p.first ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * displacement_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * displacement_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
@@ -986,12 +990,12 @@ namespace tardigradeBalanceEquations{
             for ( auto p = std::pair< unsigned int, dRdTheta_iter >( 0, dRdTheta_begin ); p.second != dRdTheta_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * temperature_index + p.first ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * temperature_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * temperature_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
@@ -1001,12 +1005,12 @@ namespace tardigradeBalanceEquations{
             for ( auto p = std::pair< unsigned int, dRdE_iter >( 0, dRdE_begin ); p.second != dRdE_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * internal_energy_index + p.first ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * internal_energy_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * internal_energy_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
@@ -1016,19 +1020,19 @@ namespace tardigradeBalanceEquations{
             for ( auto p = std::pair< unsigned int, dRdZ_iter >( 0, dRdZ_begin ); p.second != dRdZ_end; ++p.first, ++p.second ){
 
                 // DOF value contributions
-                *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + nphases * additional_dof_index + p.first ) ) * interpolation_function;
+                *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + nphases * additional_dof_index + p.first ) ) * interpolation_function;
 
                 // DOF spatial gradient contributions
                 for ( unsigned int a = 0; a < material_response_dim; ++a ){
 
-                    *p.second -= test_function * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
+                    *p.second -= test_function * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * ( nphases * additional_dof_index + p.first ) + a ) ) * ( *( interpolation_function_gradient_begin + a ) );
 
                 }
 
             }
 
             // Add the material response contributions to the mesh displacement Jacobian
-            for ( unsigned int i = 0; i < material_response_num_dof; ++i ){
+            for ( unsigned int i = 0; i < ( nphases * num_phase_dof + num_additional_dof ); ++i ){
 
                 for ( unsigned int j = 0; j < material_response_dim; ++j ){
 
@@ -1036,7 +1040,7 @@ namespace tardigradeBalanceEquations{
 
                         *( dRdUMesh_begin + a ) += 
                             test_function
-                            * ( *( material_response_jacobian_begin + material_response_num_dof * ( 1 + material_response_dim ) * mass_change_index + material_response_num_dof + material_response_dim * i + j ) )
+                            * ( *( material_response_jacobian_begin + ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * mass_change_index + ( nphases * num_phase_dof + num_additional_dof ) + material_response_dim * i + j ) )
                             * ( *( full_material_response_dof_gradient_begin + material_response_dim * i + a ) )
                             * ( *( interpolation_function_gradient_begin + j ) );
 
@@ -1112,7 +1116,7 @@ namespace tardigradeBalanceEquations{
              * per unit mass, and \f$ \Pi \f$ is the net interphase heat transfer. We note that additional outputs can be
              * added to the material response vector, but they must be done after the above quantities.
              * 
-             * We assume that the material_response_jacobian is organized such that there are material_response_num_dof
+             * We assume that the material_response_jacobian is organized such that there are ( nphases * num_phase_dof + num_additional_dof )
              * degrees of freedom followed by the gradients of these degrees of freedom for the columns of the Jacobian.
              * If the degrees of freedom are \f$ rho, w, \f$ and \f$ v \f$ then the columns of the jacobian would be 
              * 
@@ -1134,7 +1138,7 @@ namespace tardigradeBalanceEquations{
              * 
              * mass_change_index is the index of the material response vector that represents the mass change rate
              * material_response_dim is the spatial dimension of the material-response Jacobian
-             * material_response_num_dof are the number of degrees of freedom in the material-response Jacobian
+             * ( nphases * num_phase_dof + num_additional_dof ) are the number of degrees of freedom in the material-response Jacobian
              * 
              * \param &density_begin: The starting iterator of the value of the density \f$ \rho \f$
              * \param &density_end: The stopping iterator of the value of the density \f$ \rho \f$
@@ -1186,7 +1190,9 @@ namespace tardigradeBalanceEquations{
 
             const unsigned int material_response_size = ( unsigned int )( material_response_end - material_response_begin ) / nphases;
 
-            const unsigned int num_additional_dof = material_response_num_dof - nphases * ( 1 + material_response_dim + material_response_dim + 1 + 1 );
+            constexpr unsigned int num_phase_dof = 3 + 2 * material_response_dim;
+
+            constexpr unsigned int num_additional_dof = material_response_num_dof - num_phase_dof;
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
                 nphases == ( unsigned int )( density_dot_end - density_dot_begin ), "The length of density dot and density must be the same"
@@ -1209,7 +1215,7 @@ namespace tardigradeBalanceEquations{
             )
 
             TARDIGRADE_ERROR_TOOLS_CHECK(
-                nphases * material_response_size * material_response_num_dof * ( 1 + material_response_dim ) == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
+                nphases * material_response_size * ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) == ( unsigned int )( material_response_jacobian_end - material_response_jacobian_begin ),
                 "The material response jacobian but have a consistent size with the material response vector and the material_response_num_dof"
             )
 
@@ -1290,8 +1296,8 @@ namespace tardigradeBalanceEquations{
                     velocity_begin          + dim * v.first,                      velocity_begin          + dim * ( v.first + 1 ),
                     velocity_gradient_begin + dim * dim * v.first,                velocity_gradient_begin + dim * dim * ( v.first + 1 ),
                     material_response_begin + material_response_size * v.first,   material_response_begin + material_response_size * ( v.first + 1 ),
-                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * v.first,
-                    material_response_jacobian_begin + material_response_size * material_response_num_dof * ( 1 + material_response_dim ) * ( v.first + 1 ),
+                    material_response_jacobian_begin + material_response_size * ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * v.first,
+                    material_response_jacobian_begin + material_response_size * ( nphases * num_phase_dof + num_additional_dof ) * ( 1 + material_response_dim ) * ( v.first + 1 ),
                     test_function, interpolation_function,
                     interpolation_function_gradient_begin, interpolation_function_gradient_end,
                     full_material_response_dof_gradient_begin,
