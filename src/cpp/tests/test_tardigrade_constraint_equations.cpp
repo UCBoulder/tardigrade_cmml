@@ -1082,7 +1082,9 @@ void evaluate_at_nodes(
         3, 3
     );
 
-    constexpr unsigned int num_dof = nphases * ( 1 + 3 + 3 + 1 + 1 ) + num_additional_dof;
+    constexpr unsigned int num_phase_dof = 9;
+
+    constexpr unsigned int num_dof = ( 1 + 3 + 3 + 1 + 1 ) + num_additional_dof;
 
     constexpr unsigned int dof_vector_size = ( nphases * ( 1 + 3 + 3 + 1 + 1 + 3 + 9 + 9 + 3 + 3 ) + num_additional_dof + 3 * num_additional_dof );
 
@@ -1321,7 +1323,7 @@ void evaluate_at_nodes(
                     std::cbegin( material_response_jacobian ) + material_response_size * dof_vector_size * ( j + 1 ),
                     Ns[ i ],
                     Ns[ k ], std::begin( dNdx ) + 3 * k, std::begin( dNdx ) + 3 * ( k + 1 ),
-                    std::cbegin( dof_vector ) + num_dof,       std::cend( dof_vector ),
+                    std::cbegin( dof_vector ) + ( nphases * num_phase_dof + num_additional_dof ),       std::cend( dof_vector ),
                     dUDotdU,
                     j,
                     *( std::begin( value_n ) + nphases * i + j ),
@@ -1355,7 +1357,7 @@ void evaluate_at_nodes(
                     std::cend( material_response_jacobian ),
                     Ns[ i ],
                     Ns[ k ], std::begin( dNdx ) + 3 * k, std::begin( dNdx ) + 3 * ( k + 1 ),
-                    std::cbegin( dof_vector ) + num_dof,       std::cend( dof_vector ),
+                    std::cbegin( dof_vector ) + ( nphases * num_phase_dof + num_additional_dof ),       std::cend( dof_vector ),
                     dUDotdU,
                     std::begin( value_n ) + nphases * i, std::begin( value_n ) + nphases * ( i + 1 ),
                     std::begin( dRdRho_n )             , std::end( dRdRho_n )                       ,
