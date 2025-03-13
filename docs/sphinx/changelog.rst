@@ -31,6 +31,7 @@ Internal Changes
 ================
 - Corrected the nomenclature for the derivative of gradient quantities (:pull:`14`). By `Nathan Miller`_.
 - Moved the declarations of the balance of linear momentum to the header file. (:pull:`23`). By `Nathan Miller`_.
+- Corrected uninitialized warning in balance of mass. (:pull:`24`). By `Nathan Miller`_.
 
 ******************
 0.1.0 (11-07-2024)
