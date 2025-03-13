@@ -285,7 +285,7 @@ namespace tardigradeBalanceEquations{
 
             density_type dRdRhoDot;
 
-            std::array< density_type, dim > dRdGradRho;
+            std::array< density_type, dim > dRdGradRho{};
             std::array< typename std::iterator_traits<dRdU_iter>::value_type, dim > dRdV;
             std::array< typename std::iterator_traits<dRdU_iter>::value_type, dim * dim > dRdGradV;
 
