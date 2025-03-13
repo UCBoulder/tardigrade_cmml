@@ -767,12 +767,12 @@ namespace tardigradeBalanceEquations{
             class result_iter,
             class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
             class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
-            int density_index         = 0,
-            int displacement_index    = 1,
-            int velocity_index        = 4,
-            int temperature_index     = 7,
-            int internal_energy_index = 8,
-            int additional_dof_index  = 9
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
         >
         void computeBalanceOfLinearMomentum(
             const density_iter &density_begin,                     const density_iter &density_end,
