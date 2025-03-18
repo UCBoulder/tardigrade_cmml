@@ -775,7 +775,7 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
-            int dim, int mass_change_index, int material_response_dim, int material_response_num_dof,
+            int dim, int material_response_dim, int mass_change_index, int material_response_num_dof,
             typename density_type, typename densityDot_type, typename result_type,
             typename testFunction_type, typename interpolationFunction_type,
             class densityGradient_iter,
@@ -1059,7 +1059,7 @@ namespace tardigradeBalanceEquations{
         }
 
         template<
-            int dim, int mass_change_index, int material_response_dim, int material_response_num_dof,
+            int dim, int material_response_dim, int mass_change_index, int material_response_num_dof,
             class density_iter, class densityDot_iter, class result_iter,
             typename testFunction_type, typename interpolationFunction_type,
             class densityGradient_iter,
@@ -1272,7 +1272,7 @@ namespace tardigradeBalanceEquations{
 
                 computeBalanceOfMass
                 <
-                    dim, mass_change_index, material_response_dim, material_response_num_dof,
+                    dim, material_response_dim, mass_change_index, material_response_num_dof,
                     density_type, density_dot_type, result_type,
                     testFunction_type, interpolationFunction_type,
                     densityGradient_iter,

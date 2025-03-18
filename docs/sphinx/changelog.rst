@@ -33,6 +33,10 @@ Internal Changes
 - Moved the declarations of the balance of linear momentum to the header file. (:pull:`23`). By `Nathan Miller`_.
 - Corrected uninitialized warning in balance of mass. (:pull:`24`). By `Nathan Miller`_.
 
+Breaking Changes
+================
+- Changed the order of the templates for the balance of mass to be consistent with the other balance equations. (:pull:`25`). By `Nathan Miller`_.
+
 ******************
 0.1.0 (11-07-2024)
 ******************
