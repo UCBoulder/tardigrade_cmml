@@ -263,6 +263,59 @@ namespace tardigradeBalanceEquations{
             const double volume_fraction_tolerance = 1e-8
         );
 
+        template<
+            int dim, int material_response_dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
+            int material_response_num_dof,
+            class density_iter, class velocity_iter,
+            class volume_fraction_iter, class volume_fraction_dot_iter,
+            class volume_fraction_gradient_iter,
+            class material_response_iter,
+            class material_response_jacobian_iter,
+            class rest_density_iter,
+            typename test_function_type,
+            typename interpolation_function_type, class interpolation_function_gradient_iter,
+            class full_material_response_dof_gradient_iter,
+            typename dUDotdU_type, typename dVolumeFractionDotdVolumeFraction_type,
+            class result_iter,
+            class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
+            class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
+            int density_index         = 0,
+            int displacement_index    = 1,
+            int velocity_index        = 4,
+            int temperature_index     = 7,
+            int internal_energy_index = 8,
+            int additional_dof_index  = 9
+        >
+        void computeBalanceOfVolumeFraction(
+            const density_iter                  &density_begin,                  const density_iter                  &density_end,
+            const velocity_iter                 &velocity_begin,                 const velocity_iter                 &velocity_end,
+            const volume_fraction_iter          &volume_fraction_begin,          const volume_fraction_iter          &volume_fraction_end,
+            const volume_fraction_dot_iter      &volume_fraction_dot_begin,      const volume_fraction_dot_iter      &volume_fraction_dot_end,
+            const volume_fraction_gradient_iter &volume_fraction_gradient_begin, const volume_fraction_gradient_iter &volume_fraction_gradient_end,
+            const material_response_iter          &material_response_begin,
+            const material_response_iter          &material_response_end,
+            const material_response_jacobian_iter &material_response_jacobian_begin,
+            const material_response_jacobian_iter &material_response_jacobian_end,
+            const rest_density_iter               &rest_density_begin,           const rest_density_iter             &rest_density_end,
+            const test_function_type &test_function,
+            const interpolation_function_type &interpolation_function,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_begin,
+            const interpolation_function_gradient_iter &interpolation_function_gradient_end,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_begin,
+            const full_material_response_dof_gradient_iter &full_material_response_dof_gradient_end,
+            const dUDotdU_type dUDotdU, const dVolumeFractionDotdVolumeFraction_type dVolumeFractionDotdVolumeFraction,
+            result_iter   result_begin,                     result_iter            result_end,
+            dRdRho_iter   dRdRho_begin,                     dRdRho_iter            dRdRho_end,
+            dRdU_iter     dRdU_begin,                       dRdU_iter              dRdU_end,
+            dRdW_iter     dRdW_begin,                       dRdW_iter              dRdW_end,
+            dRdTheta_iter dRdTheta_begin,                   dRdTheta_iter          dRdTheta_end,
+            dRdE_iter     dRdE_begin,                       dRdE_iter              dRdE_end,
+            dRdZ_iter     dRdZ_begin,                       dRdZ_iter              dRdZ_end,
+            dRdVolumeFraction_iter dRdVolumeFraction_begin, dRdVolumeFraction_iter dRdVolumeFraction_end,
+            dRdUMesh_iter          dRdUMesh_begin,          dRdUMesh_iter          dRdUMesh_end,
+            const double volume_fraction_tolerance = 1e-8
+        );
+
     }
 
 }

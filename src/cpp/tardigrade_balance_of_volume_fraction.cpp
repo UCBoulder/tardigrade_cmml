@@ -1054,6 +1054,7 @@ namespace tardigradeBalanceEquations{
             }
 
         }
+
         template<
             int dim, int material_response_dim, int mass_change_rate_index, int trace_mass_change_velocity_gradient_index,
             int material_response_num_dof,
@@ -1070,12 +1071,12 @@ namespace tardigradeBalanceEquations{
             class result_iter,
             class dRdRho_iter, class dRdU_iter, class dRdW_iter, class dRdTheta_iter,
             class dRdE_iter, class dRdZ_iter, class dRdVolumeFraction_iter, class dRdUMesh_iter,
-            int density_index         = 0,
-            int displacement_index    = 1,
-            int velocity_index        = 4,
-            int temperature_index     = 7,
-            int internal_energy_index = 8,
-            int additional_dof_index  = 9
+            int density_index        ,
+            int displacement_index   ,
+            int velocity_index       ,
+            int temperature_index    ,
+            int internal_energy_index,
+            int additional_dof_index 
         >
         void computeBalanceOfVolumeFraction(
             const density_iter                  &density_begin,                  const density_iter                  &density_end,
@@ -1104,7 +1105,7 @@ namespace tardigradeBalanceEquations{
             dRdZ_iter     dRdZ_begin,                       dRdZ_iter              dRdZ_end,
             dRdVolumeFraction_iter dRdVolumeFraction_begin, dRdVolumeFraction_iter dRdVolumeFraction_end,
             dRdUMesh_iter          dRdUMesh_begin,          dRdUMesh_iter          dRdUMesh_end,
-            const double volume_fraction_tolerance = 1e-8
+            const double volume_fraction_tolerance
         ){
             /*!
              * Compute the balance of the volume fraction for a reacting continuum
