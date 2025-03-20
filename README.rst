@@ -21,9 +21,9 @@
 
 .. targets-end-do-not-remove
 
-############################
-Tardigrade Balance Equations
-############################
+###############
+Tardigrade CMML
+###############
 
 *******************
 Project Description
