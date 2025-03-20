@@ -11,14 +11,14 @@
 .. toctree::
     :maxdepth: 2
 
-.. _tardigrade_balance_equations_source:
+.. _tardigrade_cmml_source:
 
-tardigrade_balance_equations.cpp
+tardigrade_cmml.cpp
 ================================
 
-.. doxygenfile:: tardigrade_balance_equations.cpp
+.. doxygenfile:: tardigrade_cmml.cpp
 
-tardigrade_balance_equations.h
+tardigrade_cmml.h
 ==============================
 
-.. doxygenfile:: tardigrade_balance_equations.h
+.. doxygenfile:: tardigrade_cmml.h

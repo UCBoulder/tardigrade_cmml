@@ -21,7 +21,7 @@ Clone cpp\_stub into a local repository
 
    .. code-block:: bash
 
-      ssh://git@re-git.lanl.gov:10022/aea/stub-repositories/tardigrade-balance-equations.git
+      ssh://git@re-git.lanl.gov:10022/aea/stub-repositories/tardigrade-cmml.git
 
 3. Navigate to your preferred repository directory on your local computer. In a
    terminal, you can follow the example ``sstelmo`` session below
@@ -52,7 +52,7 @@ Clone cpp\_stub into a local repository
       /projects/<moniker>/w13repos
 
       # Clone the stub repository
-      $ git clone ssh://git@re-git.lanl.gov:10022/aea/stub-repositories/tardigrade-balance-equations.git
+      $ git clone ssh://git@re-git.lanl.gov:10022/aea/stub-repositories/tardigrade-cmml.git
 
 5. Rename the local repository directory for your project.
 
@@ -63,15 +63,15 @@ Clone cpp\_stub into a local repository
       /projects/<moniker>/w13repos
 
       # Observe the stub repo directory name
-      $ ls tardigrade-balance-equations -d
-      tardigrade-balance-equations
+      $ ls tardigrade-cmml -d
+      tardigrade-cmml
 
       # Rename the stub repo directory after your project
-      $ mv tardigrade-balance-equations my_project
+      $ mv tardigrade-cmml my_project
 
       # Observe that the stub repo directory no longer exists
-      $ ls tardigrade-balance-equations -d
-      ls: cannot access 'tardigrade-balance-equations': No such file or directory
+      $ ls tardigrade-cmml -d
+      ls: cannot access 'tardigrade-cmml': No such file or directory
 
       # Observe that your project directory exists
       $ ls my_project -d
@@ -136,7 +136,7 @@ Create a new upstream repository
    the left hand side bar "Repository" > "Branches" menu and the Git tags from the
    "Repository" > "Tags" menu.
 
-5. Remove any issue branches from the ``tardigrade-balance-equations`` project on the "Repository" >
+5. Remove any issue branches from the ``tardigrade-cmml`` project on the "Repository" >
    "Branches" menu. You should keep only the "main" and "dev" branches.
 
 6. If everything looks correct on Gitlab project, you can clean up your local
@@ -146,17 +146,17 @@ Create a new upstream repository
 
       WARNING: the ``-D`` option FORCE deletes branches. Triple check the
       command and use with caution. If you're uncertain about this step, contact the
-      tardigrade-balance-equations developers for help.
+      tardigrade-cmml developers for help.
 
    .. code-block:: bash
 
-      # Remove the tardigrade-balance-equations remote
+      # Remove the tardigrade-cmml remote
       $ git remote remove old-origin
 
       # Ensure that you're on the main branch
       $ git checkout main
 
-      # Remove ALL tardigrade-balance-equations branches except main and dev
+      # Remove ALL tardigrade-cmml branches except main and dev
       $ git branch | grep -v "main\|dev" | xargs git branch -D
 
 ***********************************
@@ -205,7 +205,7 @@ only a small number of settings must be updated.
 Enable project CI/CD
 ********************
 
-The ``tardigrade-balance-equations`` project comes pre-configured to perform continuous integration (CI) and continuous deployment (CD) on
+The ``tardigrade-cmml`` project comes pre-configured to perform continuous integration (CI) and continuous deployment (CD) on
 W-13's compute servers ``sstelmo`` and ``sstbigbird`` with testing performed in a shared development environment and
 deployment to the `AEA Conda channel`_.
 
@@ -223,7 +223,7 @@ and are not strictly necessary for CI/CD.
 
 The ``pages`` job is a special deploy stage job that builds and deploys
 documentation to your project's Gitlab Pages, e.g.
-https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations. This job should be
+https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml. This job should be
 retained for building and deploying documentation for your project users.
 
 The only project configuration required to enable the existing Gitlab CI/CD is
@@ -333,7 +333,7 @@ Update project name
       * feature/project-name-updates
         main
 
-2. Search for all instances of ``tardigrade-balance-equations``. The list of occurrences will look
+2. Search for all instances of ``tardigrade-cmml``. The list of occurrences will look
    quite long, but we can search and replace with ``sed`` to avoid manual file
    edits. The session below is an example, the exact output may change but the
    commands should work regardless of project re-organization or evolving features.
@@ -345,23 +345,23 @@ Update project name
       /projects/<moniker>/w13repos/my_project
 
       # Recursive, case-insensitive search and count occurrences
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} | wc -l
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git} | wc -l
       57
 
       # Recursive, case-insensitive search and display
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git}
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git}
       ...
 
       # Clean list of files with project name
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} -l
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git} -l
       ./CMakeLists.txt
       ./docs/api.rst
       ./docs/devops.rst
       ./README.md
       ./set_vars.sh
-      ./src/cpp/tardigrade-balance-equations.cpp
-      ./src/cpp/tardigrade-balance-equations.h
-      ./src/cpp/tests/test_tardigrade-balance-equations.cpp
+      ./src/cpp/tardigrade-cmml.cpp
+      ./src/cpp/tardigrade-cmml.h
+      ./src/cpp/tests/test_tardigrade-cmml.cpp
 
 3. Search and replace from command line
 
@@ -371,34 +371,34 @@ Update project name
       /projects/<moniker>/w13repos/my_project
 
       # Replace lower case occurrences in place
-      $ sed -i 's/tardigrade-balance-equations/my_project/g' $(grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} -l)
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} -l
-      ./src/cpp/tardigrade-balance-equations.h
+      $ sed -i 's/tardigrade-cmml/my_project/g' $(grep -ri tardigrade-cmml . --exclude-dir={build,.git} -l)
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git} -l
+      ./src/cpp/tardigrade-cmml.h
 
       # Replace upper case occurrences in place
-      $ sed -i 's/TARDIGRADE-BALANCE-EQUATIONS/MY_PROJECT/g' $(grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} -l)
+      $ sed -i 's/TARDIGRADE-CMML/MY_PROJECT/g' $(grep -ri tardigrade-cmml . --exclude-dir={build,.git} -l)
 
-4. Verify no more occurrences of project name ``tardigrade-balance-equations``
+4. Verify no more occurrences of project name ``tardigrade-cmml``
 
    .. code-block:: bash
 
       $ pwd
       /projects/<moniker>/w13repos/my_project
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} | wc -l
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git} | wc -l
       0
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git}
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git}
       # no stdout to terminal because no occurrences found
-      $ grep -ri tardigrade-balance-equations . --exclude-dir={build,.git} -l
+      $ grep -ri tardigrade-cmml . --exclude-dir={build,.git} -l
       # no stdout to terminal because no files found
 
-5. Search and replace camelCase project name occurrences, e.g. ``tardigrade-balance-equations``.
+5. Search and replace camelCase project name occurrences, e.g. ``tardigrade-cmml``.
 
    .. code-block:: bash
 
-      $ grep -r tardigrade-balance-equations . --exclude-dir={build,.git}
+      $ grep -r tardigrade-cmml . --exclude-dir={build,.git}
       ...
-      $ sed -i 's/tardigrade-balance-equations/myProject/g' $(grep -r tardigrade-balance-equations . --exclude-dir={build,.git} -l)
-      $ grep -r tardigrade-balance-equations . --exclude-dir={build,.git} -l
+      $ sed -i 's/tardigrade-cmml/myProject/g' $(grep -r tardigrade-cmml . --exclude-dir={build,.git} -l)
+      $ grep -r tardigrade-cmml . --exclude-dir={build,.git} -l
       # no stdout to terminal because no files found
 
 6. Find files containing the project in their file name
@@ -407,10 +407,10 @@ Update project name
 
       $ pwd
       /projects/<moniker>/w13repos/my_project
-      $ find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-balance-equations*"
-      ./src/cpp/tardigrade-balance-equations.cpp
-      ./src/cpp/tardigrade-balance-equations.h
-      ./src/cpp/tests/test_tardigrade-balance-equations.cpp
+      $ find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-cmml*"
+      ./src/cpp/tardigrade-cmml.cpp
+      ./src/cpp/tardigrade-cmml.h
+      ./src/cpp/tests/test_tardigrade-cmml.cpp
 
 7. Rename files after current project
 
@@ -422,10 +422,10 @@ Update project name
    .. code-block:: bash
 
       # Show files that require a name change
-      find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-balance-equations*"
+      find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-cmml*"
 
       # Regex file name change
-      $ rename tardigrade-balance-equations my_project $(find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-balance-equations*")
+      $ rename tardigrade-cmml my_project $(find . -type d \( -name .git -o -name build \) -prune -false -o -name "*tardigrade-cmml*")
 
 8. Stage the file name changes for a commit
 
@@ -435,7 +435,7 @@ Update project name
       /projects/<moniker>/w13repos/my_project
 
       # Track the new files
-      $ git add $(git ls-files --deleted | sed 's/tardigrade-balance-equations/my_project/g')
+      $ git add $(git ls-files --deleted | sed 's/tardigrade-cmml/my_project/g')
 
       # Stop tracking the old files
       $ git rm $(git ls-files --deleted)
@@ -445,18 +445,18 @@ Update project name
       <truncated>
       Changes to be committed:
         (use "git restore --staged <file>..." to unstage)
-      renamed:    modulefiles/tardigrade-balance-equations-env -> modulefiles/my_project-env
-      renamed:    src/cpp/tardigrade-balance-equations.cpp -> src/cpp/my_project.cpp
-      renamed:    src/cpp/tardigrade-balance-equations.h -> src/cpp/my_project.h
-      renamed:    src/cpp/tardigrade-balance-equations_umat.cpp -> src/cpp/my_project_umat.cpp
-      renamed:    src/cpp/tardigrade-balance-equations_umat.h -> src/cpp/my_project_umat.h
-      renamed:    src/cpp/tests/test_tardigrade-balance-equations.cpp -> src/cpp/tests/test_my_project.cpp
+      renamed:    modulefiles/tardigrade-cmml-env -> modulefiles/my_project-env
+      renamed:    src/cpp/tardigrade-cmml.cpp -> src/cpp/my_project.cpp
+      renamed:    src/cpp/tardigrade-cmml.h -> src/cpp/my_project.h
+      renamed:    src/cpp/tardigrade-cmml_umat.cpp -> src/cpp/my_project_umat.cpp
+      renamed:    src/cpp/tardigrade-cmml_umat.h -> src/cpp/my_project_umat.h
+      renamed:    src/cpp/tests/test_tardigrade-cmml.cpp -> src/cpp/tests/test_my_project.cpp
 
 9. Commit and push your changes to your "remote" or "fork" repository
 
    .. code-block:: bash
 
-      $ git commit -m "FEAT: replace tardigrade-balance-equations with my_project throughout repository"
+      $ git commit -m "FEAT: replace tardigrade-cmml with my_project throughout repository"
       $ git push origin feature/project-name-updates
 
 You can also perform some cleanup in your documentation directory to remove this

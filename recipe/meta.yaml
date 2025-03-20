@@ -1,5 +1,5 @@
 package:
-  name: tardigrade_balance_equations
+  name: tardigrade_cmml
   # TODO: setup and use pyproject.toml and a Conda build Jinja template
   version: {{ VERSION }}
 
@@ -11,7 +11,7 @@ build:
     - mkdir build-package
     - cd build-package
     - cmake .. -DCMAKE_BUILD_TYPE=Release
-    - cmake --build . --target tardigrade_balance_equations
+    - cmake --build . --target tardigrade_cmml
     - cmake --install . --prefix ${PREFIX}
   ignore_run_exports:
     - python_abi
@@ -55,7 +55,7 @@ test:
   source_files:
     - CMakeLists.txt
     - src/cpp/tests/CMakeLists.txt
-    - src/cpp/tests/test_balance_equations.cpp
+    - src/cpp/tests/test_cmml.cpp
   commands:
     - mkdir build-tests
     - cd build-tests

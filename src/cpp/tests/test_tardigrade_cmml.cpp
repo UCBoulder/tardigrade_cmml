@@ -1,15 +1,15 @@
 /**
-  * \file test_tardigrade_balance_equations.cpp
+  * \file test_tardigrade_cmml.cpp
   *
-  * Tests for tardigrade_balance_equations
+  * Tests for tardigrade_cmml
   */
 
-#include<tardigrade_balance_equations.h>
+#include<tardigrade_cmml.h>
 #include<sstream>
 #include<fstream>
 #include<iostream>
 
-#define BOOST_TEST_MODULE test_tardigrade_balance_equations
+#define BOOST_TEST_MODULE test_tardigrade_cmml
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/output_test_stream.hpp>
 

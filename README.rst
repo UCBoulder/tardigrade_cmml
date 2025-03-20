@@ -15,7 +15,7 @@
 .. _PEP-8: https://www.python.org/dev/peps/pep-0008/
 .. _pipreqs: https://github.com/bndr/pipreqs
 .. _LaTeX: https://www.latex-project.org/help/documentation/
-.. _upstream repository: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-balance-equations
+.. _upstream repository: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-cmml
 .. _Material Models: https://re-git.lanl.gov/aea/material-models
 .. _UNIX group: https://ddw-confluence.lanl.gov/pages/viewpage.action?pageId=150929410
 
@@ -31,16 +31,16 @@ Project Description
 
 .. project-brief-start-do-not-remove
 
-A C++ framework containing balance equation terms and their Jacobians
+A C++ framework collecting material models into a single location
 
 .. project-brief-end-do-not-remove
 
 Information
 ===========
 
-* Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/
+* Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/
 
-* Wiki: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-balance-equations/-/wikis/home
+* Wiki: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-cmml/-/wikis/home
 
 Developers
 ==========
@@ -55,7 +55,7 @@ Gitlab CI/CD
 
     The repository setup has moved out of the README and into the HTML
     documentation. You can find the Gitlab project setup guide here:
-    https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/gitlab_setup.html
+    https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/gitlab_setup.html
 
 ************
 Dependencies
@@ -69,14 +69,14 @@ the following commands.
 
 .. code-block:: bash
 
-   $ conda create --name tardigrade-balance-equations-env --file environment.txt --channel file:///projects/aea_compute/aea-conda
+   $ conda create --name tardigrade-cmml-env --file environment.txt --channel file:///projects/aea_compute/aea-conda
 
 If there is difficulty with installing some of the dependencies, a reduced environment is provided that will attempt to
 build some of the repositories from source. This can be invoked using
 
 .. code-block:: bash
 
-   $ conda create --name tardigrade-balance-equations-env --file reduced_environment.txt --channel conda-forge
+   $ conda create --name tardigrade-cmml-env --file reduced_environment.txt --channel conda-forge
 
 You can learn more about Anaconda Python environment creation and management in
 the `Anaconda Documentation`_.
@@ -120,7 +120,7 @@ Building the documentation
 
     The sphinx API docs are a work-in-progress. The doxygen API is much more useful.
 
-    * Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-balance-equations/doxygen
+    * Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/doxygen
 
 To build just the documentation pick up the steps here:
 
@@ -129,7 +129,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/
+      /path/to/tardigrade-cmml/
       $ mkdir build/
       $ cd build/
 
@@ -138,7 +138,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/build/
+      /path/to/tardigrade-cmml/build/
       $ cmake ..
 
 4) Build the docs
@@ -151,14 +151,14 @@ To build just the documentation pick up the steps here:
 
    .. code-block:: bash
 
-      tardigrade-balance-equations/build/docs/sphinx/html/index.html
+      tardigrade-cmml/build/docs/sphinx/html/index.html
 
 6) Display docs
 
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/build/
+      /path/to/tardigrade-cmml/build/
       $ firefox docs/sphinx/html/index.html &
 
 7) While the Sphinx API is still a WIP, try the doxygen API
@@ -166,7 +166,7 @@ To build just the documentation pick up the steps here:
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/build/
+      /path/to/tardigrade-cmml/build/
       $ firefox docs/doxygen/html/index.html &
 
 *******************
@@ -180,7 +180,7 @@ Build the entire before performing the installation.
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/build
+      /path/to/tardigrade-cmml/build
       $ cmake --build .
 
 5) Install the library
@@ -188,7 +188,7 @@ Build the entire before performing the installation.
    .. code-block:: bash
 
       $ pwd
-      /path/to/tardigrade-balance-equations/build
+      /path/to/tardigrade-cmml/build
       $ cmake --install . --prefix path/to/root/install
 
       # Example local user (non-admin) Linux install

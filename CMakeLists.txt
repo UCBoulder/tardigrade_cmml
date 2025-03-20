@@ -1,7 +1,7 @@
 #===================================================================================================== PROJECT SETUP ===
 cmake_minimum_required(VERSION 3.19)
 cmake_policy(SET CMP0110 NEW)
-project(tardigrade_balance_equations)
+project(tardigrade_cmml)
 
 # Set common project paths relative to project root directory
 set(CPP_SRC_PATH "src/cpp")
@@ -11,12 +11,12 @@ set(DOXYGEN_SRC_PATH "docs/doxygen")
 set(SPHINX_SRC_PATH "docs/sphinx")
 
 # Add a flag for whether the python bindings should be built or not
-set(TARDIGRADE_BALANCE_EQUATIONS_BUILD_PYTHON_BINDINGS ON CACHE BOOL "Flag for whether the python bindings should be built for hydra")
-set(TARDIGRADE_BALANCE_EQUATIONS_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to use libxsmm for matrix math")
+set(TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS ON CACHE BOOL "Flag for whether the python bindings should be built for hydra")
+set(TARDIGRADE_CMML_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to use libxsmm for matrix math")
 
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
-set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_balance_of_mass" "tardigrade_balance_of_linear_momentum" "tardigrade_balance_of_energy" "tardigrade_balance_of_volume_fraction" "tardigrade_finite_element_utilities" "tardigrade_constraint_equations")
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES )
 set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
 set(PROJECT_PRIVATE_HEADERS "")
 foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
@@ -26,15 +26,15 @@ endforeach(package)
 foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
     add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
 endforeach(package)
-if(TARDIGRADE_BALANCE_EQUATIONS_USE_LIBXSMM)
+if(TARDIGRADE_CMML_USE_LIBXSMM)
     message(STATUS "Using libxsmm for matrix math")
     find_library(libxsmm_DIR xsmm REQUIRED PATHS "$ENV{CONDA_PREFIX}/lib")
-    add_definitions(-DTARDIGRADE_BALANCE_EQUATIONS_USE_LLXSMM )
+    add_definitions(-DTARDIGRADE_CMML_USE_LLXSMM )
     set(PROJECT_LINK_LIBRARIES ${PROJECT_LINK_LIBRARIES} "xsmm" "blas")
 endif()
 
 # For each support library you need to set the upstream libraries required via
-#set(TARDIGRADE_BALANCE_EQUATIONSMYSUPPORTLIBRARY_UPSTREAM_LIBRARIES "tardigrade_constitutive_tools")
+#set(TARDIGRADE_CMMLMYSUPPORTLIBRARY_UPSTREAM_LIBRARIES "tardigrade_constitutive_tools")
 
 # Set some Abaqus integration variables
 set(MISSING_INTEGRATION_DEPS_MESSAGE "Abaqus integration tests will be skipped.")
@@ -111,7 +111,7 @@ endif()
 set(LOCAL_BUILD_INCLUDE_DIRECTORIES "")
 foreach(package ${upstream_packages})
     string(TOUPPER "${package}" package_upper)
-    set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_BALANCE_EQUATIONS_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
+    set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
     find_package(${package} ${upstream_required} CONFIG)
     if(${package}_FOUND)
         message(STATUS "Found ${package}: ${${package}_DIR}")
@@ -145,11 +145,11 @@ endforeach(package)
 # Only add tests and documentation for current project builds. Protects downstream project builds.
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     # Add test-only external projects
-    set(test_upstream_packages "tardigrade_constitutive_tools" "tardigrade_hydra")
+    set(test_upstream_packages )
 
     foreach(package ${test_upstream_packages})
         string(TOUPPER "${package}" package_upper)
-        set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_BALANCE_EQUATIONS_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
+        set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
         find_package(${package} ${upstream_required} CONFIG)
         if(${package}_FOUND)
             message(STATUS "Found ${package}: ${${package}_DIR}")
