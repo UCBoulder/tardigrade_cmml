@@ -27,10 +27,54 @@
 #include<string>
 #include<map>
 #include<memory>
+#include<iostream>
 
 namespace tardigradeCMML{
 
-    /* Base class for materials */
+    /*!
+     * The base material model class. Used primarily so that the self registration macro works.
+     */
+    class CMMLMaterialBase{
+
+        public:
+
+            CMMLMaterialBase( ){
+                /*!
+                 * The constructor for the base class
+                 */
+
+            }
+
+            const std::string* getName( ){
+                /*!
+                 * Return a reference to the material name
+                 */
+
+                return &_name;
+
+            }
+
+        protected:
+
+            void setName( std::string name ){
+                /*!
+                 * Set the material model's name
+                 * 
+                 * \param name: The new name for the material model
+                 */
+
+                 _name = name;
+
+            }
+
+        private:
+            std::string _name;
+
+    };
+
+    /*!
+     * Class template which defines the general interface to constitutive models
+     */
     template<
         typename time_type,
         class current_dof_iter,
@@ -41,7 +85,7 @@ namespace tardigradeCMML{
         class jacobian_iter,
         class additional_iter
     >
-    class CMMLMaterialBase{
+    class CMMLMaterial : public CMMLMaterialBase{
 
         public:
             virtual int evaluate_model(
@@ -137,6 +181,7 @@ namespace tardigradeCMML{
 
         public:
 
+            //! Get a pointer to the requested material
             virtual std::unique_ptr< CMMLMaterialBase > GetMaterial( ) = 0;
 
     };
@@ -151,23 +196,61 @@ namespace tardigradeCMML{
     class MaterialFactory {
 
         public:
-            /* Get Singleton instance */
-            static MaterialFactory& Instance( );
+            static MaterialFactory& Instance( ){
+                /*! Return an instance of the factory */
+                static MaterialFactory instance;
+                return instance;
+            }
 
-            /* Register a new material */
-            void Register( CMMLMaterialRegistrar* registrar, std::string name );
+            void Register( CMMLMaterialRegistrar* registrar, std::string name ){
+                /*!
+                 * Register the material model in the library
+                 * 
+                 * \param *registrar: The registrar object
+                 * \param name: The name of the model
+                 */
 
-            /* Get an instance of a material based on its name */
-            /* Throws out_of_range if material not found       */
-            std::unique_ptr< CMMLMaterialBase > GetMaterial( std::string name );
+                 registry_[name] = registrar;
+            }
 
-            void PrintMaterials( );
+            std::unique_ptr< CMMLMaterialBase > GetMaterial( std::string name ){
+                /*!
+                 * Get a reference to the material model.
+                 * 
+                 * Throws out_of_range if material is unknown
+                 * 
+                 * \param name: The name of the model to retrieve
+                 */
+
+                try{
+                    CMMLMaterialRegistrar* registrar = registry_.at(name);
+                    return registrar->GetMaterial( );
+                }
+                catch(...){
+                    std::string message = "Exception when attempting to access: " + name + "\n";
+                    message += "material models available are:\n";
+                    for ( auto it = registry_.begin( ); it != registry_.end( ); it++ ){
+                        message += it->first + "\n";
+                    }
+                    throw std::runtime_error( message );
+                }
+                return NULL;
+            }
+
+            void PrintMaterials( ){
+                /*! Prints all of the materials registered in the library*/
+                std::string message = "Materials available in the library:\n";
+                for ( auto it = registry_.begin( ); it != registry_.end( ); it++ ){
+                    message += "    " + it->first + "\n";
+                }
+                std::cerr << message;
+            }
 
         private:
-            /* Holds pointers to material registrars */
+            /*! Holds pointers to material registrars */
             std::map< std::string, CMMLMaterialRegistrar* > registry_;
 
-            /* Make constructors private and forbid cloning */
+            /*! Make constructors private and forbid cloning */
             MaterialFactory( ): registry_( ) { };
             
             MaterialFactory( MaterialFactory const & ) = delete;
@@ -206,6 +289,9 @@ namespace tardigradeCMML{
         class TCMMLMaterial
     >
     MaterialRegistrar< TCMMLMaterial >::MaterialRegistrar( std::string classname ): classname_( classname ){
+        /*!
+         * Build a registration to the provided class
+         */
         MaterialFactory &factory = MaterialFactory::Instance( );
         factory.Register( this, classname );
     }
@@ -215,6 +301,9 @@ namespace tardigradeCMML{
     >
     std::unique_ptr< CMMLMaterialBase >
     MaterialRegistrar<TCMMLMaterial>::GetMaterial( ){
+        /*!
+         * Get a reference to the requested material model
+         */
         std::unique_ptr< CMMLMaterialBase > material( new TCMMLMaterial( ) );
         return material;
     }
