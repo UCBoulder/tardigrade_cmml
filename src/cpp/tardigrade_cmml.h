@@ -3,7 +3,7 @@
 |                         tardigrade_cmml.h                         |
 =====================================================================
 | (C)ollected (M)aterial (M)odel (L)ibrary                          |
-| prounced Cammel                                                   |
+| prounced Camel                                                    |
 |                                                                   |
 | A header file which defines a class which registers all of the    |
 | available material models and their interface. The library is     |
@@ -322,5 +322,7 @@ namespace tardigradeCMML{
         static tardigradeCMML::MaterialRegistrar<CLASSNAME> \
         _registrar( #CLASSNAME ); \
     }
+
+#include "tardigrade_cmml.cpp"
 
 #endif
