@@ -51,3 +51,12 @@ BOOST_AUTO_TEST_CASE( temp, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANC
 
 }
 
+BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test the deltaDirac function in constitutive tools
+     */
+
+    BOOST_CHECK( true );
+
+}
+

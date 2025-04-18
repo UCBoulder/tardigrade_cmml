@@ -26,10 +26,115 @@
 #ifndef TARDIGRADE_GENERALREACTINGSOLID_H
 #define TARDIGRADE_GENERALREACTINGSOLID_H
 
+#include<vector>
 #include "tardigrade_error_tools.h"
 #include "tardigrade_cmml.h"
+#include "tardigrade_hydraLinearElasticity.h"
+#include "tardigrade_hydraLinearInternalEnergy.h"
+#include "tardigrade_hydraFourierHeatConduction.h"
 
 namespace tardigradeCMML{
+
+    class hydra : public tardigradeHydra::hydraBase{
+
+        public:
+
+            using tardigradeHydra::hydraBase::hydraBase;
+            using tardigradeHydra::hydraBase::setResidualClasses;
+
+            template<
+                class parameter_iter
+            >
+            void setStressParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
+                /*!
+                 * Set the parameters for the stress calculation
+                 *
+                 * \param &value_start: The starting value of the parameter iterator
+                 * \param &value_end: The stopping value of the parameter itertor
+                 */
+
+                _stress_parameters = std::vector< double >( value_start, value_end );
+
+            }
+
+            template<
+                class parameter_iter
+            >
+            void setInternalEnergyParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
+                /*!
+                 * Set the parameters for the internal energy
+                 *
+                 * \param &value_start: The starting value of the parameter iterator
+                 * \param &value_end: The stopping value of the parameter itertor
+                 */
+
+                _internal_energy_parameters = std::vector< double >( value_start, value_end );
+
+            }
+
+            template<
+                class parameter_iter
+            >
+            void setHeatConductionParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
+                /*!
+                 * Set the parameters for the heat conduction
+                 *
+                 * \param &value_start: The starting value of the parameter iterator
+                 * \param &value_end: The stopping value of the parameter itertor
+                 */
+
+                _heat_conduction_parameters = std::vector< double >( value_start, value_end );
+
+            }
+
+            virtual void setResidualClasses( ){
+
+                stress          = tardigradeHydra::linearElasticity::residual( this, getStressSize( ), *getStressParameters( ) );
+
+                internal_energy = tardigradeHydra::linearInternalEnergy::residual( this, getInternalEnergySize( ), *getInternalEnergyParameters( ), 1,  9 );
+
+                heat_conduction = tardigradeHydra::linearInternalEnergy::residual( this, getHeatConductionSize( ), *getHeatConductionParameters( ), *getTemperatureGradientIndex( ), 1, 10 );
+
+                std::vector< tardigradeHydra::residualBase* > residuals( 3 );
+
+                residuals[ 0 ] = &stress;
+
+                residuals[ 1 ] = &internal_energy;
+
+                residuals[ 3 ] = &heat_conduction;
+
+                setResidualClasses( residuals );
+
+            }
+
+            const std::vector< double > *getStressParameters( ){ /*! Get the stress parameters */ return &_stress_parameters; }
+
+            const std::vector< double > *getInternalEnergyParameters( ){ /*! Get the internal energy parameters */ return &_internal_energy_parameters; }
+
+            const std::vector< double > *getHeatConductionParameters( ){ /*! Get the heat conduction parameters */ return &_heat_conduction_parameters; }
+
+            const unsigned int getStressSize( ){ /*! Get the number of nonlinear unknowns in the stress response */ return _stress_size; }
+
+            const unsigned int getInternalEnergySize( ){ /*! Get the number of nonlinear unknowns in the internal energy response */ return _internal_energy_size; }
+
+            const unsigned int getHeatConductionSize( ){ /*! Get the number of nonlinear unknowns in the heat conduction response */ return _heat_conduction_size; }
+
+        protected:
+
+            tardigradeHydra::linearElasticity::residual      stress;
+            tardigradeHydra::linearInternalEnergy::residual  internal_energy;
+            tardigradeHydra::fourierHeatConduction::residual heat_conduction;
+
+        private:
+
+            unsigned int _stress_size = 9; //!< The number of nonlinear unknowns in the stress response (must be at least 9)
+            unsigned int _internal_energy_size = 1; //!< The number of nonlinear unknowns in the internal energy response (must be at least 1)
+            unsigned int _heat_conduction_size = 3; //!< The number of nonlinear unknowns in the heat conduction response (must be at least 3)
+            std::vector< double > _stress_parameters; //!< The parameters associated with the calculation of the stress
+            std::vector< double > _internal_energy_parameters; //!< The parameters associated with the calculation of the internal energy
+            std::vector< double > _heat_conduction_parameters; //!< The parameters associated with the calculation of the heat conduction
+
+    };
 
     /*!
      * A general reacting continuum solid
@@ -77,6 +182,28 @@ namespace tardigradeCMML{
 
             }
 
+            void setDisplacementIndex( unsigned int value ){
+                /*!
+                 * Set the index the displacement is located in the dof vector
+                 * 
+                 * \param value: The displacement index
+                 */
+
+                _displacement_index = value;
+
+            }
+
+            void setTemperatureIndex( unsigned int value ){
+                /*!
+                 * Set the index the temperature is located in the dof vector
+                 * 
+                 * \param value: The displacement index
+                 */
+
+                _temperature_index = value;
+
+            }
+
             virtual int evaluate_model(
                 const time_type         &current_time,       const time_type &dt,
                 const current_dof_iter  &current_dof_begin,  const current_dof_iter  &current_dof_end,
@@ -85,38 +212,7 @@ namespace tardigradeCMML{
                 sdvs_iter               sdvs_begin,          sdvs_iter               sdvs_end,
                 result_iter             result_begin,        result_iter             result_end,
                 std::string             &output_message
-            ){
-            /*!
-             * Evaluate the material model given the incoming data
-             *
-             * Returns:
-             *     0: No errors. Solution converged.
-             *     1: Convergence Error. Request timestep cutback.
-             *     2: Fatal errors encountered. Terminate evaluation.
-             *
-             * \param &current_time: The current time of the simulation
-             * \param &dt:           The change in time of the simulation
-             * \param &current_dof_begin: The starting iterator of the current values of the degrees of freedom
-             * \param &current_dof_end: The stopping iterator of the current values of the degrees of freedom
-             * \param &previous_dof_begin: The starting iterator of the previous values of the degrees of freedom
-             * \param &previous_dof_end: The stopping iterator of the previous values of the degrees of freedom
-             * \param &parameters_begin: The starting iterator of the model parameters
-             * \param &parameters_end: The stopping iterator of the model parameters
-             * \param &sdvs_begin: The starting iterator of the model state variables. These are initialized to the
-             *     previous converged values and should be updated by the model
-             * \param &sdvs_end: The stopping iterator of the model state variables. These are initialized to the
-             *     previous converged values and should be updated by the model
-             * \param &result_begin: The starting iterator of the result vector.
-             * \param &result_end: The stopping iterator of the result vector.
-             * \param &output_message: An output string containing messages from the code.
-             */
-
-                TARDIGRADE_ERROR_TOOLS_CHECK( _expected_material_size == ( unsigned int )( result_end - result_begin ), "The output material size must be equal to " + std::to_string( _expected_material_size ) )
-
-                output_message = "evaluate_model is not implemented";
-                return 2;
-
-            }
+            );
 
             virtual int evaluate_model(
                 const time_type         &current_time,       const time_type &dt,
@@ -128,46 +224,42 @@ namespace tardigradeCMML{
                 jacobian_iter           jacobian_begin,      jacobian_iter           jacobian_end,
                 additional_iter         additional_begin,    additional_iter         additional_end,
                 std::string             &output_message
-            ){
-            /*!
-             * Evaluate the material model given the incoming data
-             *
-             * Returns:
-             *     0: No errors. Solution converged.
-             *     1: Convergence Error. Request timestep cutback.
-             *     2: Fatal errors encountered. Terminate evaluation.
-             *
-             * \param &current_time: The current time of the simulation
-             * \param &dt:           The change in time of the simulation
-             * \param &current_dof_begin: The starting iterator of the current values of the degrees of freedom
-             * \param &current_dof_end: The stopping iterator of the current values of the degrees of freedom
-             * \param &previous_dof_begin: The starting iterator of the previous values of the degrees of freedom
-             * \param &previous_dof_end: The stopping iterator of the previous values of the degrees of freedom
-             * \param &parameters_begin: The starting iterator of the model parameters
-             * \param &parameters_end: The stopping iterator of the model parameters
-             * \param &sdvs_begin: The starting iterator of the model state variables. These are initialized to the
-             *     previous converged values and should be updated by the model
-             * \param &sdvs_end: The stopping iterator of the model state variables. These are initialized to the
-             *     previous converged values and should be updated by the model
-             * \param &result_begin: The starting iterator of the result vector.
-             * \param &result_end: The stopping iterator of the result vector.
-             * \param &jacobian_begin: The starting iterator of the jacobian of the result w.r.t. the dof.
-             * \param &jacobian_end: The stopping iterator of the jacobian of the result w.r.t. the dof.
-             * \param &additional_begin: The starting iterator of the additional information returned by the model
-             * \param &additional_end: The stopping iterator of the additional information returned by the model
-             * \param &output_message: An output string containing messages from the code.
-             */
+            );
 
-                output_message = "evaluate_model with additional information is not implemented";
-                return 2;
+        protected:
+
+            virtual void extract_parameters(const  parameter_iter &parameters_begin, const parameter_iter &parameters_end ){
+                /*!
+                 * Extract the material parameters
+                 *
+                 * The parameter vector is assumed to be organized as
+                 *
+                 * displacement index, temperature index, lambda, mu, specifc heat, conductivity
+                 *
+                 * where lambda and mu are the linear elastic Lame parameters, specific heat is the linear
+                 * relationship between temperature and the internal energy, and the conductivity is the
+                 * conductivity parameter for the heat flux.
+                 *
+                 * \param &parameters_begin: The starting iterator of the parameter vector
+                 * \param &parameters_end: The stopping iterator of the parameter vector
+                 */
+
+                TARDIGRADE_ERROR_TOOLS_CHECK( ( parameters_end - parameters_begin ) == 6, "The parameters vector must have six indices" )
+
+                setDisplacementIndex( ( unsigned int )( *( parameters_begin + 0 ) + 0.5 ) );
+                setTemperatureIndex(  ( unsigned int )( *( parameters_begin + 1 ) + 0.5 ) );
 
             }
 
+        private:
+
             unsigned int _expected_material_size = 23;
+            unsigned int _displacement_index;
+            unsigned int _temperature_index;
 
     };
 
-    REGISTER_MATERIAL( tardigradeCMML::BasicReactingSolid );
+//    REGISTER_MATERIAL( tardigradeCMML::BasicReactingSolid );
 
 }
 
