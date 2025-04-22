@@ -19,7 +19,7 @@ set(TARDIGRADE_FULL_BUILD OFF CACHE BOOL "Flag for whether a full build of Tardi
 
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
-set(ADDITIONAL_HEADER_ONLY_LIBRARIES )
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_CMMLMultiphaseMaterialBase" "tardigrade_BasicReactingSolid")
 set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
 set(PROJECT_PRIVATE_HEADERS "")
 foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
@@ -106,7 +106,7 @@ endif()
 
 # Find related, but external, projects in installed environment
 include(FetchContent)
-set(upstream_packages "tardigrade_error_tools" "tardigrade_vector_tools")
+set(upstream_packages "tardigrade_error_tools" "tardigrade_vector_tools" "tardigrade_hydra")
 if(${not_conda_test} STREQUAL "false")
     # During conda-build testing, we must find the installed project files as if they were an external project
     set(upstream_packages ${upstream_packages} ${PROJECT_NAME})
