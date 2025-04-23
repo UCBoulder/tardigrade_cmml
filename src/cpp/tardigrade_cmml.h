@@ -183,7 +183,7 @@ namespace tardigradeCMML{
         public:
 
             //! Get a pointer to the requested material
-            virtual std::unique_ptr< CMMLMaterialBase > GetMaterial( ) = 0;
+            virtual std::unique_ptr< CMMLMaterial > GetMaterial( ) = 0;
 
     };
 
@@ -214,7 +214,7 @@ namespace tardigradeCMML{
                  registry_[name] = registrar;
             }
 
-            std::unique_ptr< CMMLMaterialBase > GetMaterial( std::string name ){
+            std::unique_ptr< CMMLMaterial > GetMaterial( std::string name ){
                 /*!
                  * Get a reference to the material model.
                  * 
@@ -276,7 +276,7 @@ namespace tardigradeCMML{
         public:
             MaterialRegistrar( std::string classname );
 
-            std::unique_ptr< CMMLMaterialBase > GetMaterial( );
+            std::unique_ptr< CMMLMaterial > GetMaterial( );
 
         private:
             /*! That is not really used here, but could be useful */
@@ -300,12 +300,12 @@ namespace tardigradeCMML{
     template<
         class TCMMLMaterial
     >
-    std::unique_ptr< CMMLMaterialBase >
+    std::unique_ptr< CMMLMaterial >
     MaterialRegistrar<TCMMLMaterial>::GetMaterial( ){
         /*!
          * Get a reference to the requested material model
          */
-        std::unique_ptr< CMMLMaterialBase > material( new TCMMLMaterial( ) );
+        std::unique_ptr< CMMLMaterial > material( new TCMMLMaterial( ) );
         return material;
     }
 

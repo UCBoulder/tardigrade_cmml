@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.19)
 cmake_policy(SET CMP0110 NEW)
 project(tardigrade_cmml)
 
+string(TOUPPER "${PROJECT_NAME}" project_name_upper)
+
 # Set common project paths relative to project root directory
 set(CPP_SRC_PATH "src/cpp")
 set(CPP_TEST_PATH "${CPP_SRC_PATH}/tests")
@@ -13,14 +15,27 @@ set(SPHINX_SRC_PATH "docs/sphinx")
 # Add a flag for whether the python bindings should be built or not
 set(TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS ON CACHE BOOL "Flag for whether the python bindings should be built for hydra")
 set(TARDIGRADE_CMML_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to use libxsmm for matrix math")
+set("${project_name_upper}_BUILD_AS_SHARED" OFF CACHE BOOL "Flag for whether to build the library as a shared object library or header only")
+
+if(${project_name_upper}_BUILD_AS_SHARED)
+    add_compile_definitions(TARDIGRADE_CMML_BUILD_AS_SHARED)
+endif()
 
 # Add a flag for if a full build of all tardigrade repositories should be performed
 set(TARDIGRADE_FULL_BUILD OFF CACHE BOOL "Flag for whether a full build of Tardigrade should be performed (i.e., all repos pulled from git and built)")
 
+# Set the material library names
+set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicReactingSolid")
+set(HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS "tardigrade_hydra")
+
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
-set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_CMMLMultiphaseMaterialBase" "tardigrade_BasicReactingSolid")
-set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_CMMLMultiphaseMaterialBase")
+set(ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES )
+
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES ${ADDITIONAL_HEADER_ONLY_LIBRARIES} ${HEADER_ONLY_MATERIAL_MODELS})
+set(ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES} ${HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS})
+set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h ${PROJECT_NAME}_header_only_materials.h)
 set(PROJECT_PRIVATE_HEADERS "")
 foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
     set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${package}.cpp ${package}.h)
