@@ -19,3 +19,7 @@
 */
 
 #include "tardigrade_cmml.h"
+
+#ifdef TARDIGRADE_CMML_BUILD_AS_SHARED
+#include "tardigrade_cmml_header_only_materials.h"
+#endif
