@@ -196,6 +196,7 @@ namespace tardigradeCMML{
                  */
 
                 setName( "BasicReactingSolid" );
+                setEvaluateModelResultSize( 23 );
 
             }
 
@@ -253,7 +254,6 @@ namespace tardigradeCMML{
 
             constexpr static unsigned int dim = 3; //!< We assume that the material is being evaluated in 3D
             const bool getIsCurrent( ){ /*! Get if the dof gradients are with respect to the current configuration */ return _isCurrent; }
-            const unsigned int getExpectedMaterialSize( ){ /*! Get the expected material size */ return _expected_material_size; }
             const unsigned int getDisplacementGradientIndex( ){ /*! Get the displacement gradient index */ return _displacement_gradient_index; }
             const unsigned int getTemperatureIndex( ){ /*! Get the temperature index */ return _temperature_index; }
 
@@ -302,7 +302,6 @@ namespace tardigradeCMML{
         private:
 
             bool         _isCurrent = true; //!< Whether the dof gradients are with respect to the current configuration or not
-            unsigned int _expected_material_size = 23; //!< The number of terms in the returned material response
             unsigned int _displacement_gradient_index; //!< The index of the displacement gradient in the dof vector
             unsigned int _temperature_index; //!< The index of the temperature in the dof vector
 

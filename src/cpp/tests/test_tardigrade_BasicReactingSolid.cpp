@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
     model.public_extract_parameters( parameters.data( ), 7 );
 
-    BOOST_TEST( model.getExpectedMaterialSize( ) == 23 );
+    BOOST_TEST( model.getEvaluateModelResultSize( ) == 23 );
 
     BOOST_TEST( model.getIsCurrent( ) );
 
