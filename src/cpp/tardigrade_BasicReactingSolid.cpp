@@ -123,7 +123,7 @@ namespace tardigradeCMML{
 
         try{
 
-            TARDIGRADE_ERROR_TOOLS_CHECK( _expected_material_size == result_size, "The output material size must be equal to " + std::to_string( _expected_material_size ) )
+            TARDIGRADE_ERROR_TOOLS_CHECK( getEvaluateModelResultSize( ) == result_size, "The output material size must be equal to " + std::to_string( getEvaluateModelResultSize( ) ) )
 
             // Extract the parameters
             extract_parameters( parameters_begin, parameters_size );
@@ -239,7 +239,7 @@ namespace tardigradeCMML{
 
         try{
 
-            TARDIGRADE_ERROR_TOOLS_CHECK( _expected_material_size == result_size, "The output material size must be equal to " + std::to_string( _expected_material_size ) )
+            TARDIGRADE_ERROR_TOOLS_CHECK( getEvaluateModelResultSize( ) == result_size, "The output material size must be equal to " + std::to_string( getEvaluateModelResultSize( ) ) )
 
             // Extract the parameters
             extract_parameters( parameters_begin, parameters_size );

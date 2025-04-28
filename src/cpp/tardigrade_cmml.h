@@ -63,6 +63,15 @@ namespace tardigradeCMML{
 
             }
 
+            const unsigned int getEvaluateModelResultSize( ){
+                /*!
+                 * Get the expected size of the output from evaluate model
+                 */
+
+                return _evaluate_model_result_size;
+
+            }
+
         protected:
 
             void setName( std::string name ){
@@ -76,8 +85,20 @@ namespace tardigradeCMML{
 
             }
 
+            void setEvaluateModelResultSize( const unsigned int &result ){
+                /*!
+                 * Set the size of the result from evaluate model
+                 * 
+                 * \param &result: The new value
+                 */
+
+                _evaluate_model_result_size = result;
+
+            }
+
         private:
             std::string _name;
+            unsigned int _evaluate_model_result_size;
 
     };
 
