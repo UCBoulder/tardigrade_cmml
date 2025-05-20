@@ -2,13 +2,7 @@
 Prerequisites
 *************
 
-1. Request access to `ASC RE Gitlab`_ through the `ASC RE Gitlab HPC Accounts`_
-   page.
-2. Set up your profile on `ASC RE Gitlab`_ with ssh keys. You can follow the
-   instructions on the `ASC RE Gitlab User Documentation`_:
-
-   * https://re-git.lanl.gov/help/ssh/index.md#generate-an-ssh-key-pair
-   * https://re-git.lanl.gov/help/ssh/index.md#add-an-ssh-key-to-your-gitlab-account
+TODO
 
 ***************************************
 Clone cpp\_stub into a local repository
