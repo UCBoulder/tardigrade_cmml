@@ -38,24 +38,12 @@ A C++ framework collecting material models into a single location
 Information
 ===========
 
-* Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/
-
-* Wiki: https://re-git.lanl.gov/aea/stub-repositories/tardigrade-cmml/-/wikis/home
+TODO
 
 Developers
 ==========
 
 * Nathan Miller: nathan.a.miller@colorado.edu
-
-************
-Gitlab CI/CD
-************
-
-    **NOTE**
-
-    The repository setup has moved out of the README and into the HTML
-    documentation. You can find the Gitlab project setup guide here:
-    https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/gitlab_setup.html
 
 ************
 Dependencies
@@ -106,7 +94,9 @@ during the Gitlab-CI ``conda-build`` job to limit the test phase to the as-insta
 The build type can be set with the ``-DCMAKE_BUILD_TYPE=<build type string>`` during project configuration. Both build
 types will require the upstream dependent libraries
 
-* ``error_tools``: https://re-git.lanl.gov/aea/material-models/error_tools
+* ``error_tools``: https://github.com/UCBoulder/tardigrade_error_tools
+* ``vector_tools``: https://github.com/UCBoulder/tardigrade_vector_tools
+* ``hydra``: https://github.com/UCBoulder/tardigrade_hydra
 
 to be installed and found in the user's environment. If the build type string doesn't match those previously listed, the
 CMake project will build missing upstream libraries with the `CMake fetch_content`_ feature. The 'conda-test' build type
@@ -119,8 +109,6 @@ Building the documentation
     **HEALTH WARNING**
 
     The sphinx API docs are a work-in-progress. The doxygen API is much more useful.
-
-    * Documentation (``main`` branch): https://aea.re-pages.lanl.gov/stub-repositories/tardigrade-cmml/doxygen
 
 To build just the documentation pick up the steps here:
 

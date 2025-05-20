@@ -41,9 +41,11 @@ foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
     set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${package}.cpp ${package}.h)
     set(PROJECT_PRIVATE_HEADERS ${PROJECT_PRIVATE_HEADERS} ${package}.h)
 endforeach(package)
-foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
-    add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
-endforeach(package)
+if(${not_conda_test} STREQUAL "true")
+    foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
+        add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
+    endforeach(package)
+endif()
 if(TARDIGRADE_CMML_USE_LIBXSMM)
     message(STATUS "Using libxsmm for matrix math")
     find_library(libxsmm_DIR xsmm REQUIRED PATHS "$ENV{CONDA_PREFIX}/lib")
@@ -74,6 +76,10 @@ endif()
 
 # Get version number from Git
 if(${not_conda_test} STREQUAL "true")
+    if (DEFINED ENV{PREFIX})
+        set(Python ROOT_DIR "$ENV{PREFIX}/bin")
+    endif()
+    set(Python_FIND_STRATEGY LOCATION}
     find_package(Python COMPONENTS Interpreter REQUIRED)
     execute_process(COMMAND ${Python_EXECUTABLE} -m setuptools_scm
                             OUTPUT_VARIABLE ${PROJECT_NAME}_VERSION_STRING_FULL
