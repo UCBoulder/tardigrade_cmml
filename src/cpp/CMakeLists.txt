@@ -4,9 +4,11 @@ if(${project_name_upper}_BUILD_AS_SHARED)
                                                     SUFFIX ".so")
     target_compile_options(${PROJECT_NAME} PUBLIC)
     target_link_libraries(${PROJECT_NAME} PUBLIC "tardigrade_error_tools" ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES} ${SHARED_OBJECT_MATERIALS_INTERFACES})
-    foreach(additional_lib ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES})
-        target_include_directories(${PROJECT_NAME} PUBLIC "${${additional_lib}_SOURCE_DIR}/${CPP_SRC_PATH}")
-    endforeach(additional_lib)
+    if(NOT cmake_build_type_lower STREQUAL "release")
+        foreach(additional_lib ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES})
+            target_include_directories(${PROJECT_NAME} PUBLIC "${${additional_lib}_SOURCE_DIR}/${CPP_SRC_PATH}")
+        endforeach(additional_lib)
+    endif()
     foreach(user_interface ${SHARED_OBJECT_MATERIALS_INTERFACES})
         target_link_options(${PROJECT_NAME} PUBLIC "SHELL:-Wl,--whole-archive $<TARGET_FILE:${user_interface}> -Wl,--no-whole-archive")
     endforeach(user_interface)
@@ -28,6 +30,9 @@ foreach(package ${PROJECT_NAME})
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
             PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endforeach(package)
+
+install(FILES ${PROJECT_SOURCE_FILES}
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
     install(TARGETS ${package}
