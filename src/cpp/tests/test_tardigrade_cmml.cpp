@@ -42,12 +42,70 @@ struct cerr_redirect{
         std::streambuf * old;
 };
 
-BOOST_AUTO_TEST_CASE( temp, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+#ifdef TARDIGRADE_CMML_BUILD_AS_SHARED
+BOOST_AUTO_TEST_CASE( existent_material, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the deltaDirac function in constitutive tools
+     * Test if a good material can be extracted
      */
 
-    BOOST_CHECK( true );
+    auto &factory = tardigradeCMML::MaterialFactory::Instance( );
+    auto material = factory.GetMaterial("tardigradeCMML::BasicReactingSolid");
+
+    double current_time = 1.23;
+    double dt = 0.345;
+
+    std::vector< double >  current_dof( 26, 0 );
+    std::vector< double > previous_dof( 26, 0 );
+    for ( unsigned int i = 0; i < 26; ++i ){
+        current_dof[ i ]  += 0.01 * ( i + 1 );
+        previous_dof[ i ] -= 0.01 * ( i + 1 );
+    }
+
+    std::vector< double > parameters = { 2, 3, 4, 5, 6, 7, 8 };
+
+    std::vector< double > sdvs( 4, 0 );
+
+    std::vector< double > result( 23, -1 );
+
+    std::string output_message;
+
+    std::vector< double > answer = {
+        2.0707740, 1.2922023, 1.7429554, 1.2922023, 3.0650159,
+        2.37918  , 1.7429554, 2.37918  , 4.24473  , 0.28     ,
+        0        , 0        ,  0       ,  0       ,  0       ,
+        0        , 0        , -0.4     , -0.48    , -0.56    ,
+        0        , 0        ,  0
+    };
+
+    int error_code = material->evaluate_model(
+        current_time, dt,
+        current_dof.data( ),
+        previous_dof.data( ), 26,
+        parameters.data( ),    7,
+        sdvs.data( ),          4,
+        result.data( ),       23,
+        output_message
+    );
+
+    BOOST_TEST( error_code == 0 );
+
+    if ( error_code != 0 ){
+        std::cout << "ERROR MESSAGE:\n" << output_message << "\n";
+    }
+
+    BOOST_TEST(    answer == result,   CHECK_PER_ELEMENT );
+    
+
+}
+#endif
+
+BOOST_AUTO_TEST_CASE( non_existent_material_error, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test if an error is thrown for a bad material
+     */
+
+    auto &factory = tardigradeCMML::MaterialFactory::Instance( );
+    BOOST_CHECK_THROW( factory.GetMaterial("not_a_material"), std::runtime_error );
 
 }
 

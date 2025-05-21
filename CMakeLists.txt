@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.19)
 cmake_policy(SET CMP0110 NEW)
 project(tardigrade_cmml)
 
+string(TOUPPER "${PROJECT_NAME}" project_name_upper)
+
 # Set common project paths relative to project root directory
 set(CPP_SRC_PATH "src/cpp")
 set(CPP_TEST_PATH "${CPP_SRC_PATH}/tests")
@@ -13,26 +15,27 @@ set(SPHINX_SRC_PATH "docs/sphinx")
 # Add a flag for whether the python bindings should be built or not
 set(TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS ON CACHE BOOL "Flag for whether the python bindings should be built for hydra")
 set(TARDIGRADE_CMML_USE_LIBXSMM OFF CACHE BOOL "Flag for whether to use libxsmm for matrix math")
+set("${project_name_upper}_BUILD_AS_SHARED" OFF CACHE BOOL "Flag for whether to build the library as a shared object library or header only")
+
+if(${project_name_upper}_BUILD_AS_SHARED)
+    add_compile_definitions(TARDIGRADE_CMML_BUILD_AS_SHARED)
+endif()
+
+# Add a flag for if a full build of all tardigrade repositories should be performed
+set(TARDIGRADE_FULL_BUILD OFF CACHE BOOL "Flag for whether a full build of Tardigrade should be performed (i.e., all repos pulled from git and built)")
+
+# Set the material library names
+set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicReactingSolid")
+set(HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS "tardigrade_hydra")
 
 # Set the internal support libraries
 set(INTERNAL_SUPPORT_LIBRARIES )
-set(ADDITIONAL_HEADER_ONLY_LIBRARIES )
-set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h)
-set(PROJECT_PRIVATE_HEADERS "")
-foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
-    set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${package}.cpp ${package}.h)
-    set(PROJECT_PRIVATE_HEADERS ${PROJECT_PRIVATE_HEADERS} ${package}.h)
-endforeach(package)
-foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
-    add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
-endforeach(package)
-if(TARDIGRADE_CMML_USE_LIBXSMM)
-    message(STATUS "Using libxsmm for matrix math")
-    find_library(libxsmm_DIR xsmm REQUIRED PATHS "$ENV{CONDA_PREFIX}/lib")
-    add_definitions(-DTARDIGRADE_CMML_USE_LLXSMM )
-    set(PROJECT_LINK_LIBRARIES ${PROJECT_LINK_LIBRARIES} "xsmm" "blas")
-endif()
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES "tardigrade_CMMLMultiphaseMaterialBase")
+set(ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES )
 
+set(ADDITIONAL_HEADER_ONLY_LIBRARIES ${ADDITIONAL_HEADER_ONLY_LIBRARIES} ${HEADER_ONLY_MATERIAL_MODELS})
+set(ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES} ${HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS})
+set(PROJECT_SOURCE_FILES ${PROJECT_NAME}.cpp ${PROJECT_NAME}.h ${PROJECT_NAME}_header_only_materials.h)
 # For each support library you need to set the upstream libraries required via
 #set(TARDIGRADE_CMMLMYSUPPORTLIBRARY_UPSTREAM_LIBRARIES "tardigrade_constitutive_tools")
 
@@ -54,8 +57,29 @@ elseif(cmake_build_type_lower STREQUAL "conda-test")
     # Find the installed project umat
 endif()
 
+set(PROJECT_PRIVATE_HEADERS "")
+foreach(package ${INTERNAL_SUPPORT_LIBRARIES})
+    set(PROJECT_SOURCE_FILES ${PROJECT_SOURCE_FILES} ${package}.cpp ${package}.h)
+    set(PROJECT_PRIVATE_HEADERS ${PROJECT_PRIVATE_HEADERS} ${package}.h)
+endforeach(package)
+if(${not_conda_test} STREQUAL "true")
+    foreach(package ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
+        add_library(${package} INTERFACE "${CPP_SRC_PATH}/${package}.cpp" "${CPP_SRC_PATH}/${package}.h")
+    endforeach(package)
+endif()
+if(TARDIGRADE_CMML_USE_LIBXSMM)
+    message(STATUS "Using libxsmm for matrix math")
+    find_library(libxsmm_DIR xsmm REQUIRED PATHS "$ENV{CONDA_PREFIX}/lib")
+    add_definitions(-DTARDIGRADE_CMML_USE_LLXSMM )
+    set(PROJECT_LINK_LIBRARIES ${PROJECT_LINK_LIBRARIES} "xsmm" "blas")
+endif()
+
 # Get version number from Git
 if(${not_conda_test} STREQUAL "true")
+    if (DEFINED ENV{PREFIX})
+        set(Python ROOT_DIR "$ENV{PREFIX}/bin")
+    endif()
+    set(Python_FIND_STRATEGY LOCATION)
     find_package(Python COMPONENTS Interpreter REQUIRED)
     execute_process(COMMAND ${Python_EXECUTABLE} -m setuptools_scm
                             OUTPUT_VARIABLE ${PROJECT_NAME}_VERSION_STRING_FULL
@@ -103,7 +127,7 @@ endif()
 
 # Find related, but external, projects in installed environment
 include(FetchContent)
-set(upstream_packages "tardigrade_error_tools" "tardigrade_vector_tools")
+set(upstream_packages "tardigrade_error_tools" "tardigrade_vector_tools" "tardigrade_hydra")
 if(${not_conda_test} STREQUAL "false")
     # During conda-build testing, we must find the installed project files as if they were an external project
     set(upstream_packages ${upstream_packages} ${PROJECT_NAME})
@@ -112,7 +136,11 @@ set(LOCAL_BUILD_INCLUDE_DIRECTORIES "")
 foreach(package ${upstream_packages})
     string(TOUPPER "${package}" package_upper)
     set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
-    find_package(${package} ${upstream_required} CONFIG)
+    if(TARDIGRADE_FULL_BUILD)
+        message("Not attempting to find ${package}")
+    else()
+        find_package(${package} ${upstream_required} CONFIG)
+    endif()
     if(${package}_FOUND)
         message(STATUS "Found ${package}: ${${package}_DIR}")
     else()
@@ -150,7 +178,11 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     foreach(package ${test_upstream_packages})
         string(TOUPPER "${package}" package_upper)
         set(${package_upper}_BUILD_PYTHON_BINDINGS ${TARDIGRADE_CMML_BUILD_PYTHON_BINDINGS} CACHE INTERNAL "Setting ${package}'s python binding flag to the global value")
-        find_package(${package} ${upstream_required} CONFIG)
+        if(TARDIGRADE_FULL_BUILD)
+            message("Not attempting to find ${package}")
+        else()
+            find_package(${package} ${upstream_required} CONFIG)
+        endif()
         if(${package}_FOUND)
             message(STATUS "Found ${package}: ${${package}_DIR}")
         else()
