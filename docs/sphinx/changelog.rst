@@ -15,7 +15,7 @@ Changelog
 
 New Features
 ============
-- Added a dof velocity gradient driven deformation material model DefinedPermanentDeformation (:pull:`7`). By `Nathan Miller`_.
+- Added a dof velocity gradient driven deformation material model DefinedPlasticEvolution (:pull:`7`). By `Nathan Miller`_.
 
 Breaking Changes
 ================
