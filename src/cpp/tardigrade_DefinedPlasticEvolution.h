@@ -29,8 +29,6 @@
 #ifndef TARDIGRADE_DEFINEDPLASTICEVOLUTION_H
 #define TARDIGRADE_DEFINEDPLASTICEVOLUTION_H
 
-#warning "C Preprocessor got here!"
-
 #include<vector>
 #include "tardigrade_error_tools.h"
 #include "tardigrade_cmml.h"
@@ -106,23 +104,23 @@ namespace tardigradeCMML{
 
                     internal_energy =
                         tardigradeHydra::linearInternalEnergy::residual(
-                            this, getInternalEnergySize( ), *getInternalEnergyParameters( ), 1,  9
+                            this, getInternalEnergySize( ), *getInternalEnergyParameters( ), 1,  18
                         );
 
                     heat_conduction =
                         tardigradeHydra::fourierHeatConduction::residual(
-                            this, getHeatConductionSize( ), *getHeatConductionParameters( ), getTemperatureGradientIndex( ), 1, 10
+                            this, getHeatConductionSize( ), *getHeatConductionParameters( ), getTemperatureGradientIndex( ), 1, 19
                         );
 
                     std::vector< tardigradeHydra::residualBase* > residuals( 4 );
 
                     residuals[ 0 ] = &stress;
 
-                    residuals[ 1 ] = &internal_energy;
+                    residuals[ 1 ] = &defined_deformation;
 
-                    residuals[ 2 ] = &heat_conduction;
+                    residuals[ 2 ] = &internal_energy;
 
-                    residuals[ 3 ] = &defined_deformation;
+                    residuals[ 3 ] = &heat_conduction;
 
                     setResidualClasses( residuals );
 
