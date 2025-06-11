@@ -150,7 +150,7 @@ namespace tardigradeCMML{
                     1, 4
                 );
 
-                hydra.setTemperatureGradientIndex( *( parameters_begin + 2 ) );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 2 ) + 0.5 ) );
                 hydra.setStressParameters(         parameters_begin + 3, parameters_begin + 5 );
                 hydra.setInternalEnergyParameters( parameters_begin + 5, parameters_begin + 6 );
                 hydra.setHeatConductionParameters( parameters_begin + 6, parameters_begin + 7 );
@@ -268,7 +268,7 @@ namespace tardigradeCMML{
                     1, 4
                 );
 
-                hydra.setTemperatureGradientIndex( *( parameters_begin + 2 ) );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 2 ) + 0.5 ) );
                 hydra.setStressParameters(         parameters_begin + 3, parameters_begin + 5 );
                 hydra.setInternalEnergyParameters( parameters_begin + 5, parameters_begin + 6 );
                 hydra.setHeatConductionParameters( parameters_begin + 6, parameters_begin + 7 );
