@@ -9,7 +9,7 @@
 #include<fstream>
 #include<iostream>
 
-#define BOOST_TEST_MODULE test_tardigrade_GeneralSolid
+#define BOOST_TEST_MODULE test_tardigrade_BasicSolid
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/output_test_stream.hpp>
 
