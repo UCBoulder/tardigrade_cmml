@@ -1,18 +1,18 @@
 /**
   *****************************************************************************
-  * \file tardigrade_BasicReactingSolid.cpp
+  * \file tardigrade_BasicSolid.cpp
   *****************************************************************************
-  * A definition of a simple class for basic reacting solids which can be
+  * A definition of a simple class for basic solids which can be
   * used as the base class for more advanced models
   *****************************************************************************
   */
 
-#include "tardigrade_BasicReactingSolid.h"
+#include "tardigrade_BasicSolid.h"
 #include "tardigrade_constitutive_tools.h"
 
 namespace tardigradeCMML{
 
-    void BasicReactingSolid::formDeformationGradients(
+    void BasicSolid::formDeformationGradients(
         const  current_dof_type  *current_dof_begin, const previous_dof_type *previous_dof_begin,
         std::vector<  current_dof_type > &deformationGradient,
         std::vector< previous_dof_type > &previousDeformationGradient
@@ -48,7 +48,7 @@ namespace tardigradeCMML{
 
     }
 
-    void BasicReactingSolid::formDeformationGradients(
+    void BasicSolid::formDeformationGradients(
         const  current_dof_type  *current_dof_begin, const previous_dof_type *previous_dof_begin,
         std::vector<  current_dof_type > &deformationGradient,
         std::vector< previous_dof_type > &previousDeformationGradient,
@@ -86,7 +86,7 @@ namespace tardigradeCMML{
 
     }
 
-    int BasicReactingSolid::evaluate_model(
+    int BasicSolid::evaluate_model(
         const time_type         &current_time,       const time_type &dt,
         const current_dof_type  *current_dof_begin,  const previous_dof_type *previous_dof_begin,
         const unsigned int      dof_size,
@@ -137,7 +137,7 @@ namespace tardigradeCMML{
             );
 
             // Form the hydra model
-            basicReactingSolidHydra hydra(
+            basicSolidHydra hydra(
                 current_time, dt,
                 *( current_dof_begin + getTemperatureIndex( ) ), *( previous_dof_begin + getTemperatureIndex( ) ),
                 deformationGradient, previousDeformationGradient,
@@ -196,7 +196,7 @@ namespace tardigradeCMML{
 
     }
 
-    int BasicReactingSolid::evaluate_model(
+    int BasicSolid::evaluate_model(
         const time_type         &current_time,       const time_type &dt,
         const current_dof_type  *current_dof_begin,  const previous_dof_type *previous_dof_begin,
         const unsigned int      dof_size,
@@ -255,7 +255,7 @@ namespace tardigradeCMML{
             );
 
             // Form the hydra model
-            basicReactingSolidHydra hydra(
+            basicSolidHydra hydra(
                 current_time, dt,
                 *( current_dof_begin + getTemperatureIndex( ) ), *( previous_dof_begin + getTemperatureIndex( ) ),
                 deformationGradient, previousDeformationGradient,

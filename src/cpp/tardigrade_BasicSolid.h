@@ -1,8 +1,8 @@
 /*!
 =====================================================================
-|                 tardigrade_BasicReactingSolid.h                   |
+|                      tardigrade_BasicSolid.h                      |
 =====================================================================
-| A basic reacting solid.                                           |
+| A basic solid.                                                    |
 ---------------------------------------------------------------------
 | The output material vector is comprised of the following          |
 | responses.                                                        |
@@ -23,8 +23,8 @@
 =====================================================================
 */
 
-#ifndef TARDIGRADE_GENERALREACTINGSOLID_H
-#define TARDIGRADE_GENERALREACTINGSOLID_H
+#ifndef TARDIGRADE_GENERALSOLID_H
+#define TARDIGRADE_GENERALSOLID_H
 
 #include<vector>
 #include "tardigrade_error_tools.h"
@@ -36,9 +36,9 @@
 namespace tardigradeCMML{
 
     /*!
-     * The basic reacting solid material model hydra class
+     * The basic solid material model hydra class
      */
-    class basicReactingSolidHydra : public tardigradeHydra::hydraBase{
+    class basicSolidHydra : public tardigradeHydra::hydraBase{
 
         public:
 
@@ -168,16 +168,16 @@ namespace tardigradeCMML{
     };
 
     /*!
-     * A general reacting continuum solid
+     * A basic continuum solid
      */
-    class BasicReactingSolid : public tardigradeCMML::CMMLMaterial
+    class BasicSolid : public tardigradeCMML::CMMLMaterial
     {
 
         public:
 
-            BasicReactingSolid( ){
+            BasicSolid( ){
                 /*!
-                 * A general reacting solid.
+                 * A basic continuum solid.
                  * 
                  * Stress response          : Linear, isotropic elasticity
                  * Predicted energy         : Linearly related to the temperature
@@ -195,7 +195,7 @@ namespace tardigradeCMML{
                  * 
                  */
 
-                setName( "BasicReactingSolid" );
+                setName( "BasicSolid" );
                 setEvaluateModelResultSize( 23 );
 
             }
@@ -312,10 +312,10 @@ namespace tardigradeCMML{
     };
 
     //! Register the material in the library
-    REGISTER_MATERIAL( tardigradeCMML::BasicReactingSolid );
+    REGISTER_MATERIAL( tardigradeCMML::BasicSolid );
 
 }
 
-#include "tardigrade_BasicReactingSolid.cpp"
+#include "tardigrade_BasicSolid.cpp"
 
 #endif

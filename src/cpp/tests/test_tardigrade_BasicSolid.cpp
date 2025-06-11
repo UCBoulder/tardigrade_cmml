@@ -1,15 +1,15 @@
 /**
-  * \file test_tardigrade_BasicReactingSolid.cpp
+  * \file test_tardigrade_BasicSolid.cpp
   *
   * Tests for tardigrade_cmml
   */
 
-#include "tardigrade_BasicReactingSolid.h"
+#include "tardigrade_BasicSolid.h"
 #include<sstream>
 #include<fstream>
 #include<iostream>
 
-#define BOOST_TEST_MODULE test_tardigrade_GeneralReactingSolid
+#define BOOST_TEST_MODULE test_tardigrade_GeneralSolid
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/output_test_stream.hpp>
 
@@ -44,14 +44,14 @@ struct cerr_redirect{
 
 BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the basic functionality of the BasicReactingSolid class
+     * Test the basic functionality of the BasicSolid class
      */
 
-    class modelMock : public tardigradeCMML::BasicReactingSolid{
+    class modelMock : public tardigradeCMML::BasicSolid{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicReactingSolid( ){ }
+            modelMock( ) : tardigradeCMML::BasicSolid( ){ }
 
             void public_extract_parameters( double * parameters_begin, const unsigned int parameters_size ){
 
@@ -79,14 +79,14 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
 BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the evaluate_model function of the BasicReactingSolid class
+     * Test the evaluate_model function of the BasicSolid class
      */
 
-    class modelMock : public tardigradeCMML::BasicReactingSolid{
+    class modelMock : public tardigradeCMML::BasicSolid{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicReactingSolid( ){ }
+            modelMock( ) : tardigradeCMML::BasicSolid( ){ }
 
             std::vector< double > F, Fp;
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &deformationGradient, std::vector< double > &previousDeformationGradient
             ) override{
 
-                tardigradeCMML::BasicReactingSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient
                 );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &dFdGradU
             ) override{
 
-                tardigradeCMML::BasicReactingSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient,
                     dFdGradU

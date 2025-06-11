@@ -10,6 +10,6 @@
 #ifndef TARDIGRADE_HEADER_ONLY_MATERIALS_H
 #define TARDIGRADE_HEADER_ONLY_MATERIALS_H
 
-    #include "tardigrade_BasicReactingSolid.h"
+    #include "tardigrade_BasicSolid.h"
 
 #endif
