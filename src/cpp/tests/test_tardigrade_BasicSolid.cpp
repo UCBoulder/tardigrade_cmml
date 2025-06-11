@@ -47,11 +47,11 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
      * Test the basic functionality of the BasicSolid class
      */
 
-    class modelMock : public tardigradeCMML::BasicSolid{
+    class modelMock : public tardigradeCMML::BasicSolid::BasicSolid{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicSolid( ){ }
+            modelMock( ) : tardigradeCMML::BasicSolid::BasicSolid( ){ }
 
             void public_extract_parameters( double * parameters_begin, const unsigned int parameters_size ){
 
@@ -79,14 +79,14 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
 BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the evaluate_model function of the BasicSolid class
+     * Test the evaluate_model function of the BasicSolid::BasicSolid class
      */
 
-    class modelMock : public tardigradeCMML::BasicSolid{
+    class modelMock : public tardigradeCMML::BasicSolid::BasicSolid{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicSolid( ){ }
+            modelMock( ) : tardigradeCMML::BasicSolid::BasicSolid( ){ }
 
             std::vector< double > F, Fp;
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &deformationGradient, std::vector< double > &previousDeformationGradient
             ) override{
 
-                tardigradeCMML::BasicSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient
                 );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &dFdGradU
             ) override{
 
-                tardigradeCMML::BasicSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient,
                     dFdGradU

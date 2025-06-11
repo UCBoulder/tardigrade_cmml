@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( existent_material, * boost::unit_test::tolerance( DEFAULT_
      */
 
     auto &factory = tardigradeCMML::MaterialFactory::Instance( );
-    auto material = factory.GetMaterial("tardigradeCMML::BasicSolid");
+    auto material = factory.GetMaterial("tardigradeCMML::BasicSolid::BasicSolid");
 
     double current_time = 1.23;
     double dt = 0.345;
