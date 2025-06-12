@@ -28,7 +28,9 @@
 
 #include<vector>
 #include "tardigrade_error_tools.h"
+#define TARDIGRADE_CMML_SKIP_HEADER_ONLY_MATERIALS_INCLUDE
 #include "tardigrade_cmml.h"
+#undef TARDIGRADE_CMML_SKIP_HEADER_ONLY_MATERIALS_INCLUDE
 #include "tardigrade_hydraLinearElasticity.h"
 #include "tardigrade_hydraLinearInternalEnergy.h"
 #include "tardigrade_hydraFourierHeatConduction.h"
