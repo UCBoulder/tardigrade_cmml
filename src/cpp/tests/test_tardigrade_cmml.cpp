@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( existent_material, * boost::unit_test::tolerance( DEFAULT_
      */
 
     auto &factory = tardigradeCMML::MaterialFactory::Instance( );
-    auto material = factory.GetMaterial("tardigradeCMML::BasicReactingSolid");
+    auto material = factory.GetMaterial("tardigradeCMML::BasicSolid::BasicSolid");
 
     double current_time = 1.23;
     double dt = 0.345;
@@ -108,4 +108,3 @@ BOOST_AUTO_TEST_CASE( non_existent_material_error, * boost::unit_test::tolerance
     BOOST_CHECK_THROW( factory.GetMaterial("not_a_material"), std::runtime_error );
 
 }
-

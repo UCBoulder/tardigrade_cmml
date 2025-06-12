@@ -286,7 +286,7 @@ namespace tardigradeCMML{
      * Actually, the registrar registers itself, and the proxied material is only
      * created on-demand. This mechanism can be shortened by directly
      * registering an instance of the material, but the assumption here is that
-     * instanciating the material can be heavy and not necessary.
+     * instantiating the material can be heavy and not necessary.
      */
 
     template<
@@ -334,7 +334,7 @@ namespace tardigradeCMML{
 
 /*
  * Here is the trick: upon creation of the global variable, the class created
- * out of the template will get instanciated once, and will register itself.
+ * out of the template will get instantiated once, and will register itself.
  * The template contains the information to create a material instance.
  * An unnamed namespace is used to enclose this later unused variable in the
  * compilation unit.

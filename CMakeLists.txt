@@ -25,7 +25,7 @@ endif()
 set(TARDIGRADE_FULL_BUILD OFF CACHE BOOL "Flag for whether a full build of Tardigrade should be performed (i.e., all repos pulled from git and built)")
 
 # Set the material library names
-set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicReactingSolid")
+set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicSolid" "tardigrade_DefinedPlasticEvolution")
 set(HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS "tardigrade_hydra")
 
 # Set the internal support libraries

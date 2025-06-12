@@ -20,6 +20,6 @@
 
 #include "tardigrade_cmml.h"
 
-#ifdef TARDIGRADE_CMML_BUILD_AS_SHARED
+#if defined TARDIGRADE_CMML_BUILD_AS_SHARED && !defined TARDIGRADE_CMML_SKIP_HEADER_ONLY_MATERIALS_INCLUDE
 #include "tardigrade_cmml_header_only_materials.h"
 #endif
