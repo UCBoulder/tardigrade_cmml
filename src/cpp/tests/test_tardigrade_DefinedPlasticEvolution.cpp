@@ -1,15 +1,15 @@
 /**
-  * \file test_tardigrade_BasicReactingSolid.cpp
+  * \file test_tardigrade_DefinedPlasticEvolution.cpp
   *
   * Tests for tardigrade_cmml
   */
 
-#include "tardigrade_BasicReactingSolid.h"
+#include "tardigrade_DefinedPlasticEvolution.h"
 #include<sstream>
 #include<fstream>
 #include<iostream>
 
-#define BOOST_TEST_MODULE test_tardigrade_GeneralReactingSolid
+#define BOOST_TEST_MODULE test_tardigrade_DefinedPlasticEvolution
 #include <boost/test/included/unit_test.hpp>
 #include <boost/test/tools/output_test_stream.hpp>
 
@@ -44,14 +44,14 @@ struct cerr_redirect{
 
 BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the basic functionality of the BasicReactingSolid class
+     * Test the basic functionality of the DefinedPlasticEvolution class
      */
 
-    class modelMock : public tardigradeCMML::BasicReactingSolid{
+    class modelMock : public tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicReactingSolid( ){ }
+            modelMock( ) : tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution( ){ }
 
             void public_extract_parameters( double * parameters_begin, const unsigned int parameters_size ){
 
@@ -63,30 +63,32 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
     modelMock model;
 
-    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7 };
+    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
-    model.public_extract_parameters( parameters.data( ), 7 );
+    model.public_extract_parameters( parameters.data( ), 8 );
 
     BOOST_TEST( model.getEvaluateModelResultSize( ) == 23 );
 
     BOOST_TEST( model.getIsCurrent( ) );
 
-    BOOST_TEST( model.getDisplacementGradientIndex( ) == 1 );
+    BOOST_TEST( model.getDefinedVelocityGradientIndex( ) == 1 );
 
-    BOOST_TEST( model.getTemperatureIndex( ) == 2 );
+    BOOST_TEST( model.getDisplacementGradientIndex( ) == 2 );
+
+    BOOST_TEST( model.getTemperatureIndex( ) == 3 );
 
 }
 
 BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
     /*!
-     * Test the evaluate_model function of the BasicReactingSolid class
+     * Test the evaluate_model function of the DefinedPlasticEvolution class
      */
 
-    class modelMock : public tardigradeCMML::BasicReactingSolid{
+    class modelMock : public tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution{
 
         public:
 
-            modelMock( ) : tardigradeCMML::BasicReactingSolid( ){ }
+            modelMock( ) : tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution( ){ }
 
             std::vector< double > F, Fp;
 
@@ -103,7 +105,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &deformationGradient, std::vector< double > &previousDeformationGradient
             ) override{
 
-                tardigradeCMML::BasicReactingSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient
                 );
@@ -119,7 +121,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 std::vector< double > &dFdGradU
             ) override{
 
-                tardigradeCMML::BasicReactingSolid::formDeformationGradients(
+                tardigradeCMML::BasicSolid::BasicSolid::formDeformationGradients(
                     current_dof_begin,   previous_dof_begin,
                     deformationGradient, previousDeformationGradient,
                     dFdGradU
@@ -144,9 +146,11 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         previous_dof[ i ] -= 0.01 * ( i + 1 );
     }
 
-    std::vector< double > parameters = { 2, 3, 4, 5, 6, 7, 8 };
+    std::vector< double > parameters = { 16, 2, 3, 4, 5, 6, 7, 8 };
 
-    std::vector< double > sdvs( 4, 0 );
+    std::vector< double > sdvs_base( 13, 0 );
+    std::vector< double > sdvs = sdvs_base;
+    std::vector< double > sdvsJ = sdvs_base;
 
     std::vector< double > result( 23, -1 );
 
@@ -165,19 +169,26 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
     };
 
     std::vector< double > answer = {
-        2.0707740, 1.2922023, 1.7429554, 1.2922023, 3.0650159,
-        2.37918  , 1.7429554, 2.37918  , 4.24473  , 0.28     ,
-        0        , 0        ,  0       ,  0       ,  0       ,
-        0        , 0        , -0.4     , -0.48    , -0.56    ,
-        0        , 0        ,  0
+        2.0100243 ,  1.2556396 ,  1.73524007,  1.2556396 ,  3.0772629 ,
+        2.4309158 ,  1.73524007,  2.4309158 ,  4.360577  ,  0.28      ,
+        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+        0.        ,  0.        , -0.4       , -0.48      , -0.56      ,
+        0.        ,  0.        ,  0.
+    };
+
+    std::vector< double > sdvs_answer = {
+        3.76430005e-03,  5.15758065e-03,  6.55086124e-03, -1.26713080e-03,
+        4.24258814e-05,  1.35198255e-03, -6.29856164e-03, -5.07272888e-03,
+       -3.84689614e-03,  2.80000000e-01, -4.00000000e-01, -4.80000000e-01,
+       -5.60000000e-01
     };
 
     int error_code = model.evaluate_model(
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    7,
-        sdvs.data( ),          4,
+        parameters.data( ),    8,
+        sdvs.data( ),         13,
         result.data( ),       23,
         output_message
     );
@@ -188,14 +199,15 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         std::cout << "ERROR MESSAGE:\n" << output_message << "\n";
     }
 
-    BOOST_TEST(  F_answer == model.F,  CHECK_PER_ELEMENT );
+    BOOST_TEST(   F_answer == model.F, CHECK_PER_ELEMENT );
 
     BOOST_TEST( Fp_answer == model.Fp, CHECK_PER_ELEMENT );
 
-    BOOST_TEST(    answer == result,   CHECK_PER_ELEMENT );
+    BOOST_TEST(   sdvs == sdvs_answer, CHECK_PER_ELEMENT );
+
+    BOOST_TEST(      answer == result, CHECK_PER_ELEMENT );
 
     // Test the jacobians
-    sdvs = std::vector< double >( 4, 0 );
     result = std::vector< double >( 23, -1 );
     std::vector< double > jacobian( 23 * 26, 0 );
     std::vector< double > additional( 0, 0 );
@@ -205,8 +217,8 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    7,
-        sdvs.data( ),          4,
+        parameters.data( ),    8,
+        sdvsJ.data( ),        13,
         result.data( ),       23,
         jacobian.data( ),
         additional.data( ),    0,
@@ -219,11 +231,13 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         std::cout << "ERROR MESSAGE:\n" << output_message << "\n";
     }
 
-    BOOST_TEST(  F_answer == modelJ.F,  CHECK_PER_ELEMENT );
+    BOOST_TEST(   F_answer == modelJ.F, CHECK_PER_ELEMENT );
 
     BOOST_TEST( Fp_answer == modelJ.Fp, CHECK_PER_ELEMENT );
 
-    BOOST_TEST(    answer == result,   CHECK_PER_ELEMENT );
+    BOOST_TEST(    sdvs == sdvs_answer, CHECK_PER_ELEMENT );
+
+    BOOST_TEST(       answer == result, CHECK_PER_ELEMENT );
 
     double eps = 1e-5;
 
@@ -249,24 +263,26 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
 
             modelMock mp, mm;
 
+            sdvs = sdvs_base;
             int ep = mp.evaluate_model(
                 current_time, dt,
                 xp.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    7,
-                sdvs.data( ),          4,
+                parameters.data( ),    8,
+                sdvs.data( ),         13,
                 rp.data( ),           23,
                 output_message
             );
 
             BOOST_TEST( ep == 0 );
 
+            sdvs = sdvs_base;
             int em = mm.evaluate_model(
                 current_time, dt,
                 xm.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    7,
-                sdvs.data( ),          4,
+                parameters.data( ),    8,
+                sdvs.data( ),         13,
                 rm.data( ),           23,
                 output_message
             );
