@@ -108,4 +108,3 @@ BOOST_AUTO_TEST_CASE( non_existent_material_error, * boost::unit_test::tolerance
     BOOST_CHECK_THROW( factory.GetMaterial("not_a_material"), std::runtime_error );
 
 }
-
