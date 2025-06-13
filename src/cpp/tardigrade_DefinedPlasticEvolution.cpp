@@ -233,7 +233,7 @@ namespace tardigradeCMML{
 
                 // Copy the internal energy response
                 *( result_begin + getInternalEnergyIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
-                *( sdvs_begin ) =  ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
+                *( sdvs_begin + dim * dim ) =  ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
 
                 // Copy the heat flux response
                 std::copy(
@@ -244,14 +244,14 @@ namespace tardigradeCMML{
                 std::copy(
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1,
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
-                    sdvs_begin + 1
+                    sdvs_begin + dim * dim + 1
                 );
 
                 // Copy the defined deformation response
                 std::copy(
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim,
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim,
-                    sdvs_begin + 4
+                    sdvs_begin
                 );
                 for ( unsigned int i = 0; i < dim; ++i ){ *( sdvs_begin + 3 * i + i ) -= 1; }
 
