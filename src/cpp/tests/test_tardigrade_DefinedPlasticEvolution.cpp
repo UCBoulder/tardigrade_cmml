@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
 
     BOOST_TEST( Fp_answer == modelJ.Fp, CHECK_PER_ELEMENT );
 
-    BOOST_TEST(    sdvs == sdvs_answer, CHECK_PER_ELEMENT );
+    BOOST_TEST(   sdvsJ == sdvs_answer, CHECK_PER_ELEMENT );
 
     BOOST_TEST(       answer == result, CHECK_PER_ELEMENT );
 
