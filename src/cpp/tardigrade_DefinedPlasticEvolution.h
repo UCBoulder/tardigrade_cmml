@@ -20,6 +20,7 @@
 | Internal heat generation : Zero                                   |
 | Interphasic heat transfer: Zero                                   |
 | trace mass change velocity gradient: Zero                         |
+| mass diffusion : linear w.r.t. density gradient                   |
 |                                                                   |
 | The class can be used as the base class for more advanced         |
 | behaviors                                                         |
@@ -56,13 +57,28 @@ namespace tardigradeCMML{
                 >
                 void setDefinedDeformationParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
                     /*!
-                     * Set the parameter for the defined deformation calculation
+                     * Set the parameters for the defined deformation calculation
                      * 
                      * \param &value_start: The starting value of the parameter iterator
                      * \param &value_end: The stopping value of the parameter iterator
                      */
 
                     _defined_deformation_parameters = std::vector< double >( value_start, value_end );
+
+                }
+
+                template<
+                    class parameter_iter
+                >
+                void setMassDiffusionParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
+                    /*!
+                     * Set the parameters for the mass diffusion
+                     *
+                     * \param &value_start: The starting value of the parameter iterator
+                     * \param &value_end: The stopping value of the parameter iterator
+                     */
+
+                    _mass_diffusion_parameters = std::vector< double >( value_start, value_end );
 
                 }
 
@@ -78,6 +94,18 @@ namespace tardigradeCMML{
 
                 }
 
+                void setDensityGradientIndex( const unsigned int &value ){
+                    /*!
+                     * Set the starting index in the additional degrees of freedom of the density gradient that defines the mass diffusion
+                     *
+                     * \param &value: The value of the density gradient index
+                     */
+
+                    _density_gradient_index = value;
+                    _density_gradient_index_set = true;
+
+                }
+
                 const unsigned int getDefinedVelocityGradientIndex( ){
                     /*!
                      * Get the starting index of the velocity gradient that defines the permanent deformation in the additional degree of freedom vector
@@ -86,6 +114,17 @@ namespace tardigradeCMML{
                     TARDIGRADE_ERROR_TOOLS_CHECK( _defined_velocity_gradient_index_set, "The defined velocity gradient index must be set before it is called" );
 
                     return _defined_velocity_gradient_index;
+
+                }
+
+                const unsigned int getDensityGradientIndex( ){
+                    /*!
+                     * Get the starting index of the density gradient that defines the mass diffusion
+                     */
+
+                    TARDIGRADE_ERROR_TOOLS_CHECK( _density_gradient_index_set, "The density gradient index must be set before it is called" );
+
+                    return _density_gradient_index;
 
                 }
 
@@ -114,7 +153,12 @@ namespace tardigradeCMML{
                             this, getHeatConductionSize( ), *getHeatConductionParameters( ), getTemperatureGradientIndex( ), 1, 19
                         );
 
-                    std::vector< tardigradeHydra::residualBase* > residuals( 4 );
+                    mass_diffusion =
+                        tardigradeHydra::fourierHeatConduction::residual(
+                            this, getHeatConductionSize( ), *getMassDiffusionParameters( ), getDensityGradientIndex( ), 1, 22
+                        );
+
+                    std::vector< tardigradeHydra::residualBase* > residuals( 5 );
 
                     residuals[ 0 ] = &stress;
 
@@ -124,16 +168,21 @@ namespace tardigradeCMML{
 
                     residuals[ 3 ] = &heat_conduction;
 
+                    residuals[ 4 ] = &mass_diffusion;
+
                     setResidualClasses( residuals );
 
                 }
 
                 const std::vector< double > *getDefinedDeformationParameters( ){ /*! Get the defined deformation parameters */ return &_defined_deformation_parameters; }
 
+                const std::vector< double > *getMassDiffusionParameters( ){ /*! Get the mass diffusion parameters */ return &_mass_diffusion_parameters; }
+
                 const double getIntegrationParameter( ){ /*! Get the integration parameter */ return _integration_parameter; }
 
             protected:
 
+                tardigradeHydra::fourierHeatConduction::residual mass_diffusion; //!< The residual that defines the mass diffusion (mathematically the same as Fourier heat conduction with a density gradient)
                 tardigradeHydra::dofVelocityGradientDeformation::residual defined_deformation; //!< The residual that defines the externally defined permanent deformation
 
             private:
@@ -142,6 +191,9 @@ namespace tardigradeCMML{
                 std::vector< double >          _defined_deformation_parameters; //!< The parameters associated with the calculation of the defined deformation
                 unsigned int                  _defined_velocity_gradient_index; //!< The index in the additional DOF vector that the defined velocity gradient is defined in
                 bool              _defined_velocity_gradient_index_set = false; //!< The flag for if _defined_velocity_gradient_index is set
+                unsigned int                           _density_gradient_index; //!< The index in the additional DOF vector that the denensity gradient is defined in
+                bool                       _density_gradient_index_set = false; //!< The flag for if _density_gradient_index is set
+                std::vector< double >          _mass_diffusion_parameters; //!< The parameters associated with the mass diffusion
 
         };
 
@@ -170,13 +222,14 @@ namespace tardigradeCMML{
                      * Internal heat generation : Zero
                      * Interphasic heat transfer: Zero
                      * trace mass change velocity gradient: Zero
+                     * mass diffusion: Linearly related to density gradient
                      *
                      * The class can be used as the base class for more advanced
                      * behaviors
                      */
 
                     setName( "DefinedPlasticEvolution" );
-                    setEvaluateModelResultSize( 23 );
+                    setEvaluateModelResultSize( 26 );
 
                 }
 
@@ -220,7 +273,39 @@ namespace tardigradeCMML{
 
                 }
 
+                void setDensityGradientIndex( unsigned int value ){
+                    /*!
+                     * Set the index the density gradient that defines the mass diffusion is located in the dof vector
+                     * 
+                     * \param value: The density gradient index
+                     */
+
+                    _density_gradient_index = value;
+
+                }
+
+                void setMassDiffusionCoefficient( double value ){
+                    /*!
+                     * Set the mass diffusion coefficient
+                     */
+
+                    _mass_diffusion_coefficient = value;
+
+                }
+
                 const unsigned int getDefinedVelocityGradientIndex( ){ /*! Get the defined velocity gradient index */ return _defined_velocity_gradient_index; }
+
+                const unsigned int getDensityGradientIndex( ){ /*! Get the density gradient index */ return _density_gradient_index; }
+
+                const double getMassDiffusionCoefficient( ){ /*! Get the mass diffusion coefficient */ return _mass_diffusion_coefficient; }
+
+                const unsigned int getMassDiffusionIndex( ){
+                    /*!
+                     * Get the mass diffusion index in the result vector
+                     */
+
+                    return _mass_diffusion_index;
+                }
 
             protected:
 
@@ -230,21 +315,24 @@ namespace tardigradeCMML{
                      *
                      * The parameter vector is assumed to be organized as
                      *
-                     * defined velocity gradient index, displacement gradient index, temperature index, temperature gradient index, lambda, mu, specifc heat, conductivity
+                     * defined velocity gradient index, density gradient index, displacement gradient index, temperature index, temperature gradient index, lambda, mu, specifc heat, conductivity,
+                     * mass diffusion coefficient
                      *
                      * where lambda and mu are the linear elastic Lame parameters, specific heat is the linear
-                     * relationship between temperature and the internal energy, and the conductivity is the
+                     * relationship between temperature and the internal energy per unit mass, and the conductivity is the
                      * conductivity parameter for the heat flux.
                      *
                      * \param *parameters_begin: A pointer to the initial element of the parameter vector
                      * \param parameters_size: The size of the parameters vector
                      */
 
-                    TARDIGRADE_ERROR_TOOLS_CHECK( parameters_size == 8, "The parameters vector must have eight values" )
+                    TARDIGRADE_ERROR_TOOLS_CHECK( parameters_size == 10, "The parameters vector must have ten values" )
 
                     setDefinedVelocityGradientIndex( ( unsigned int )( *( parameters_begin + 0 ) + 0.5 ) );
+                    setDensityGradientIndex( ( unsigned int )( *( parameters_begin + 1 ) + 0.5 ) );
+                    setMassDiffusionCoefficient( *( parameters_begin + parameters_size - 1 ) );
 
-                    BasicSolid::extract_parameters( parameters_begin + 1, parameters_size - 1 );
+                    BasicSolid::extract_parameters( parameters_begin + 2, parameters_size - 3 );
 
                 }
 
@@ -252,6 +340,11 @@ namespace tardigradeCMML{
 
                 unsigned int _defined_velocity_gradient_index; //!< The index of the velocity gradient that defines the deformation evolution
 
+                unsigned int _density_gradient_index; //!< The index of the density gradient that defines the mass diffusion
+
+                float _mass_diffusion_coefficient; //!< The diffusion coefficient of the mass
+
+                unsigned int _mass_diffusion_index = 23; //!< The index of the mass diffusion in the result vector
         };
 
         //! Register the material in the library

@@ -63,19 +63,21 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
     modelMock model;
 
-    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 
-    model.public_extract_parameters( parameters.data( ), 8 );
+    model.public_extract_parameters( parameters.data( ), parameters.size( ) );
 
-    BOOST_TEST( model.getEvaluateModelResultSize( ) == 23 );
+    BOOST_TEST( model.getEvaluateModelResultSize( ) == 26 );
 
     BOOST_TEST( model.getIsCurrent( ) );
 
     BOOST_TEST( model.getDefinedVelocityGradientIndex( ) == 1 );
 
-    BOOST_TEST( model.getDisplacementGradientIndex( ) == 2 );
+    BOOST_TEST( model.getDensityGradientIndex( ) == 2 );
 
-    BOOST_TEST( model.getTemperatureIndex( ) == 3 );
+    BOOST_TEST( model.getDisplacementGradientIndex( ) == 3 );
+
+    BOOST_TEST( model.getTemperatureIndex( ) == 4 );
 
 }
 
@@ -146,13 +148,13 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         previous_dof[ i ] -= 0.01 * ( i + 1 );
     }
 
-    std::vector< double > parameters = { 16, 2, 3, 4, 5, 6, 7, 8 };
+    std::vector< double > parameters = { 16, 14, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-    std::vector< double > sdvs_base( 13, 0 );
+    std::vector< double > sdvs_base( 16, 0 );
     std::vector< double > sdvs = sdvs_base;
     std::vector< double > sdvsJ = sdvs_base;
 
-    std::vector< double > result( 23, -1 );
+    std::vector< double > result( 26, -1 );
 
     std::string output_message;
 
@@ -173,25 +175,28 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         2.4309158 ,  1.73524007,  2.4309158 ,  4.360577  ,  0.28      ,
         0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
         0.        ,  0.        , -0.4       , -0.48      , -0.56      ,
-        0.        ,  0.        ,  0.
+        0.        ,  0.        ,  0.        , -1.35      , -1.44      ,
+       -1.53
     };
 
     std::vector< double > sdvs_answer = {
         3.76430005e-03,  5.15758065e-03,  6.55086124e-03, -1.26713080e-03,
         4.24258814e-05,  1.35198255e-03, -6.29856164e-03, -5.07272888e-03,
        -3.84689614e-03,  2.80000000e-01, -4.00000000e-01, -4.80000000e-01,
-       -5.60000000e-01
+       -5.60000000e-01, -1.35000000e+00, -1.44000000e+00, -1.53000000e+00
     };
 
+    std::cerr << "entering evaluate_model\n";
     int error_code = model.evaluate_model(
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    8,
-        sdvs.data( ),         13,
-        result.data( ),       23,
+        parameters.data( ),   10,
+        sdvs.data( ),         16,
+        result.data( ),       26,
         output_message
     );
+    std::cerr << "exiting evaluate_model\n";
 
     BOOST_TEST( error_code == 0 );
 
@@ -208,8 +213,8 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
     BOOST_TEST(      answer == result, CHECK_PER_ELEMENT );
 
     // Test the jacobians
-    result = std::vector< double >( 23, -1 );
-    std::vector< double > jacobian( 23 * 26, 0 );
+    result = std::vector< double >( 26, -1 );
+    std::vector< double > jacobian( 26 * 26, 0 );
     std::vector< double > additional( 0, 0 );
 
     modelMock modelJ;
@@ -217,9 +222,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    8,
-        sdvsJ.data( ),        13,
-        result.data( ),       23,
+        parameters.data( ),   10,
+        sdvsJ.data( ),        16,
+        result.data( ),       26,
         jacobian.data( ),
         additional.data( ),    0,
         output_message
@@ -244,7 +249,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
     {
 
         constexpr unsigned int NUM_VAR = 26;
-        constexpr unsigned int NUM_OUT = 23;
+        constexpr unsigned int NUM_OUT = 26;
 
         std::vector< double > x = current_dof;
 
@@ -258,8 +263,8 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
             xp[ i ] += delta;
             xm[ i ] -= delta;
 
-            std::vector< double > rp( 23, 0 );
-            std::vector< double > rm( 23, 0 );
+            std::vector< double > rp( NUM_OUT, 0 );
+            std::vector< double > rm( NUM_OUT, 0 );
 
             modelMock mp, mm;
 
@@ -268,9 +273,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 current_time, dt,
                 xp.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    8,
-                sdvs.data( ),         13,
-                rp.data( ),           23,
+                parameters.data( ),   10,
+                sdvs.data( ),         16,
+                rp.data( ),           26,
                 output_message
             );
 
@@ -281,9 +286,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 current_time, dt,
                 xm.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    8,
-                sdvs.data( ),         13,
-                rm.data( ),           23,
+                parameters.data( ),   10,
+                sdvs.data( ),         16,
+                rm.data( ),           26,
                 output_message
             );
 

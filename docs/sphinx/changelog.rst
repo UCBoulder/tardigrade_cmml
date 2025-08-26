@@ -13,6 +13,10 @@ Bug Fixes
 =========
 - Fixed a bug in the the dof velocity driven deformation material model where the SDVs weren't being updated correctly (:pull:`9`). By `Nathan Miller`_.
 
+New Features
+============
+- Added a mass diffusion model to DefinedPlasticEvolution (:pull:`11`). By `Nathan Miller`_.
+
 ******************
 0.2.0 (06-12-2025)
 ******************
