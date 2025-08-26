@@ -57,13 +57,28 @@ namespace tardigradeCMML{
                 >
                 void setDefinedDeformationParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
                     /*!
-                     * Set the parameter for the defined deformation calculation
+                     * Set the parameters for the defined deformation calculation
                      * 
                      * \param &value_start: The starting value of the parameter iterator
                      * \param &value_end: The stopping value of the parameter iterator
                      */
 
                     _defined_deformation_parameters = std::vector< double >( value_start, value_end );
+
+                }
+
+                template<
+                    class parameter_iter
+                >
+                void setMassDiffusionParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
+                    /*!
+                     * Set the parameters for the mass diffusion
+                     *
+                     * \param &value_start: The starting value of the parameter iterator
+                     * \param &value_end: The stopping value of the parameter iterator
+                     */
+
+                    _mass_diffusion_parameters = std::vector< double >( value_start, value_end );
 
                 }
 
@@ -140,7 +155,7 @@ namespace tardigradeCMML{
 
                     mass_diffusion =
                         tardigradeHydra::fourierHeatConduction::residual(
-                            this, getHeatConductionSize( ), *getHeatConductionParameters( ), getDensityGradientIndex( ), 1, 22
+                            this, getHeatConductionSize( ), *getMassDiffusionParameters( ), getDensityGradientIndex( ), 1, 22
                         );
 
                     std::vector< tardigradeHydra::residualBase* > residuals( 5 );
@@ -161,6 +176,8 @@ namespace tardigradeCMML{
 
                 const std::vector< double > *getDefinedDeformationParameters( ){ /*! Get the defined deformation parameters */ return &_defined_deformation_parameters; }
 
+                const std::vector< double > *getMassDiffusionParameters( ){ /*! Get the mass diffusion parameters */ return &_mass_diffusion_parameters; }
+
                 const double getIntegrationParameter( ){ /*! Get the integration parameter */ return _integration_parameter; }
 
             protected:
@@ -176,6 +193,7 @@ namespace tardigradeCMML{
                 bool              _defined_velocity_gradient_index_set = false; //!< The flag for if _defined_velocity_gradient_index is set
                 unsigned int                           _density_gradient_index; //!< The index in the additional DOF vector that the denensity gradient is defined in
                 bool                       _density_gradient_index_set = false; //!< The flag for if _density_gradient_index is set
+                std::vector< double >          _mass_diffusion_parameters; //!< The parameters associated with the mass diffusion
 
         };
 
@@ -281,6 +299,14 @@ namespace tardigradeCMML{
 
                 const double getMassDiffusionCoefficient( ){ /*! Get the mass diffusion coefficient */ return _mass_diffusion_coefficient; }
 
+                const unsigned int getMassDiffusionIndex( ){
+                    /*!
+                     * Get the mass diffusion index in the result vector
+                     */
+
+                    return _mass_diffusion_index;
+                }
+
             protected:
 
                 virtual void extract_parameters(const  parameter_type *parameters_begin, const unsigned int parameters_size ){
@@ -318,6 +344,7 @@ namespace tardigradeCMML{
 
                 float _mass_diffusion_coefficient; //!< The diffusion coefficient of the mass
 
+                unsigned int _mass_diffusion_index = 23; //!< The index of the mass diffusion in the result vector
         };
 
         //! Register the material in the library
