@@ -422,6 +422,22 @@ namespace tardigradeCMML{
 
                 const double getMassDiffusionCoefficient( ){ /*! Get the mass diffusion coefficient */ return _mass_diffusion_coefficient; }
 
+                const unsigned int getMassChangeRateIndex( ){
+                    /*!
+                     * Get the mass change rate index in the result vector
+                     */
+
+                    return _mass_change_rate_index;
+                }
+
+                const unsigned int getInternalHeatGenerationRateIndex( ){
+                    /*!
+                     * Get the internal heat generation rate index in the result vector
+                     */
+
+                    return _internal_heat_generation_rate_index;
+                }
+
                 const unsigned int getMassDiffusionIndex( ){
                     /*!
                      * Get the mass diffusion index in the result vector
@@ -474,6 +490,10 @@ namespace tardigradeCMML{
                 unsigned int _density_gradient_index; //!< The index of the density gradient that defines the mass diffusion
 
                 double _mass_diffusion_coefficient; //!< The diffusion coefficient of the mass
+
+                unsigned int _mass_change_rate_index = 10; //!< The index of the mass change rate in the result vector
+
+                unsigned int _internal_heat_generation_rate_index = 20; //!< The index of the internal heat generation rate in the result vector
 
                 unsigned int _mass_diffusion_index = 23; //!< The index of the mass diffusion in the result vector
         };
