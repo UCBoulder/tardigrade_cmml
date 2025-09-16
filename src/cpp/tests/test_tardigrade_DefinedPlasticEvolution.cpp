@@ -240,7 +240,6 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         0, 0
     };
 
-    std::cerr << "entering evaluate_model\n";
     int error_code = model.evaluate_model(
         current_time, dt,
         current_dof.data( ),
@@ -250,7 +249,6 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         result.data( ),       26,
         output_message
     );
-    std::cerr << "exiting evaluate_model\n";
 
     BOOST_TEST( error_code == 0 );
 
