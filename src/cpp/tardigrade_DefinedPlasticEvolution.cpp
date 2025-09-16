@@ -71,18 +71,21 @@ namespace tardigradeCMML{
                     std::vector<  current_dof_type >(      current_dof_begin,       current_dof_begin + dof_size ),
                     std::vector< previous_dof_type >(     previous_dof_begin,      previous_dof_begin + dof_size ),
                     std::vector<         sdvs_type >(             sdvs_begin,             sdvs_begin + sdvs_size ),
-                    std::vector<    parameter_type >(   parameters_begin + 3, parameters_begin + parameters_size ),
-                    2, 7
+                    std::vector<    parameter_type >(   parameters_begin + 8, parameters_begin + parameters_size ),
+                    2, 9
                 );
 
+                hydra.setDensityIndex( getDensityIndex( ) );
+                hydra.setDOFInternalEnergyIndex( getInternalEnergyIndex( ) );
                 hydra.setDefinedVelocityGradientIndex( getDefinedVelocityGradientIndex( ) );
+                hydra.setInternalEnergyScaledByDensity( getInternalEnergyScaledByDensity( ) );
                 hydra.setDensityGradientIndex( getDensityGradientIndex( ) );
-                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 4 ) + 0.5 ) );
-                hydra.setDefinedDeformationParameters( parameters_begin + 5, parameters_begin + 5 ); // No parameters are currently required
-                hydra.setStressParameters(         parameters_begin + 5, parameters_begin +  7 );
-                hydra.setInternalEnergyParameters( parameters_begin + 7, parameters_begin +  8 );
-                hydra.setHeatConductionParameters( parameters_begin + 8, parameters_begin +  9 );
-                hydra.setMassDiffusionParameters(  parameters_begin + 9, parameters_begin + 10 );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 7 ) + 0.5 ) );
+                hydra.setStressParameters(             parameters_begin +  8, parameters_begin + 10 );
+                hydra.setInternalEnergyParameters(     parameters_begin + 10, parameters_begin + 11 );
+                hydra.setHeatConductionParameters(     parameters_begin + 11, parameters_begin + 12 );
+                hydra.setDefinedDeformationParameters( parameters_begin + 12, parameters_begin + 14 );
+                hydra.setMassDiffusionParameters(      parameters_begin + 14, parameters_begin + 15 );
 
                 hydra.evaluate( true );
 
@@ -219,18 +222,22 @@ namespace tardigradeCMML{
                     std::vector<  current_dof_type >(      current_dof_begin,       current_dof_begin + dof_size ),
                     std::vector< previous_dof_type >(     previous_dof_begin,      previous_dof_begin + dof_size ),
                     std::vector<         sdvs_type >(             sdvs_begin,             sdvs_begin + sdvs_size ),
-                    std::vector<    parameter_type >(   parameters_begin + 3, parameters_begin + parameters_size ),
-                    2, 7
+                    std::vector<    parameter_type >(   parameters_begin + 8, parameters_begin + parameters_size ),
+                    2, 9
                 );
 
+
+                hydra.setDensityIndex( getDensityIndex( ) );
+                hydra.setDOFInternalEnergyIndex( getDOFInternalEnergyIndex( ) );
                 hydra.setDefinedVelocityGradientIndex( getDefinedVelocityGradientIndex( ) );
+                hydra.setInternalEnergyScaledByDensity( getInternalEnergyScaledByDensity( ) );
                 hydra.setDensityGradientIndex( getDensityGradientIndex( ) );
-                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 4 ) + 0.5 ) );
-                hydra.setDefinedDeformationParameters( parameters_begin + 5, parameters_begin + 5 ); // No parameters are currently required
-                hydra.setStressParameters(         parameters_begin + 5, parameters_begin +  7 );
-                hydra.setInternalEnergyParameters( parameters_begin + 7, parameters_begin +  8 );
-                hydra.setHeatConductionParameters( parameters_begin + 8, parameters_begin +  9 );
-                hydra.setMassDiffusionParameters(  parameters_begin + 9, parameters_begin + 10 );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 7 ) + 0.5 ) );
+                hydra.setStressParameters(             parameters_begin +  8, parameters_begin + 10 );
+                hydra.setInternalEnergyParameters(     parameters_begin + 10, parameters_begin + 11 );
+                hydra.setHeatConductionParameters(     parameters_begin + 11, parameters_begin + 12 );
+                hydra.setDefinedDeformationParameters( parameters_begin + 12, parameters_begin + 14 );
+                hydra.setMassDiffusionParameters(      parameters_begin + 14, parameters_begin + 15 );
 
                 hydra.evaluate( true );
 

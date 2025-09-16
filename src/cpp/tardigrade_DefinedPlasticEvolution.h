@@ -97,15 +97,15 @@ namespace tardigradeCMML{
 
                 }
 
-                void setInternalEnergyIndex( const unsigned int &value ){
+                void setDOFInternalEnergyIndex( const unsigned int &value ){
                     /*!
                      * Set the starting index in the additional degrees of freedom of the internal energy
                      *
                      * \param &value: The value of the velocity gradient index
                      */
 
-                    _internal_energy_index = value;
-                    _internal_energy_index_set = true;
+                    _dof_internal_energy_index = value;
+                    _dof_internal_energy_index_set = true;
 
                 }
 
@@ -156,14 +156,14 @@ namespace tardigradeCMML{
 
                 }
 
-                const unsigned int getInternalEnergyIndex( ){
+                const unsigned int getDOFInternalEnergyIndex( ){
                     /*!
                      * Get the starting index of the velocity gradient that defines the internal energy
                      */
 
-                    TARDIGRADE_ERROR_TOOLS_CHECK( _internal_energy_index_set, "The internal energy index must be set before it is called" );
+                    TARDIGRADE_ERROR_TOOLS_CHECK( _dof_internal_energy_index_set, "The internal energy index must be set before it is called" );
 
-                    return _internal_energy_index;
+                    return _dof_internal_energy_index;
 
                 }
 
@@ -185,7 +185,7 @@ namespace tardigradeCMML{
 
                     TARDIGRADE_ERROR_TOOLS_CHECK( _internal_energy_scaled_by_density_set, "The flag for whether the internal energy is scaled by the density must be set before it is called" );
 
-                    return _internal_energy_index;
+                    return _dof_internal_energy_index;
 
                 }
 
@@ -213,8 +213,8 @@ namespace tardigradeCMML{
                     defined_deformation =
                         tardigradeHydra::dofVelocityGradientDeformation::residual(
                             this, getStressSize( ) + 2, 1,
-                            getDensityIndex( ), getInternalEnergyIndex( ), getDefinedVelocityGradientIndex( ),
-                            getInternalEnergyScaledByDensity( ), { 0, 1 },
+                            getDensityIndex( ), getDOFInternalEnergyIndex( ), getDefinedVelocityGradientIndex( ),
+                            getInternalEnergyScaledByDensity( ), { 7, 8 },
                             *getDefinedDeformationParameters( ), getIntegrationParameter( )
                         );
 
@@ -266,8 +266,8 @@ namespace tardigradeCMML{
                 std::vector< double >          _defined_deformation_parameters; //!< The parameters associated with the calculation of the defined deformation
                 unsigned int                                    _density_index; //!< The index in the additional DOF vector which is the density
                 bool                                _density_index_set = false; //!< The flag for if _density_index is set
-                unsigned int                            _internal_energy_index; //!< The index in the additional DOF vector which is the internal energy
-                bool                        _internal_energy_index_set = false; //!< The flag for if _internal_energy_index is set
+                unsigned int                        _dof_internal_energy_index; //!< The index in the additional DOF vector which is the internal energy
+                bool                    _dof_internal_energy_index_set = false; //!< The flag for if _dof_internal_energy_index is set
                 unsigned int                  _defined_velocity_gradient_index; //!< The index in the additional DOF vector that the defined velocity gradient is defined in
                 bool              _defined_velocity_gradient_index_set = false; //!< The flag for if _defined_velocity_gradient_index is set
                 bool                        _internal_energy_scaled_by_density; //!< The flag for if the internal energy is scaled by the density
@@ -357,14 +357,14 @@ namespace tardigradeCMML{
 
                 }
 
-                void setInternalEnergyIndex( unsigned int value ){
+                void setDOFInternalEnergyIndex( unsigned int value ){
                     /*!
                      * Set the index the internal energy that defines the mass change rate is located in the dof vector
                      * 
                      * \param value: The internal energy index
                      */
 
-                    _internal_energy_index = value;
+                    _dof_internal_energy_index = value;
 
                 }
 
@@ -401,21 +401,6 @@ namespace tardigradeCMML{
 
                 }
 
-                template<
-                    class parameter_iter
-                >
-                void setDefinedDeformationParameters( const parameter_iter &value_start, const parameter_iter &value_end ){
-                    /*!
-                     * Set the parameters for the defined deformation calculation
-                     * 
-                     * \param &value_start: The starting value of the parameter iterator
-                     * \param &value_end: The stopping value of the parameter iterator
-                     */
-
-                    _defined_deformation_parameters = std::vector< double >( value_start, value_end );
-
-                }
-
                 void setMassDiffusionCoefficient( double value ){
                     /*!
                      * Set the mass diffusion coefficient
@@ -427,15 +412,13 @@ namespace tardigradeCMML{
 
                 const unsigned int getDensityIndex( ){ /*! Get the density index */ return _density_index; }
 
-                const unsigned int getInternalEnergyIndex( ){ /*! Get the internal energy index */ return _internal_energy_index; }
+                const unsigned int getDOFInternalEnergyIndex( ){ /*! Get the internal energy index */ return _dof_internal_energy_index; }
 
                 const unsigned int getDefinedVelocityGradientIndex( ){ /*! Get the defined velocity gradient index */ return _defined_velocity_gradient_index; }
 
                 const bool getInternalEnergyScaledByDensity( ){ /*! Get the internal energy index */ return _internal_energy_scaled_by_density; }
 
                 const unsigned int getDensityGradientIndex( ){ /*! Get the density gradient index */ return _density_gradient_index; }
-
-                const std::vector< double > *getDefinedDeformationParameters( ){ /*! Get the parameters for the defined deformation */ return &_defined_deformation_parameters; }
 
                 const double getMassDiffusionCoefficient( ){ /*! Get the mass diffusion coefficient */ return _mass_diffusion_coefficient; }
 
@@ -469,14 +452,12 @@ namespace tardigradeCMML{
                     TARDIGRADE_ERROR_TOOLS_CHECK( parameters_size == 15, "The parameters vector must have fifteen values" )
 
                     setDensityIndex( ( unsigned int )( *( parameters_begin + 0 ) + 0.5 ) );
-                    setInternalEnergyIndex( ( unsigned int )( *( parameters_begin + 1 ) + 0.5 ) );
+                    setDOFInternalEnergyIndex( ( unsigned int )( *( parameters_begin + 1 ) + 0.5 ) );
                     setDefinedVelocityGradientIndex( ( unsigned int )( *( parameters_begin + 2 ) + 0.5 ) );
                     setInternalEnergyScaledByDensity( ( *( parameters_begin + 3 ) ) > 0.5 );
                     setDensityGradientIndex( ( unsigned int )( *( parameters_begin + 4 ) + 0.5 ) );
-                    setDefinedDeformationParameters( *( parameters_begin + parameters_size - 3 ), *( parameters_begin + parameters_size - 1 ) );
                     setMassDiffusionCoefficient( *( parameters_begin + parameters_size - 1 ) );
-
-                    BasicSolid::extract_parameters( parameters_begin + 5, parameters_size - 3 );
+                    BasicSolid::extract_parameters( parameters_begin + 5, parameters_size - 8 );
 
                 }
 
@@ -484,15 +465,13 @@ namespace tardigradeCMML{
 
                 unsigned int _density_index; //!< The index of the density that defines the mass change rate
 
-                unsigned int _internal_energy_index; //!< The index of the internal energy that defines the mass change rate
+                unsigned int _dof_internal_energy_index; //!< The index of the internal energy that defines the mass change rate
 
                 unsigned int _defined_velocity_gradient_index; //!< The index of the velocity gradient that defines the deformation evolution
 
                 bool _internal_energy_scaled_by_density; //!< Whether the internal energy is scaled by the density
 
                 unsigned int _density_gradient_index; //!< The index of the density gradient that defines the mass diffusion
-
-                std::vector< double > _defined_deformation_parameters; //!< The parameters for the defined deformation residual
 
                 double _mass_diffusion_coefficient; //!< The diffusion coefficient of the mass
 
