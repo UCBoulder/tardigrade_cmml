@@ -16,6 +16,7 @@ Bug Fixes
 New Features
 ============
 - Added a mass diffusion model to DefinedPlasticEvolution (:pull:`11`). By `Nathan Miller`_.
+- Enabled mass change rate and internal heat generation rate calculations (:pull:`12`). By `Nathan Miller`_.
 
 ******************
 0.2.0 (06-12-2025)
