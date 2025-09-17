@@ -25,6 +25,7 @@ New Features
 Internal Changes
 ================
 - Changed the default integrator for the defined deformation material model to fully implicit trapezoidal (:pull:`13`). By `Nathan Miller`_.
+- Added additional outputs for the testing (:pull:`13`). By `Nathan Miller`_.
 
 Release
 =======

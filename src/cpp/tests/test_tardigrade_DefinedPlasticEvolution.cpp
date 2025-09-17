@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
 
     BOOST_TEST(       answer == result, CHECK_PER_ELEMENT );
 
-    double eps = 1e-5;
+    double eps = 7e-6;
 
     {
 
@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
 
             for ( unsigned int j = 0; j < NUM_OUT; ++j ){
 
-                BOOST_TEST( jacobian[ NUM_VAR * j + i ] == ( rp[ j ] - rm[ j ] ) / ( 2 * delta ), 1e-5 );
+                BOOST_TEST( jacobian[ NUM_VAR * j + i ] == ( rp[ j ] - rm[ j ] ) / ( 2 * delta ) );
 
             }
 
