@@ -6,7 +6,11 @@ Changelog
 #########
 
 ******************
-0.2.1 (unreleased)
+0.3.1 (unreleased)
+******************
+
+******************
+0.3.0 (09-17-2025)
 ******************
 
 Bug Fixes
@@ -17,6 +21,14 @@ New Features
 ============
 - Added a mass diffusion model to DefinedPlasticEvolution (:pull:`11`). By `Nathan Miller`_.
 - Enabled mass change rate and internal heat generation rate calculations (:pull:`12`). By `Nathan Miller`_.
+
+Internal Changes
+================
+- Changed the default integrator for the defined deformation material model to fully implicit trapezoidal (:pull:`13`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`14`). By `Nathan Miller`_.
 
 ******************
 0.2.0 (06-12-2025)
