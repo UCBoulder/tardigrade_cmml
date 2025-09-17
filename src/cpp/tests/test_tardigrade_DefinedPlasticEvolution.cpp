@@ -63,19 +63,74 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality, * boost::unit_test::tolerance( D
 
     modelMock model;
 
-    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    std::vector< double > parameters = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
 
-    model.public_extract_parameters( parameters.data( ), 8 );
+    try{
+    model.public_extract_parameters( parameters.data( ), parameters.size( ) );
+    }catch(std::exception &e){tardigradeErrorTools::printNestedExceptions(e); throw;}
 
-    BOOST_TEST( model.getEvaluateModelResultSize( ) == 23 );
+    BOOST_TEST( model.getEvaluateModelResultSize( ) == 26 );
 
     BOOST_TEST( model.getIsCurrent( ) );
 
-    BOOST_TEST( model.getDefinedVelocityGradientIndex( ) == 1 );
+    BOOST_TEST( model.getDensityIndex( ) == 1 );
 
-    BOOST_TEST( model.getDisplacementGradientIndex( ) == 2 );
+    BOOST_TEST( model.getDOFInternalEnergyIndex( ) == 2 );
 
-    BOOST_TEST( model.getTemperatureIndex( ) == 3 );
+    BOOST_TEST( model.getDefinedVelocityGradientIndex( ) == 3 );
+
+    BOOST_TEST( model.getInternalEnergyScaledByDensity( ) );
+
+    BOOST_TEST( model.getDensityGradientIndex( ) == 5 );
+
+    BOOST_TEST( model.getDisplacementGradientIndex( ) == 6 );
+
+    BOOST_TEST( model.getTemperatureIndex( ) == 7 );
+
+}
+
+BOOST_AUTO_TEST_CASE( test_basic_functionality_2, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+    /*!
+     * Test the basic functionality of the DefinedPlasticEvolution class
+     */
+
+    class modelMock : public tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution{
+
+        public:
+
+            modelMock( ) : tardigradeCMML::DefinedPlasticEvolution::DefinedPlasticEvolution( ){ }
+
+            void public_extract_parameters( double * parameters_begin, const unsigned int parameters_size ){
+
+                extract_parameters( parameters_begin, parameters_size );
+
+            }
+
+    };
+
+    modelMock model;
+
+    std::vector< double > parameters = { 1, 2, 3, 0.2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+
+    model.public_extract_parameters( parameters.data( ), parameters.size( ) );
+
+    BOOST_TEST( model.getEvaluateModelResultSize( ) == 26 );
+
+    BOOST_TEST( model.getIsCurrent( ) );
+
+    BOOST_TEST( model.getDensityIndex( ) == 1 );
+
+    BOOST_TEST( model.getDOFInternalEnergyIndex( ) == 2 );
+
+    BOOST_TEST( model.getDefinedVelocityGradientIndex( ) == 3 );
+
+    BOOST_TEST( !model.getInternalEnergyScaledByDensity( ) );
+
+    BOOST_TEST( model.getDensityGradientIndex( ) == 5 );
+
+    BOOST_TEST( model.getDisplacementGradientIndex( ) == 6 );
+
+    BOOST_TEST( model.getTemperatureIndex( ) == 7 );
 
 }
 
@@ -146,13 +201,13 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         previous_dof[ i ] -= 0.01 * ( i + 1 );
     }
 
-    std::vector< double > parameters = { 16, 2, 3, 4, 5, 6, 7, 8 };
+    std::vector< double > parameters = { 1, 25, 16, 1, 14, 2, 3, 4, 5, 6, 7, 8, 0.78, 0.89, 9 };
 
-    std::vector< double > sdvs_base( 13, 0 );
+    std::vector< double > sdvs_base( 18, 0 );
     std::vector< double > sdvs = sdvs_base;
     std::vector< double > sdvsJ = sdvs_base;
 
-    std::vector< double > result( 23, -1 );
+    std::vector< double > result( 26, -1 );
 
     std::string output_message;
 
@@ -169,27 +224,29 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
     };
 
     std::vector< double > answer = {
-        2.0100243 ,  1.2556396 ,  1.73524007,  1.2556396 ,  3.0772629 ,
-        2.4309158 ,  1.73524007,  2.4309158 ,  4.360577  ,  0.28      ,
-        0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-        0.        ,  0.        , -0.4       , -0.48      , -0.56      ,
-        0.        ,  0.        ,  0.
+       -3.749650597e-01, -2.049260983e-01, -5.660322056e-02, -2.049260983e-01, -4.026865197e-02,
+       +1.678209617e-01, -5.660322056e-02, +1.678209617e-01, +3.705290603e-01,  0.28           ,
+        0.009828       ,  0.             ,  0.             ,  0.             ,  0.             ,
+        0.             ,  0.             , -0.4            , -0.48           , -0.56           ,
+        7.2891         ,  0.             ,  0.             , -1.35           , -1.44           ,
+       -1.53
     };
 
     std::vector< double > sdvs_answer = {
-        3.76430005e-03,  5.15758065e-03,  6.55086124e-03, -1.26713080e-03,
-        4.24258814e-05,  1.35198255e-03, -6.29856164e-03, -5.07272888e-03,
-       -3.84689614e-03,  2.80000000e-01, -4.00000000e-01, -4.80000000e-01,
-       -5.60000000e-01
+        8.030841479e-02, 8.664841070e-02,  9.298840661e-02,  8.656226081e-02,
+        9.282770693e-02, 9.909315304e-02,  9.281610684e-02,  9.900700315e-02,
+        1.051978995e-01, 2.800000000e-01, -4.000000000e-01, -4.800000000e-01,
+       -5.600000000e-01,-1.350000000e+00, -1.440000000e+00, -1.530000000e+00,
+        0.009828, 7.2891
     };
 
     int error_code = model.evaluate_model(
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    8,
-        sdvs.data( ),         13,
-        result.data( ),       23,
+        parameters.data( ),   15,
+        sdvs.data( ),         18,
+        result.data( ),       26,
         output_message
     );
 
@@ -208,8 +265,8 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
     BOOST_TEST(      answer == result, CHECK_PER_ELEMENT );
 
     // Test the jacobians
-    result = std::vector< double >( 23, -1 );
-    std::vector< double > jacobian( 23 * 26, 0 );
+    result = std::vector< double >( 26, -1 );
+    std::vector< double > jacobian( 26 * 26, 0 );
     std::vector< double > additional( 0, 0 );
 
     modelMock modelJ;
@@ -217,9 +274,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
         current_time, dt,
         current_dof.data( ),
         previous_dof.data( ), 26,
-        parameters.data( ),    8,
-        sdvsJ.data( ),        13,
-        result.data( ),       23,
+        parameters.data( ),   15,
+        sdvsJ.data( ),        18,
+        result.data( ),       26,
         jacobian.data( ),
         additional.data( ),    0,
         output_message
@@ -235,16 +292,16 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
 
     BOOST_TEST( Fp_answer == modelJ.Fp, CHECK_PER_ELEMENT );
 
-    BOOST_TEST(    sdvs == sdvs_answer, CHECK_PER_ELEMENT );
+    BOOST_TEST(   sdvsJ == sdvs_answer, CHECK_PER_ELEMENT );
 
     BOOST_TEST(       answer == result, CHECK_PER_ELEMENT );
 
-    double eps = 1e-5;
+    double eps = 7e-6;
 
     {
 
         constexpr unsigned int NUM_VAR = 26;
-        constexpr unsigned int NUM_OUT = 23;
+        constexpr unsigned int NUM_OUT = 26;
 
         std::vector< double > x = current_dof;
 
@@ -258,8 +315,8 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
             xp[ i ] += delta;
             xm[ i ] -= delta;
 
-            std::vector< double > rp( 23, 0 );
-            std::vector< double > rm( 23, 0 );
+            std::vector< double > rp( NUM_OUT, 0 );
+            std::vector< double > rm( NUM_OUT, 0 );
 
             modelMock mp, mm;
 
@@ -268,9 +325,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 current_time, dt,
                 xp.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    8,
-                sdvs.data( ),         13,
-                rp.data( ),           23,
+                parameters.data( ),   15,
+                sdvs.data( ),         18,
+                rp.data( ),           26,
                 output_message
             );
 
@@ -281,9 +338,9 @@ BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAUL
                 current_time, dt,
                 xm.data( ),
                 previous_dof.data( ), 26,
-                parameters.data( ),    8,
-                sdvs.data( ),         13,
-                rm.data( ),           23,
+                parameters.data( ),   15,
+                sdvs.data( ),         18,
+                rm.data( ),           26,
                 output_message
             );
 

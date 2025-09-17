@@ -71,16 +71,21 @@ namespace tardigradeCMML{
                     std::vector<  current_dof_type >(      current_dof_begin,       current_dof_begin + dof_size ),
                     std::vector< previous_dof_type >(     previous_dof_begin,      previous_dof_begin + dof_size ),
                     std::vector<         sdvs_type >(             sdvs_begin,             sdvs_begin + sdvs_size ),
-                    std::vector<    parameter_type >(   parameters_begin + 3, parameters_begin + parameters_size ),
-                    2, 4
+                    std::vector<    parameter_type >(   parameters_begin + 8, parameters_begin + parameters_size ),
+                    2, 9
                 );
 
+                hydra.setDensityIndex( getDensityIndex( ) );
+                hydra.setDOFInternalEnergyIndex( getDOFInternalEnergyIndex( ) );
                 hydra.setDefinedVelocityGradientIndex( getDefinedVelocityGradientIndex( ) );
-                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 3 ) + 0.5 ) );
-                hydra.setDefinedDeformationParameters( parameters_begin + 4, parameters_begin + 4 ); // No parameters are currently required
-                hydra.setStressParameters(         parameters_begin + 4, parameters_begin + 6 );
-                hydra.setInternalEnergyParameters( parameters_begin + 6, parameters_begin + 7 );
-                hydra.setHeatConductionParameters( parameters_begin + 7, parameters_begin + 8 );
+                hydra.setInternalEnergyScaledByDensity( getInternalEnergyScaledByDensity( ) );
+                hydra.setDensityGradientIndex( getDensityGradientIndex( ) );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 7 ) + 0.5 ) );
+                hydra.setStressParameters(             parameters_begin +  8, parameters_begin + 10 );
+                hydra.setInternalEnergyParameters(     parameters_begin + 10, parameters_begin + 11 );
+                hydra.setHeatConductionParameters(     parameters_begin + 11, parameters_begin + 12 );
+                hydra.setDefinedDeformationParameters( parameters_begin + 12, parameters_begin + 14 );
+                hydra.setMassDiffusionParameters(      parameters_begin + 14, parameters_begin + 15 );
 
                 hydra.evaluate( true );
 
@@ -112,6 +117,26 @@ namespace tardigradeCMML{
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
                     sdvs_begin + dim * dim + 1
                 );
+
+                // Copy the mass diffusion response
+                std::copy(
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim + dim,
+                    result_begin + getMassDiffusionIndex( )
+                );
+                std::copy(
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim + dim,
+                    sdvs_begin + dim * dim + 1 + dim
+                );
+
+                // Copy the mass change rate response
+                *( result_begin + getMassChangeRateIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim ];
+                *( sdvs_begin + dim * dim + 1 + 2 * dim )     = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim ];
+
+                // Copy the internal heat generation rate response
+                *( result_begin + getInternalHeatGenerationRateIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim + 1 ];
+                *( sdvs_begin + dim * dim + 1 + 2 * dim + 1 )             = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim + 1 ];
 
                 // Copy the defined deformation response
                 std::copy(
@@ -205,16 +230,22 @@ namespace tardigradeCMML{
                     std::vector<  current_dof_type >(      current_dof_begin,       current_dof_begin + dof_size ),
                     std::vector< previous_dof_type >(     previous_dof_begin,      previous_dof_begin + dof_size ),
                     std::vector<         sdvs_type >(             sdvs_begin,             sdvs_begin + sdvs_size ),
-                    std::vector<    parameter_type >(   parameters_begin + 3, parameters_begin + parameters_size ),
-                    2, 4
+                    std::vector<    parameter_type >(   parameters_begin + 8, parameters_begin + parameters_size ),
+                    2, 9
                 );
 
+
+                hydra.setDensityIndex( getDensityIndex( ) );
+                hydra.setDOFInternalEnergyIndex( getDOFInternalEnergyIndex( ) );
                 hydra.setDefinedVelocityGradientIndex( getDefinedVelocityGradientIndex( ) );
-                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 3 ) + 0.5 ) );
-                hydra.setDefinedDeformationParameters( parameters_begin + 4, parameters_begin + 4 ); // No parameters are currently required
-                hydra.setStressParameters(         parameters_begin + 4, parameters_begin + 6 );
-                hydra.setInternalEnergyParameters( parameters_begin + 6, parameters_begin + 7 );
-                hydra.setHeatConductionParameters( parameters_begin + 7, parameters_begin + 8 );
+                hydra.setInternalEnergyScaledByDensity( getInternalEnergyScaledByDensity( ) );
+                hydra.setDensityGradientIndex( getDensityGradientIndex( ) );
+                hydra.setTemperatureGradientIndex( ( unsigned int )( *( parameters_begin + 7 ) + 0.5 ) );
+                hydra.setStressParameters(             parameters_begin +  8, parameters_begin + 10 );
+                hydra.setInternalEnergyParameters(     parameters_begin + 10, parameters_begin + 11 );
+                hydra.setHeatConductionParameters(     parameters_begin + 11, parameters_begin + 12 );
+                hydra.setDefinedDeformationParameters( parameters_begin + 12, parameters_begin + 14 );
+                hydra.setMassDiffusionParameters(      parameters_begin + 14, parameters_begin + 15 );
 
                 hydra.evaluate( true );
 
@@ -233,7 +264,7 @@ namespace tardigradeCMML{
 
                 // Copy the internal energy response
                 *( result_begin + getInternalEnergyIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
-                *( sdvs_begin ) =  ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
+                *( sdvs_begin + dim * dim ) =  ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim ];
 
                 // Copy the heat flux response
                 std::copy(
@@ -244,14 +275,34 @@ namespace tardigradeCMML{
                 std::copy(
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1,
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
-                    sdvs_begin + 1
+                    sdvs_begin + dim * dim + 1
                 );
+
+                // Copy the mass diffusion response
+                std::copy(
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim + dim,
+                    result_begin + getMassDiffusionIndex( )
+                );
+                std::copy(
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim,
+                    std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim + 1 + dim + dim,
+                    sdvs_begin + dim * dim + 1 + dim
+                );
+
+                // Copy the mass change rate response
+                *( result_begin + getMassChangeRateIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim ];
+                *( sdvs_begin + dim * dim + 1 + 2 * dim )     = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim ];
+
+                // Copy the internal heat generation rate response
+                *( result_begin + getInternalHeatGenerationRateIndex( ) ) = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim + 1 ];
+                *( sdvs_begin + dim * dim + 1 + 2 * dim + 1 )             = ( *hydra.getUnknownVector( ) )[ dim * dim + dim * dim  + 1 + 2 * dim + 1 ];
 
                 // Copy the defined deformation response
                 std::copy(
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim,
                     std::begin( *hydra.getUnknownVector( ) ) + dim * dim + dim * dim,
-                    sdvs_begin + 4
+                    sdvs_begin
                 );
                 for ( unsigned int i = 0; i < dim; ++i ){ *( sdvs_begin + 3 * i + i ) -= 1; }
 
@@ -310,7 +361,7 @@ namespace tardigradeCMML{
                 // Copy over the Jacobians of the heat flux w.r.t. the additional DOF
                 std::copy(
                     std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 ) * dof_size,
-                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 4 ) * dof_size,
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + dim ) * dof_size,
                     jacobian_begin + getHeatFluxIndex( ) * dof_size
                 );
                 
@@ -328,6 +379,40 @@ namespace tardigradeCMML{
                     *( jacobian_begin + dof_size * ( i + getHeatFluxIndex( ) ) + getTemperatureIndex( ) ) += ( *hydra.getFlatdXdT( ) )[ i + dim * dim + dim * dim + 1 ];
                 }
 
+                // Copy over the Jacobians of the mass diffusion w.r.t. the additional DOF
+                std::copy(
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + dim ) * dof_size,
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + dim + dim ) * dof_size,
+                    jacobian_begin + getMassDiffusionIndex( ) * dof_size
+                );
+
+                // Add the contributions from the deformation gradient
+                for ( unsigned int i = 0; i < dim; ++i ){
+                    for ( unsigned int j = 0; j < dim * dim; ++j ){
+                        for ( unsigned int k = 0; k < dim * dim; ++k ){
+                            *( jacobian_begin + dof_size * ( i + getMassDiffusionIndex( ) ) + k + getDisplacementGradientIndex( ) ) += ( *hydra.getFlatdXdF( ) )[ dim * dim * ( i + dim * dim + dim * dim + 1 + dim ) + j ] * dFdGradU[ dim * j + k ];
+                        }
+                    }
+                }
+
+                // Add the contributions from the temperature
+                for ( unsigned int i = 0; i < 1; ++i ){
+                    *( jacobian_begin + dof_size * ( i + getMassDiffusionIndex( ) ) + getTemperatureIndex( ) ) += ( *hydra.getFlatdXdT( ) )[ i + dim * dim + dim * dim + 1 + dim ];
+                }
+
+                // Copy over the Jacobians of the mass change rate w.r.t. the additional DOF
+                std::copy(
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + 2 * dim ) * dof_size,
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + 2 * dim + 1 ) * dof_size,
+                    jacobian_begin + getMassChangeRateIndex( ) * dof_size
+                );
+
+                // Copy over the Jacobians of the internal heat generation rate w.r.t. the additional DOF
+                std::copy(
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + 2 * dim + 1 ) * dof_size,
+                    std::begin( *hydra.getFlatdXdAdditionalDOF( ) ) + ( dim * dim + dim * dim + 1 + 2 * dim + 2 ) * dof_size,
+                    jacobian_begin + getInternalHeatGenerationRateIndex( ) * dof_size
+                );
 
             }
             catch( tardigradeHydra::convergence_error &e ){
