@@ -217,6 +217,7 @@ namespace tardigradeCMML{
                             getInternalEnergyScaledByDensity( ), { 7, 8 },
                             *getDefinedDeformationParameters( ), getIntegrationParameter( )
                         );
+                    defined_deformation.setUseTrapezoidalIntegration( true );
 
                     internal_energy =
                         tardigradeHydra::linearInternalEnergy::residual(
@@ -262,7 +263,7 @@ namespace tardigradeCMML{
 
             private:
 
-                double                            _integration_parameter = 0.5; //!< The integration parameter for the defined deformation (0 is explicit, 1 is implicit)
+                double                            _integration_parameter = 1.0; //!< The integration parameter for the defined deformation (0 is explicit, 1 is implicit)
                 std::vector< double >          _defined_deformation_parameters; //!< The parameters associated with the calculation of the defined deformation
                 unsigned int                                    _density_index; //!< The index in the additional DOF vector which is the density
                 bool                                _density_index_set = false; //!< The flag for if _density_index is set
