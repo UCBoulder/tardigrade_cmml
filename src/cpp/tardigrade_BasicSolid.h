@@ -128,7 +128,7 @@ namespace tardigradeCMML{
 
                     heat_conduction = tardigradeHydra::fourierHeatConduction::residual( this, getHeatConductionSize( ), *getHeatConductionParameters( ), getTemperatureGradientIndex( ), 1, 10 );
 
-                    std::vector< tardigradeHydra::residualBase* > residuals( 3 );
+                    std::vector< tardigradeHydra::ResidualBase<>* > residuals( 3 );
 
                     residuals[ 0 ] = &stress;
 

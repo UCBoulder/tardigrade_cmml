@@ -9,6 +9,10 @@ Changelog
 0.3.1 (unreleased)
 ******************
 
+Internal Changes
+================
+- Incorporated breaking changes from tardigrade_hydra api (:pull:`15`). By `Nathan Miller`_.
+
 ******************
 0.3.0 (09-17-2025)
 ******************
