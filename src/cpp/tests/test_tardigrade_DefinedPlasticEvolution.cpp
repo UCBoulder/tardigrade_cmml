@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( test_basic_functionality_2, * boost::unit_test::tolerance(
 
 }
 
-BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( DEFAULT_TEST_TOLERANCE ) ){
+BOOST_AUTO_TEST_CASE( test_evaluate_model, * boost::unit_test::tolerance( 2e-6 ) ){
     /*!
      * Test the evaluate_model function of the DefinedPlasticEvolution class
      */

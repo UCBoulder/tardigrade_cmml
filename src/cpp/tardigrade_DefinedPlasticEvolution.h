@@ -234,7 +234,7 @@ namespace tardigradeCMML{
                             this, getHeatConductionSize( ), *getMassDiffusionParameters( ), getDensityGradientIndex( ), 1, 22
                         );
 
-                    std::vector< tardigradeHydra::residualBase* > residuals( 5 );
+                    std::vector< tardigradeHydra::ResidualBase<>* > residuals( 5 );
 
                     residuals[ 0 ] = &stress;
 
