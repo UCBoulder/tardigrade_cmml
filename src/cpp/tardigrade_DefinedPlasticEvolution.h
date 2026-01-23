@@ -200,7 +200,7 @@ namespace tardigradeCMML{
 
                 }
 
-                virtual void setResidualClasses( ){
+                virtual void setResidualClasses( ) override{
                     /*!
                      * Define all of the residual classes
                      */
@@ -449,7 +449,7 @@ namespace tardigradeCMML{
 
             protected:
 
-                virtual void extract_parameters(const  parameter_type *parameters_begin, const unsigned int parameters_size ){
+                virtual void extract_parameters(const  parameter_type *parameters_begin, const unsigned int parameters_size ) override{
                     /*!
                      * Extract the material parameters
                      *

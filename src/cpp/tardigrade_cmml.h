@@ -194,6 +194,9 @@ namespace tardigradeCMML{
 
             }
 
+            //! Virtual destructor
+            virtual ~CMMLMaterial() = default;
+
     };
 
     /*!
