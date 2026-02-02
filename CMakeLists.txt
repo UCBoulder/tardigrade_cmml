@@ -36,6 +36,11 @@ set(TARDIGRADE_FULL_BUILD
     "Flag for whether a full build of Tardigrade should be performed (i.e., all repos pulled from git and built)"
 )
 
+if(${TARDIGRADE_ERROR_TOOLS_OPT})
+    add_compile_definitions(TARDIGRADE_ERROR_TOOLS_OPT)
+    message(WARNING "BUILDING OPTIMIZED ERROR TOOLS. NO ERRORS WILL BE CAUGHT")
+endif()
+
 # Set the material library names
 set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicSolid" "tardigrade_DefinedPlasticEvolution")
 set(HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS "tardigrade_hydra")
