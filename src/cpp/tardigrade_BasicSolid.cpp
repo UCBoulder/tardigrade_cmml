@@ -125,7 +125,7 @@ namespace tardigradeCMML {
                 hydra.setInternalEnergyParameters(parameters_begin + 5, parameters_begin + 6);
                 hydra.setHeatConductionParameters(parameters_begin + 6, parameters_begin + 7);
 
-                hydra.evaluate(true);
+                hydra.evaluate();
 
                 std::fill(result_begin, result_begin + result_size, 0);
 
@@ -215,7 +215,7 @@ namespace tardigradeCMML {
                 hydra.setInternalEnergyParameters(parameters_begin + 5, parameters_begin + 6);
                 hydra.setHeatConductionParameters(parameters_begin + 6, parameters_begin + 7);
 
-                hydra.evaluate(true);
+                hydra.evaluate();
 
                 std::fill(result_begin, result_begin + result_size, 0);
 

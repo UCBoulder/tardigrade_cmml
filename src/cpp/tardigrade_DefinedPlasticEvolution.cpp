@@ -77,7 +77,7 @@ namespace tardigradeCMML {
                 hydra.setDefinedDeformationParameters(parameters_begin + 12, parameters_begin + 14);
                 hydra.setMassDiffusionParameters(parameters_begin + 14, parameters_begin + 15);
 
-                hydra.evaluate(true);
+                hydra.evaluate();
 
                 std::fill(result_begin, result_begin + result_size, 0);
 
@@ -206,7 +206,7 @@ namespace tardigradeCMML {
                 hydra.setDefinedDeformationParameters(parameters_begin + 12, parameters_begin + 14);
                 hydra.setMassDiffusionParameters(parameters_begin + 14, parameters_begin + 15);
 
-                hydra.evaluate(true);
+                hydra.evaluate();
 
                 std::fill(result_begin, result_begin + result_size, 0);
 
