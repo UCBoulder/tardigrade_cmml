@@ -13,6 +13,11 @@ Internal Changes
 ================
 - Incorporated breaking changes from tardigrade_hydra api (:pull:`15`). By `Nathan Miller`_.
 - Updated for conda-packaging and using linters (:pull:`16`). By `Nathan Miller`_.
+- Require tardigrade_hydra for the environment during testing (:pull:`18`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`17`). By `Nathan Miller`_.
 
 ******************
 0.3.0 (09-17-2025)
