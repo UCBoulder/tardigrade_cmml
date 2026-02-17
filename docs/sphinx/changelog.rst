@@ -6,7 +6,23 @@ Changelog
 #########
 
 ******************
-0.3.1 (unreleased)
+0.3.3 (unreleased)
+******************
+
+******************
+0.3.2 (02-17-2025)
+******************
+
+Internal Changes
+================
+- Updated to reflect upstream changes in tardigrade_hydra API (:pull:`18`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`19`). By `Nathan Miller`_.
+
+******************
+0.3.1 (02-13-2025)
 ******************
 
 Internal Changes
