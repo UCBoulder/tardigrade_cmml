@@ -111,14 +111,18 @@ namespace tardigradeCMML {
                 formDeformationGradients(current_dof_begin, previous_dof_begin, deformationGradient,
                                          previousDeformationGradient);
 
-                // Form the hydra model
-                basicSolidHydra hydra(
-                    current_time, dt, *(current_dof_begin + getTemperatureIndex()),
+                // Assemble the degrees of fredom
+                tardigradeHydra::DOFStorageBase DOFStorage(current_time, dt, *(current_dof_begin + getTemperatureIndex()),
                     *(previous_dof_begin + getTemperatureIndex()), deformationGradient, previousDeformationGradient,
                     std::vector<current_dof_type>(current_dof_begin, current_dof_begin + dof_size),
-                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size),
-                    std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
+                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size));
+
+                // Assemble the model configuration
+                tardigradeHydra::ModelConfigurationBase model_configuration(std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
                     std::vector<parameter_type>(parameters_begin + 3, parameters_begin + parameters_size), 1, 4);
+
+                // Form the hydra model
+                basicSolidHydra hydra(DOFStorage, model_configuration);
 
                 hydra.setTemperatureGradientIndex((unsigned int)(*(parameters_begin + 2) + 0.5));
                 hydra.setStressParameters(parameters_begin + 3, parameters_begin + 5);
@@ -201,14 +205,18 @@ namespace tardigradeCMML {
                 formDeformationGradients(current_dof_begin, previous_dof_begin, deformationGradient,
                                          previousDeformationGradient, dFdGradU);
 
-                // Form the hydra model
-                basicSolidHydra hydra(
-                    current_time, dt, *(current_dof_begin + getTemperatureIndex()),
+                // Assemble the degrees of freedom
+                tardigradeHydra::DOFStorageBase DOFStorage(current_time, dt, *(current_dof_begin + getTemperatureIndex()),
                     *(previous_dof_begin + getTemperatureIndex()), deformationGradient, previousDeformationGradient,
                     std::vector<current_dof_type>(current_dof_begin, current_dof_begin + dof_size),
-                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size),
-                    std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
+                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size));
+
+                // Assemble the model configuration
+                tardigradeHydra::ModelConfigurationBase model_configuration(std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
                     std::vector<parameter_type>(parameters_begin + 3, parameters_begin + parameters_size), 1, 4);
+
+                // Form the hydra model
+                basicSolidHydra hydra(DOFStorage, model_configuration);
 
                 hydra.setTemperatureGradientIndex((unsigned int)(*(parameters_begin + 2) + 0.5));
                 hydra.setStressParameters(parameters_begin + 3, parameters_begin + 5);

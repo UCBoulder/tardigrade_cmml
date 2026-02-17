@@ -56,14 +56,18 @@ namespace tardigradeCMML {
                 formDeformationGradients(current_dof_begin, previous_dof_begin, deformationGradient,
                                          previousDeformationGradient);
 
-                // Form the hydra model
-                definedPlasticEvolutionHydra hydra(
-                    current_time, dt, *(current_dof_begin + getTemperatureIndex()),
+                // Assemble the degrees of freedom
+                tardigradeHydra::DOFStorageBase DOFStorage(current_time, dt, *(current_dof_begin + getTemperatureIndex()),
                     *(previous_dof_begin + getTemperatureIndex()), deformationGradient, previousDeformationGradient,
                     std::vector<current_dof_type>(current_dof_begin, current_dof_begin + dof_size),
-                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size),
-                    std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
+                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size));
+
+                // Assemble the model configuration
+                tardigradeHydra::ModelConfigurationBase model_configuration(std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
                     std::vector<parameter_type>(parameters_begin + 8, parameters_begin + parameters_size), 2, 9);
+
+                // Form the hydra model
+                definedPlasticEvolutionHydra hydra(DOFStorage, model_configuration);
 
                 hydra.setDensityIndex(getDensityIndex());
                 hydra.setDOFInternalEnergyIndex(getDOFInternalEnergyIndex());
@@ -185,14 +189,18 @@ namespace tardigradeCMML {
                 formDeformationGradients(current_dof_begin, previous_dof_begin, deformationGradient,
                                          previousDeformationGradient, dFdGradU);
 
-                // Form the hydra model
-                definedPlasticEvolutionHydra hydra(
-                    current_time, dt, *(current_dof_begin + getTemperatureIndex()),
+                // Assemble the degrees of freedom
+                tardigradeHydra::DOFStorageBase DOFStorage(current_time, dt, *(current_dof_begin + getTemperatureIndex()),
                     *(previous_dof_begin + getTemperatureIndex()), deformationGradient, previousDeformationGradient,
                     std::vector<current_dof_type>(current_dof_begin, current_dof_begin + dof_size),
-                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size),
-                    std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
+                    std::vector<previous_dof_type>(previous_dof_begin, previous_dof_begin + dof_size));
+
+                // Assemble the model configuration
+                tardigradeHydra::ModelConfigurationBase model_configuration(std::vector<sdvs_type>(sdvs_begin, sdvs_begin + sdvs_size),
                     std::vector<parameter_type>(parameters_begin + 8, parameters_begin + parameters_size), 2, 9);
+
+                // Form the hydra model
+                definedPlasticEvolutionHydra hydra(DOFStorage, model_configuration);
 
                 hydra.setDensityIndex(getDensityIndex());
                 hydra.setDOFInternalEnergyIndex(getDOFInternalEnergyIndex());
