@@ -9,17 +9,22 @@ Changelog
 0.3.3 (unreleased)
 ******************
 
+Internal Changes
+================
+- Removed the reduced_environment.txt file since it isn't needed anymore (:pull:`20`). By `Nathan Miller`_.
+
 ******************
 0.3.2 (02-17-2025)
 ******************
 
 Internal Changes
 ================
-- Updated to reflect upstream changes in tardigrade_hydra API (:pull:`18`). By `Nathan Miller`_.
+- Updated to use the conda-forge version of tardigrade_hydra (:pull:`18`). By `Nathan Miller`_.
+- Updated to reflect upstream changes in tardigrade_hydra API (:pull:`19`). By `Nathan Miller`_.
 
 Release
 =======
-- Release version (:pull:`19`). By `Nathan Miller`_.
+- Release version (:pull:`20`). By `Nathan Miller`_.
 
 ******************
 0.3.1 (02-13-2025)
