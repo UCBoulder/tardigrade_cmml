@@ -2,7 +2,7 @@ set(TEST_NAME "test_${PROJECT_NAME}")
 add_executable(${TEST_NAME} "${TEST_NAME}.cpp")
 add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 target_compile_options(${TEST_NAME} PRIVATE)
-target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME} ${PROJECT_LINK_LIBRARIES})
+target_link_libraries(${TEST_NAME} PUBLIC ${PROJECT_NAME} ${PROJECT_LINK_LIBRARIES} Eigen3::Eigen)
 
 # Local builds of upstream projects require local include paths
 if(NOT cmake_build_type_lower STREQUAL "release")
@@ -26,7 +26,7 @@ foreach(support_module ${INTERNAL_SUPPORT_LIBRARIES})
     target_compile_options(${TEST_NAME} PRIVATE)
     target_link_libraries(
         ${TEST_NAME}
-        PUBLIC ${PROJECT_NAME} "tardigrade_error_tools" "tardigrade_constitutive_tools" "tardigrade_hydra"
+        PUBLIC ${PROJECT_NAME} "tardigrade_error_tools" "tardigrade_constitutive_tools" "tardigrade_hydra" Eigen3::Eigen
     )
 
     # Local builds of upstream projects require local include paths
@@ -54,7 +54,7 @@ foreach(support_module ${ADDITIONAL_HEADER_ONLY_LIBRARIES})
     target_compile_options(${TEST_NAME} PRIVATE)
     target_link_libraries(
         ${TEST_NAME}
-        PUBLIC ${PROJECT_NAME} "tardigrade_error_tools" "tardigrade_constitutive_tools" "tardigrade_hydra"
+        PUBLIC ${PROJECT_NAME} "tardigrade_error_tools" "tardigrade_constitutive_tools" "tardigrade_hydra" Eigen3::Eigen
     )
 
     # Local builds of upstream projects require local include paths
