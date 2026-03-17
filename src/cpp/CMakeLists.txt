@@ -8,6 +8,7 @@ if(${project_name_upper}_BUILD_AS_SHARED)
             "tardigrade_error_tools"
             ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES}
             ${SHARED_OBJECT_MATERIALS_INTERFACES}
+            Eigen3::Eigen
     )
     if(NOT cmake_build_type_lower STREQUAL "release")
         foreach(additional_lib ${ADDITIONAL_HEADER_ONLY_UPSTREAM_LIBRARIES})
