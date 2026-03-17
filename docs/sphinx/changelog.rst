@@ -12,6 +12,12 @@ Changelog
 Internal Changes
 ================
 - Removed the reduced_environment.txt file since it isn't needed anymore (:pull:`20`). By `Nathan Miller`_.
+- Removed reduced environment file (:pull:`21`). By `Nathan Miller`_.
+- Updated to allow builds with Eigen3 >= 5 (:pull:`22`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`23`). By `Nathan Miller`_.
 
 ******************
 0.3.2 (02-17-2025)
