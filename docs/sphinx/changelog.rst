@@ -6,7 +6,19 @@ Changelog
 #########
 
 ******************
-0.3.3 (unreleased)
+0.3.4 (03-18-2026)
+******************
+
+New Features
+============
+- Added the CHIPFoam hyperelastic material model (:pull:`24`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`25`). By `Nathan Miller`_.
+
+******************
+0.3.3 (03-17-2026)
 ******************
 
 Internal Changes
@@ -20,7 +32,7 @@ Release
 - Release version (:pull:`23`). By `Nathan Miller`_.
 
 ******************
-0.3.2 (02-17-2025)
+0.3.2 (02-17-2026)
 ******************
 
 Internal Changes
@@ -33,7 +45,7 @@ Release
 - Release version (:pull:`20`). By `Nathan Miller`_.
 
 ******************
-0.3.1 (02-13-2025)
+0.3.1 (02-13-2026)
 ******************
 
 Internal Changes
