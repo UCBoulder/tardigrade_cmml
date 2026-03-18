@@ -11,7 +11,7 @@
 #define TARDIGRADE_HEADER_ONLY_MATERIALS_H
 
 #include "tardigrade_BasicSolid.h"
-#include "tardigrade_DefinedPlasticEvolution.h"
 #include "tardigrade_CHIPFoam.h"
+#include "tardigrade_DefinedPlasticEvolution.h"
 
 #endif

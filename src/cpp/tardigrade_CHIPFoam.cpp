@@ -16,9 +16,9 @@ namespace tardigradeCMML {
     namespace CHIPFoam {
 
         void CHIPFoam::formDeformationGradients(const current_dof_type         *current_dof_begin,
-                                                  const previous_dof_type        *previous_dof_begin,
-                                                  std::vector<current_dof_type>  &deformationGradient,
-                                                  std::vector<previous_dof_type> &previousDeformationGradient) {
+                                                const previous_dof_type        *previous_dof_begin,
+                                                std::vector<current_dof_type>  &deformationGradient,
+                                                std::vector<previous_dof_type> &previousDeformationGradient) {
             /*!
              * Form the deformation gradients from the dof vector
              *
@@ -42,10 +42,10 @@ namespace tardigradeCMML {
         }
 
         void CHIPFoam::formDeformationGradients(const current_dof_type         *current_dof_begin,
-                                                  const previous_dof_type        *previous_dof_begin,
-                                                  std::vector<current_dof_type>  &deformationGradient,
-                                                  std::vector<previous_dof_type> &previousDeformationGradient,
-                                                  std::vector<current_dof_type>  &dFdGradU) {
+                                                const previous_dof_type        *previous_dof_begin,
+                                                std::vector<current_dof_type>  &deformationGradient,
+                                                std::vector<previous_dof_type> &previousDeformationGradient,
+                                                std::vector<current_dof_type>  &dFdGradU) {
             /*!
              * Form the deformation gradients from the dof vector
              *
@@ -70,11 +70,11 @@ namespace tardigradeCMML {
         }
 
         int CHIPFoam::evaluate_model(const time_type &current_time, const time_type &dt,
-                                       const current_dof_type  *current_dof_begin,
-                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
-                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
-                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
-                                       const unsigned int result_size, std::string &output_message) {
+                                     const current_dof_type  *current_dof_begin,
+                                     const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                     const parameter_type *parameters_begin, const unsigned int parameters_size,
+                                     sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
+                                     const unsigned int result_size, std::string &output_message) {
             /*!
              * Evaluate the material model given the incoming data
              *
@@ -160,13 +160,13 @@ namespace tardigradeCMML {
         }
 
         int CHIPFoam::evaluate_model(const time_type &current_time, const time_type &dt,
-                                       const current_dof_type  *current_dof_begin,
-                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
-                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
-                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
-                                       const unsigned int result_size, jacobian_type *jacobian_begin,
-                                       additional_type *additional_begin, const unsigned int additional_size,
-                                       std::string &output_message) {
+                                     const current_dof_type  *current_dof_begin,
+                                     const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                     const parameter_type *parameters_begin, const unsigned int parameters_size,
+                                     sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
+                                     const unsigned int result_size, jacobian_type *jacobian_begin,
+                                     additional_type *additional_begin, const unsigned int additional_size,
+                                     std::string &output_message) {
             /*!
              * Evaluate the material model given the incoming data
              *

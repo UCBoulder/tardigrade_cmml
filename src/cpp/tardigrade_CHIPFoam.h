@@ -288,8 +288,8 @@ namespace tardigradeCMML {
                  *
                  * The parameter vector is assumed to be organized as
                  *
-                 * displacement gradient index, temperature index, temperature gradient index, CHIPFoam parameters (8), specifc heat,
-                 * conductivity
+                 * displacement gradient index, temperature index, temperature gradient index, CHIPFoam parameters (8),
+                 * specifc heat, conductivity
                  *
                  * where lambda and mu are the linear elastic Lame parameters, specific heat is the linear
                  * relationship between temperature and the internal energy, and the conductivity is the
