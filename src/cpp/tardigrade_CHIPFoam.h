@@ -114,7 +114,7 @@ namespace tardigradeCMML {
                  * Define all of the residual classes
                  */
 
-                stress = tardigradeHydra::CHIPFoamStrainEnergy::residual(this, getStressSize(), *getStressParameters());
+                stress = tardigradeHydra::CHIPFoamStrainEnergy(this, getStressSize(), *getStressParameters());
 
                 internal_energy = tardigradeHydra::linearInternalEnergy::residual(this, getInternalEnergySize(),
                                                                                   *getInternalEnergyParameters(), 1, 9);
@@ -162,7 +162,7 @@ namespace tardigradeCMML {
             }
 
            protected:
-            tardigradeHydra::linearElasticity::residual stress;  //!< The residual that defines the stress
+            tardigradeHydra::CHIPFoamStrainEnergy stress;  //!< The residual that defines the stress
             tardigradeHydra::linearInternalEnergy::residual
                 internal_energy;  //!< The residual that defines the internal energy
             tardigradeHydra::fourierHeatConduction::residual

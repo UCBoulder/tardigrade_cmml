@@ -130,8 +130,8 @@ BOOST_AUTO_TEST_CASE(test_evaluate_model, *boost::unit_test::tolerance(DEFAULT_T
     std::vector<double> Fp_answer = {0.97641119, -0.03261049, -0.04163218, -0.04916405, 0.94255918,
                                      -0.0657176, -0.07473928, -0.08227115, 0.91019699};
 
-    std::vector<double> answer = {2.0707740, 1.2922023, 1.7429554, 1.2922023, 3.0650159, 2.37918, 1.7429554, 2.37918,
-                                  4.24473,   0.28,      0,         0,         0,         0,       0,         0,
+    std::vector<double> answer = {31.997488602105054, 5.2322523732432513, 7.2282957919443804, 5.2322523732432531, 36.233049385678051, 9.7112871029869705, 7.2282957919443822, 9.7112871029869723, 40.955558061592484,
+                                  0.28,      0,         0,         0,         0,       0,         0,
                                   0,         -0.4,      -0.48,     -0.56,     0,         0,       0};
 
     int error_code = model.evaluate_model(current_time, dt, current_dof.data(), previous_dof.data(), 26,
@@ -194,12 +194,12 @@ BOOST_AUTO_TEST_CASE(test_evaluate_model, *boost::unit_test::tolerance(DEFAULT_T
 
             modelMock mp, mm;
 
-            int ep = mp.evaluate_model(current_time, dt, xp.data(), previous_dof.data(), 26, parameters.data(), 7,
+            int ep = mp.evaluate_model(current_time, dt, xp.data(), previous_dof.data(), 26, parameters.data(), 13,
                                        sdvs.data(), 4, rp.data(), 23, output_message);
 
             BOOST_TEST(ep == 0);
 
-            int em = mm.evaluate_model(current_time, dt, xm.data(), previous_dof.data(), 26, parameters.data(), 7,
+            int em = mm.evaluate_model(current_time, dt, xm.data(), previous_dof.data(), 26, parameters.data(), 13,
                                        sdvs.data(), 4, rm.data(), 23, output_message);
 
             BOOST_TEST(em == 0);
