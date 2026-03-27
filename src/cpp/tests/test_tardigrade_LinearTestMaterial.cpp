@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(test_linearHydraTest, *boost::unit_test::tolerance(DEFAULT_
         +4.256185061e+00, +3.144964034e+00, +5.725438537e+00, +4.942187478e+00};
 
     tardigradeCMML::LinearTestMaterial::hydraLinearTest linearHydra(nphases, active_phase, num_phase_dof, num_add_dof, 0, 0.1, additional_dof,
-                                previous_additional_dof, linear_test_params);
+                                previous_additional_dof, linear_test_params, 13, 13);
 
     linearHydra.evaluate();
 
@@ -320,10 +320,10 @@ BOOST_AUTO_TEST_CASE(test_linearHydraTest, *boost::unit_test::tolerance(DEFAULT_
             std::vector<double> vp, vm;
 
             tardigradeCMML::LinearTestMaterial::hydraLinearTest linearHydrap(nphases, active_phase, num_phase_dof, num_add_dof, 0, 0.1, xp,
-                                         previous_additional_dof, linear_test_params);
+                                         previous_additional_dof, linear_test_params, 13, 13);
 
             tardigradeCMML::LinearTestMaterial::hydraLinearTest linearHydram(nphases, active_phase, num_phase_dof, num_add_dof, 0, 0.1, xm,
-                                         previous_additional_dof, linear_test_params);
+                                         previous_additional_dof, linear_test_params, 13, 13);
 
             linearHydrap.evaluate();
             linearHydram.evaluate();
