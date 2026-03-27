@@ -6,6 +6,18 @@ Changelog
 #########
 
 ******************
+0.3.5 (03-27-2026)
+******************
+
+New Features
+============
+- Added a linear test material (:pull:`26`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`27`). By `Nathan Miller`_.
+
+******************
 0.3.4 (03-18-2026)
 ******************
 
