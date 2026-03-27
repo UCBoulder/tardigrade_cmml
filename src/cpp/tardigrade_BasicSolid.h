@@ -56,7 +56,6 @@ namespace tardigradeCMML {
              */
             template <class parameter_iter>
             void setStressParameters(const parameter_iter &value_start, const parameter_iter &value_end) {
-
                 _stress_parameters = std::vector<double>(value_start, value_end);
             }
 
@@ -68,7 +67,6 @@ namespace tardigradeCMML {
              */
             template <class parameter_iter>
             void setInternalEnergyParameters(const parameter_iter &value_start, const parameter_iter &value_end) {
-
                 _internal_energy_parameters = std::vector<double>(value_start, value_end);
             }
 
@@ -80,7 +78,6 @@ namespace tardigradeCMML {
              */
             template <class parameter_iter>
             void setHeatConductionParameters(const parameter_iter &value_start, const parameter_iter &value_end) {
-
                 _heat_conduction_parameters = std::vector<double>(value_start, value_end);
             }
 
@@ -90,7 +87,6 @@ namespace tardigradeCMML {
              * \param &value: The value of the temperature gradient index
              */
             void setTemperatureGradientIndex(const unsigned int &value) {
-
                 _temperature_gradient_index     = value;
                 _temperature_gradient_index_set = true;
             }
@@ -99,7 +95,6 @@ namespace tardigradeCMML {
              * Get the temperature gradient index
              */
             const unsigned int getTemperatureGradientIndex() {
-
                 TARDIGRADE_ERROR_TOOLS_CHECK(_temperature_gradient_index_set,
                                              "The temperature gradient index must be set before it is called");
 
@@ -110,7 +105,6 @@ namespace tardigradeCMML {
              * Define all of the residual classes
              */
             virtual void setResidualClasses() override {
-
                 stress = tardigradeHydra::linearElasticity::residual(this, getStressSize(), *getStressParameters());
 
                 internal_energy = tardigradeHydra::linearInternalEnergy::residual(this, getInternalEnergySize(),
@@ -133,36 +127,22 @@ namespace tardigradeCMML {
             }
 
             /*! Get the stress parameters */
-            const std::vector<double> *getStressParameters() {
-                return &_stress_parameters;
-            }
+            const std::vector<double> *getStressParameters() { return &_stress_parameters; }
 
             /*! Get the internal energy parameters */
-            const std::vector<double> *getInternalEnergyParameters() {
-                return &_internal_energy_parameters;
-            }
+            const std::vector<double> *getInternalEnergyParameters() { return &_internal_energy_parameters; }
 
             /*! Get the heat conduction parameters */
-            const std::vector<double> *getHeatConductionParameters() {
-                return &_heat_conduction_parameters;
-            }
+            const std::vector<double> *getHeatConductionParameters() { return &_heat_conduction_parameters; }
 
             /*! Get the number of nonlinear unknowns in the stress response */
-            const unsigned int getStressSize() {
-                return _stress_size;
-            }
+            const unsigned int getStressSize() { return _stress_size; }
 
             /*! Get the number of nonlinear unknowns in the internal energy response */
-            const unsigned int
-            getInternalEnergySize() {
-                return _internal_energy_size;
-            }
+            const unsigned int getInternalEnergySize() { return _internal_energy_size; }
 
             /*! Get the number of nonlinear unknowns in the heat conduction response */
-            const unsigned int
-            getHeatConductionSize() {
-                return _heat_conduction_size;
-            }
+            const unsigned int getHeatConductionSize() { return _heat_conduction_size; }
 
            protected:
             tardigradeHydra::linearElasticity::residual stress;  //!< The residual that defines the stress
@@ -173,7 +153,7 @@ namespace tardigradeCMML {
 
            private:
             //! The number of nonlinear unknowns in the stress response (must be at least 9)
-            unsigned int _stress_size = 9;
+            unsigned int _stress_size          = 9;
             //! The number of nonlinear unknowns in the internal energy response (must be at least 1)
             unsigned int _internal_energy_size = 1;
             //! The number of nonlinear unknowns in the heat conduction response (must be at least 3)
@@ -185,9 +165,9 @@ namespace tardigradeCMML {
             //! The parameters associated with the calculation of the heat conduction
             std::vector<double> _heat_conduction_parameters;
             //! The index of the temperature gradient
-            unsigned int _temperature_gradient_index     = 0;
+            unsigned int _temperature_gradient_index = 0;
             //! Flag for if the temperature gradient is set
-            bool         _temperature_gradient_index_set = false;
+            bool _temperature_gradient_index_set     = false;
         };
 
         /*!
@@ -214,7 +194,6 @@ namespace tardigradeCMML {
              *
              */
             BasicSolid() {
-
                 setName("BasicSolid");
                 setEvaluateModelResultSize(23);
             }
@@ -224,20 +203,14 @@ namespace tardigradeCMML {
              *
              * \param value: The displacement gradient index
              */
-            void setDisplacementGradientIndex(unsigned int value) {
-
-                _displacement_gradient_index = value;
-            }
+            void setDisplacementGradientIndex(unsigned int value) { _displacement_gradient_index = value; }
 
             /*!
              * Set the index the temperature is located in the dof vector
              *
              * \param value: The temperature index
              */
-            void setTemperatureIndex(unsigned int value) {
-
-                _temperature_index = value;
-            }
+            void setTemperatureIndex(unsigned int value) { _temperature_index = value; }
 
             virtual int evaluate_model(const time_type &current_time, const time_type &dt,
                                        const current_dof_type  *current_dof_begin,
@@ -258,28 +231,17 @@ namespace tardigradeCMML {
             //! We assume that the material is being evaluated in 3D
             constexpr static unsigned int dim = 3;
             /*! Get if the dof gradients are with respect to the current configuration */
-            const bool getIsCurrent() {
-                return _isCurrent;
-            }
+            const bool getIsCurrent() { return _isCurrent; }
             /*! Get the displacement gradient index */
-            const unsigned int getDisplacementGradientIndex() {
-                return _displacement_gradient_index;
-            }
+            const unsigned int getDisplacementGradientIndex() { return _displacement_gradient_index; }
             /*! Get the temperature index */
             const unsigned int getTemperatureIndex() { return _temperature_index; }
             /*! Get the stress index in the material response vector */
-            const unsigned int getStressIndex() {
-                return _stress_index;
-            }
+            const unsigned int getStressIndex() { return _stress_index; }
             /*! Get the internal energy index in the material response vector */
-            const unsigned int
-            getInternalEnergyIndex() {
-                return _internal_energy_index;
-            }
+            const unsigned int getInternalEnergyIndex() { return _internal_energy_index; }
             /*! Get the heat flux index in the material response vector */
-            const unsigned int getHeatFluxIndex() {
-                return _heat_flux_index;
-            }
+            const unsigned int getHeatFluxIndex() { return _heat_flux_index; }
 
            protected:
             virtual void formDeformationGradients(const current_dof_type         *current_dof_begin,
@@ -310,7 +272,6 @@ namespace tardigradeCMML {
              */
             virtual void extract_parameters(const parameter_type *parameters_begin,
                                             const unsigned int    parameters_size) {
-
                 TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == 7, "The parameters vector must have seven values")
 
                 setDisplacementGradientIndex((unsigned int)(*(parameters_begin + 0) + 0.5));
@@ -326,11 +287,11 @@ namespace tardigradeCMML {
             unsigned int _temperature_index;
 
             //! The index of the stress in the material response vector
-            unsigned int _stress_index = 0;
+            unsigned int _stress_index          = 0;
             //! The index of the internal energy in the material response vector
             unsigned int _internal_energy_index = 9;
             //! The index of the heat flux in the material response vector
-            unsigned int _heat_flux_index = 17;
+            unsigned int _heat_flux_index       = 17;
         };
 
         //! Register the material in the library

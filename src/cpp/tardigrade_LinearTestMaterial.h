@@ -11,8 +11,8 @@
 #ifndef TARDIGRADE_LINEARTESTMATERIAL
 #define TARDIGRADE_LINEARTESTMATERIAL
 
-#include "tardigrade_error_tools.h"
 #include "tardigrade_constitutive_tools.h"
+#include "tardigrade_error_tools.h"
 #include "tardigrade_hydra.h"
 #include "tardigrade_hydraLinearTestMaterial.h"
 #define TARDIGRADE_CMML_SKIP_HEADER_ONLY_MATERIALS_INCLUDE
@@ -21,14 +21,13 @@
 
 namespace tardigradeCMML {
 
-    namespace LinearTestMaterial{
+    namespace LinearTestMaterial {
 
         /*!
          * A linear test material
          */
         class LinearTestMaterial : public tardigradeCMML::CMMLMaterial {
            public:
-
             virtual int evaluate_model(const time_type &current_time, const time_type &dt,
                                        const current_dof_type  *current_dof_begin,
                                        const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
@@ -46,17 +45,15 @@ namespace tardigradeCMML {
                                        std::string &output_message) override;
 
            protected:
-
            private:
-
         };
 
         //! Register the material in the library
         REGISTER_MATERIAL(tardigradeCMML::LinearTestMaterial::LinearTestMaterial);
 
-    }
+    }  // namespace LinearTestMaterial
 
-}
+}  // namespace tardigradeCMML
 
 #include "tardigrade_LinearTestMaterial.cpp"
 

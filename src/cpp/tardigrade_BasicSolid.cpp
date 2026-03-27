@@ -29,7 +29,6 @@ namespace tardigradeCMML {
                                                   const previous_dof_type        *previous_dof_begin,
                                                   std::vector<current_dof_type>  &deformationGradient,
                                                   std::vector<previous_dof_type> &previousDeformationGradient) {
-
             tardigradeConstitutiveTools::computeDeformationGradient(
                 std::vector<current_dof_type>(current_dof_begin + getDisplacementGradientIndex(),
                                               current_dof_begin + getDisplacementGradientIndex() + dim * dim),
@@ -57,7 +56,6 @@ namespace tardigradeCMML {
                                                   std::vector<current_dof_type>  &deformationGradient,
                                                   std::vector<previous_dof_type> &previousDeformationGradient,
                                                   std::vector<current_dof_type>  &dFdGradU) {
-
             tardigradeConstitutiveTools::computeDeformationGradient(
                 std::vector<current_dof_type>(current_dof_begin + getDisplacementGradientIndex(),
                                               current_dof_begin + getDisplacementGradientIndex() + dim * dim),
@@ -96,7 +94,6 @@ namespace tardigradeCMML {
                                        const parameter_type *parameters_begin, const unsigned int parameters_size,
                                        sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
                                        const unsigned int result_size, std::string &output_message) {
-
             try {
                 TARDIGRADE_ERROR_TOOLS_CHECK(getEvaluateModelResultSize() == result_size,
                                              "The output material size must be equal to " +
@@ -191,7 +188,6 @@ namespace tardigradeCMML {
                                        const unsigned int result_size, jacobian_type *jacobian_begin,
                                        additional_type *additional_begin, const unsigned int additional_size,
                                        std::string &output_message) {
-
             try {
                 TARDIGRADE_ERROR_TOOLS_CHECK(getEvaluateModelResultSize() == result_size,
                                              "The output material size must be equal to " +

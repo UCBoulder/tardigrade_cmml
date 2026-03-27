@@ -12,7 +12,7 @@
 
 namespace tardigradeCMML {
 
-    namespace LinearTestMaterial{
+    namespace LinearTestMaterial {
 
         /*!
          * Evaluate the material model given the incoming data
@@ -36,18 +36,19 @@ namespace tardigradeCMML {
          * \param &output_message: An output string containing messages from the code.
          */
         int LinearTestMaterial::evaluate_model(const time_type &current_time, const time_type &dt,
-                                       const current_dof_type  *current_dof_begin,
-                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
-                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
-                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
-                                       const unsigned int result_size, std::string &output_message) {
-
+                                               const current_dof_type  *current_dof_begin,
+                                               const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                               const parameter_type *parameters_begin,
+                                               const unsigned int parameters_size, sdvs_type *sdvs_begin,
+                                               const unsigned int sdvs_size, result_type *result_begin,
+                                               const unsigned int result_size, std::string &output_message) {
             try {
+                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size),
+                                             "The parameter vector has a size of " + std::to_string(parameters_size) +
+                                                 " but must have a size of " + std::to_string(dof_size * result_size))
 
-                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size), "The parameter vector has a size of " + std::to_string(parameters_size) + " but must have a size of " + std::to_string(dof_size * result_size))
-
-                for ( unsigned int i = 0; i < result_size; ++i){
-                    for ( unsigned int j = 0; j < dof_size; ++j){
+                for (unsigned int i = 0; i < result_size; ++i) {
+                    for (unsigned int j = 0; j < dof_size; ++j) {
                         *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
                     }
                 }
@@ -89,20 +90,21 @@ namespace tardigradeCMML {
          * information array \param &output_message: An output string containing messages from the code.
          */
         int LinearTestMaterial::evaluate_model(const time_type &current_time, const time_type &dt,
-                                       const current_dof_type  *current_dof_begin,
-                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
-                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
-                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
-                                       const unsigned int result_size, jacobian_type *jacobian_begin,
-                                       additional_type *additional_begin, const unsigned int additional_size,
-                                       std::string &output_message) {
-
+                                               const current_dof_type  *current_dof_begin,
+                                               const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                               const parameter_type *parameters_begin,
+                                               const unsigned int parameters_size, sdvs_type *sdvs_begin,
+                                               const unsigned int sdvs_size, result_type *result_begin,
+                                               const unsigned int result_size, jacobian_type *jacobian_begin,
+                                               additional_type *additional_begin, const unsigned int additional_size,
+                                               std::string &output_message) {
             try {
+                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size),
+                                             "The parameter vector has a size of " + std::to_string(parameters_size) +
+                                                 " but must have a size of " + std::to_string(dof_size * result_size))
 
-                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size), "The parameter vector has a size of " + std::to_string(parameters_size) + " but must have a size of " + std::to_string(dof_size * result_size))
-
-                for ( unsigned int i = 0; i < result_size; ++i){
-                    for ( unsigned int j = 0; j < dof_size; ++j){
+                for (unsigned int i = 0; i < result_size; ++i) {
+                    for (unsigned int j = 0; j < dof_size; ++j) {
                         *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
                     }
                 }
@@ -121,6 +123,6 @@ namespace tardigradeCMML {
             return 0;
         }
 
-    }
+    }  // namespace LinearTestMaterial
 
-}
+}  // namespace tardigradeCMML
