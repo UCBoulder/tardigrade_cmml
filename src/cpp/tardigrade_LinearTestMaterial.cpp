@@ -15,86 +15,112 @@ namespace tardigradeCMML {
     namespace LinearTestMaterial{
 
         /*!
-         * Get the full tangent matrix
+         * Evaluate the material model given the incoming data
+         *
+         * Returns:
+         *     0: No errors. Solution converged.
+         *     1: Convergence Error. Request timestep cutback.
+         *     2: Fatal errors encountered. Terminate evaluation.
+         *
+         * \param &current_time: The current time of the simulation
+         * \param &dt:           The change in time of the simulation
+         * \param *current_dof_begin: A pointer to the starting element of the current values of the degrees of
+         * freedom \param *previous_dof_begin: A pointer to the starting element of the previous values of the
+         * degrees of freedom \param dof_size: The size of the dof arrays \param *parameters_begin: A pointer to the
+         * starting element of the model parameters \param parameters_size: The size of the parameter vector \param
+         * *sdvs_begin: A pointer to the starting element of the model state variables. These are initialized to the
+         *     previous converged values and should be updated by the model
+         * \param sdvs_size: The size of the SDVS vector
+         * \param *result_begin: A pointer to the starting element of the result vector.
+         * \param result_size: The size of the result
+         * \param &output_message: An output string containing messages from the code.
          */
-        std::vector<double> hydraLinearTest::getFullTangent() {
-            constexpr unsigned int dim = 3;
+        int LinearTestMaterial::evaluate_model(const time_type &current_time, const time_type &dt,
+                                       const current_dof_type  *current_dof_begin,
+                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
+                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
+                                       const unsigned int result_size, std::string &output_message) {
 
-            computeTangents();
+            try {
 
-            computedXdAdditionalDOF();
+                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size), "The parameter vector has a size of " + std::to_string(parameters_size) + " but must have a size of " + std::to_string(dof_size * result_size))
 
-            std::vector<double> dFdGradU(81, 0);
-
-            for (unsigned int i = 0; i < 3; ++i) {
-                for (unsigned int I = 0; I < 3; ++I) {
-                    for (unsigned int a = 0; a < 3; ++a) {
-                        for (unsigned int b = 0; b < 3; ++b) {
-                            dFdGradU[dim * dim * dim * i + dim * dim * I + dim * a + b] +=
-                                (*getDeformationGradient())[dim * i + a] * (*getDeformationGradient())[dim * b + I];
-                        }
+                for ( unsigned int i = 0; i < result_size; ++i){
+                    for ( unsigned int j = 0; j < dof_size; ++j){
+                        *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
                     }
                 }
+
+            } catch (tardigradeHydra::convergence_error &e) {
+                return 1;
+
+            } catch (std::exception &e) {
+                tardigradeErrorTools::captureNestedExceptions(e, output_message);
+
+                return 2;
             }
 
-            std::vector<double> full_jacobian(getFlatdXdAdditionalDOF()->size(), 0);
-
-            std::copy(std::begin(*getFlatdXdAdditionalDOF()), std::end(*getFlatdXdAdditionalDOF()),
-                      std::begin(full_jacobian));
-
-            // Incorporate the Jacobian of the temperature and deformation gradient to the full Jacobian
-            unsigned int offset = nphases * num_phase_dof + num_add_dof + nphases * 3 + 9 * active_phase;
-
-            for (unsigned int I = 0; I < getNumUnknowns(); ++I) {
-                full_jacobian[getAdditionalDOF()->size() * I + nphases * (1 + 3 + 3) + active_phase] += (*getFlatdXdT())[I];
-
-                for (unsigned int ij = 0; ij < dim * dim; ++ij) {
-                    for (unsigned int ab = 0; ab < dim * dim; ++ab) {
-                        full_jacobian[getAdditionalDOF()->size() * I + offset + ab] +=
-                            (*getFlatdXdF())[dim * dim * I + ij] * dFdGradU[dim * dim * ij + ab];
-                    }
-                }
-            }
-
-            return full_jacobian;
+            return 0;
         }
 
         /*!
-         * Get the temperature from the additional DOF vector
+         * Evaluate the material model given the incoming data
          *
-         * \param _nphases: The number of phases
-         * \param _active_phase: The current active phase
-         * \param additional_dof: The additional DOF vector
+         * Returns:
+         *     0: No errors. Solution converged.
+         *     1: Convergence Error. Request timestep cutback.
+         *     2: Fatal errors encountered. Terminate evaluation.
+         *
+         * \param &current_time: The current time of the simulation
+         * \param &dt:           The change in time of the simulation
+         * \param *current_dof_begin: A pointer to the starting element of the current values of the degrees of
+         * freedom \param *previous_dof_begin: A pointer to the starting element of the previous values of the
+         * degrees of freedom \param dof_size: The size of the dof arrays \param *parameters_begin: A pointer to the
+         * starting element of the model parameters \param parameters_size: The size of the parameter vector \param
+         * *sdvs_begin: A pointer to the starting element of the model state variables. These are initialized to the
+         *     previous converged values and should be updated by the model
+         * \param sdvs_size: The size of the SDVS vector
+         * \param *result_begin: A pointer to the starting element of the result vector.
+         * \param result_size: The size of the result
+         * \param *jacobian_begin: A pointer to the starting element of the jacobian of the result w.r.t. the dof.
+         * (must have a size of result_size * dof_size) \param *additional_begin: A pointer to the starting element
+         * of the additional information returned by the model \param additional_size: The size of the additional
+         * information array \param &output_message: An output string containing messages from the code.
          */
-        double hydraLinearTest::_getAdditionalDOFTemperature(const unsigned int _nphases, const unsigned int _active_phase,
-                                                       const std::vector<double> &additional_dof) {
-            unsigned int offset = _nphases * (1 + 3 + 3) + _active_phase;
+        int LinearTestMaterial::evaluate_model(const time_type &current_time, const time_type &dt,
+                                       const current_dof_type  *current_dof_begin,
+                                       const previous_dof_type *previous_dof_begin, const unsigned int dof_size,
+                                       const parameter_type *parameters_begin, const unsigned int parameters_size,
+                                       sdvs_type *sdvs_begin, const unsigned int sdvs_size, result_type *result_begin,
+                                       const unsigned int result_size, jacobian_type *jacobian_begin,
+                                       additional_type *additional_begin, const unsigned int additional_size,
+                                       std::string &output_message) {
 
-            return additional_dof[offset];
+            try {
+
+                TARDIGRADE_ERROR_TOOLS_CHECK(parameters_size == (dof_size * result_size), "The parameter vector has a size of " + std::to_string(parameters_size) + " but must have a size of " + std::to_string(dof_size * result_size))
+
+                for ( unsigned int i = 0; i < result_size; ++i){
+                    for ( unsigned int j = 0; j < dof_size; ++j){
+                        *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
+                    }
+                }
+
+                std::copy(parameters_begin, parameters_begin + parameters_size, jacobian_begin);
+
+            } catch (tardigradeHydra::convergence_error &e) {
+                return 1;
+
+            } catch (std::exception &e) {
+                tardigradeErrorTools::captureNestedExceptions(e, output_message);
+
+                return 2;
+            }
+
+            return 0;
         }
 
-        /*!
-         * Get the deformation gradient from the additional DOF vector
-         *
-         * \param _nphases: The number of phases
-         * \param _active_phase: The current active phase
-         * \param &_num_phase_dof: The number of degrees of freedom in a given phase
-         * \param &_num_add_dof: The number of additional degrees of freedom
-         * \param additional_dof: The additional DOF vector
-         */
-        std::vector<double> hydraLinearTest::_getAdditionalDOFDeformationGradient(
-            const unsigned int _nphases, const unsigned int _active_phase, const unsigned int _num_phase_dof,
-            const unsigned int _num_add_dof, const std::vector<double> &additional_dof) {
-            unsigned int offset = _nphases * _num_phase_dof + _num_add_dof + _nphases * 3 + 9 * _active_phase;
-
-            std::vector<double> gradW(std::begin(additional_dof) + offset, std::begin(additional_dof) + offset + 9);
-
-            std::vector<double> F;
-
-            tardigradeConstitutiveTools::computeDeformationGradient(gradW, F, true);
-
-            return F;
-        }
     }
 
 }

@@ -111,7 +111,7 @@ namespace tardigradeCMML {
                 formDeformationGradients(current_dof_begin, previous_dof_begin, deformationGradient,
                                          previousDeformationGradient);
 
-                // Assemble the degrees of fredom
+                // Assemble the degrees of freedom
                 tardigradeHydra::DOFStorageBase DOFStorage(
                     current_time, dt, *(current_dof_begin + getTemperatureIndex()),
                     *(previous_dof_begin + getTemperatureIndex()), deformationGradient, previousDeformationGradient,
