@@ -13,5 +13,6 @@
 #include "tardigrade_BasicSolid.h"
 #include "tardigrade_CHIPFoam.h"
 #include "tardigrade_DefinedPlasticEvolution.h"
+#include "tardigrade_LinearTestMaterial.h"
 
 #endif

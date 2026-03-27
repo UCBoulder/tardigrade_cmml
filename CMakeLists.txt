@@ -42,7 +42,12 @@ if(${TARDIGRADE_ERROR_TOOLS_OPT})
 endif()
 
 # Set the material library names
-set(HEADER_ONLY_MATERIAL_MODELS "tardigrade_BasicSolid" "tardigrade_DefinedPlasticEvolution" "tardigrade_CHIPFoam")
+set(HEADER_ONLY_MATERIAL_MODELS
+    "tardigrade_LinearTestMaterial"
+    "tardigrade_BasicSolid"
+    "tardigrade_DefinedPlasticEvolution"
+    "tardigrade_CHIPFoam"
+)
 set(HEADER_ONLY_MATERIAL_MODEL_UPSTREAM_REQUIREMENTS "tardigrade_hydra")
 
 # Set the internal support libraries
