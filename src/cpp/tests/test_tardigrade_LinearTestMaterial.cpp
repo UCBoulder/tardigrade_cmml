@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE(test_LinearTestMaterial, *boost::unit_test::tolerance(DEFAU
 
     std::vector<double> sdvs(0, 0);
 
-    std::vector<double> result(3, 0);
-    std::vector<double> result_J(3, 0);
+    std::vector<double> result   = {1, 1, 1};
+    std::vector<double> result_J = {1, 1, 1};
 
     std::vector<double> jacobian(3 * 4, 0);
     std::vector<double> additional(0, 0);

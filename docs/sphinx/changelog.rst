@@ -6,6 +6,22 @@ Changelog
 #########
 
 ******************
+0.3.7 (unreleased)
+******************
+
+******************
+0.3.6 (04-01-2026)
+******************
+
+Bug Fixes
+=========
+- Fixed a bug in the linear test material where the response was not being initialized to zero (:pull:`28`). By `Nathan Miller`_.
+
+Release
+=======
+- Release version (:pull:`29`). By `Nathan Miller`_.
+
+******************
 0.3.5 (03-27-2026)
 ******************
 
