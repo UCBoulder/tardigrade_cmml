@@ -47,6 +47,7 @@ namespace tardigradeCMML {
                                              "The parameter vector has a size of " + std::to_string(parameters_size) +
                                                  " but must have a size of " + std::to_string(dof_size * result_size))
 
+                std::fill(result_begin, result_begin + result_size, result_type());
                 for (unsigned int i = 0; i < result_size; ++i) {
                     for (unsigned int j = 0; j < dof_size; ++j) {
                         *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
@@ -103,6 +104,7 @@ namespace tardigradeCMML {
                                              "The parameter vector has a size of " + std::to_string(parameters_size) +
                                                  " but must have a size of " + std::to_string(dof_size * result_size))
 
+                std::fill(result_begin, result_begin + result_size, result_type());
                 for (unsigned int i = 0; i < result_size; ++i) {
                     for (unsigned int j = 0; j < dof_size; ++j) {
                         *(result_begin + i) += (*(parameters_begin + dof_size * i + j)) * (*(current_dof_begin + j));
