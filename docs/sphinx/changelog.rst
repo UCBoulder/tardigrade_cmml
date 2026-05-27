@@ -6,8 +6,16 @@ Changelog
 #########
 
 ******************
-0.3.7 (unreleased)
+0.3.7 (05-26-2026)
 ******************
+
+Internal Changes
+================
+- Updated to allow for rattler-build (:pull:`30`). By `Nathan Miller`_.
+
+Release
+=======
+- Released version (:pull:`31`). By `Nathan Miller`_.
 
 ******************
 0.3.6 (04-01-2026)
